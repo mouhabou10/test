@@ -1,7 +1,7 @@
 import React from 'react';
 import "./Form.css";
 
-const SignUpForm = () => {
+const SignUpFormService = () => {
   return (
     <div className="formrectangle2">
       <div className="signuprectangle">
@@ -74,8 +74,8 @@ const SignUpForm = () => {
   <option value="57">El M'Ghair</option>
   <option value="58">El Menia</option>
         </select>
-        <input type="number" id="numberInput" className="input-fielde" placeholder="National ID (NIN)" />
-        <input type="text" id="textInput" className="input-fielde" placeholder="Full Name" />
+        <input type="number" id="numberInput" className="input-fielde" placeholder="director id" />
+        <input type="text" id="textInput" className="input-fielde" placeholder="service provider name" />
         <input type="email" placeholder="Email" className="input-fielde" />
         <input type="password" placeholder="Password" className="input-fielde" />
         <input type="password" placeholder="Confirm Password" className="input-fielde" />
@@ -84,5 +84,4 @@ const SignUpForm = () => {
     </div>
   );
 }
-
-export default SignUpForm;
+export default SignUpFormService;

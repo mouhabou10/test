@@ -1,5 +1,5 @@
-import React from "react";
-import "./ResultTable.css"; // Reusing the same CSS
+import React from 'react';
+import './ResultTable.css'; // Reusing the same CSS
 
 const ReferralLetterTable = ({ data }) => {
   return (
@@ -34,9 +34,7 @@ const ReferralLetterTable = ({ data }) => {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="no-data">
-                  No data available
-                </td>
+                <td colSpan="7" className="no-data">No data available</td>
               </tr>
             )}
           </tbody>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Filter } from 'lucide-react';
 import './list.css';
-import ServiceProviderTable from './serviceProviderTable.js';
+import ServiceProviderTable from './serviceProviderTable.jsx';
 
 const ServiceProviderList = () => {
   return (

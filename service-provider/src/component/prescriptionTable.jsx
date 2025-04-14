@@ -1,5 +1,5 @@
-import React from "react";
-import "./ResultTable.css";
+import React from 'react';
+import './ResultTable.css';
 
 const ResultTable = ({ data }) => {
   return (
@@ -30,9 +30,7 @@ const ResultTable = ({ data }) => {
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="no-data">
-                  No data available
-                </td>
+                <td colSpan="5" className="no-data">No data available</td>
               </tr>
             )}
           </tbody>

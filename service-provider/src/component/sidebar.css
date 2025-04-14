@@ -1,0 +1,101 @@
+/* Hamburger Button */
+.hamburger {
+  position: absolute;
+  top: 40px;
+  left: 220px;
+  width: 30px;
+  height: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  z-index: 1001;
+ 
+}
+
+.hamburger div {
+  height: 3px;
+  background-color: #333;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.hamburger.open .one {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.open .two {
+  opacity: 0;
+}
+
+.hamburger.open .three {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Sidebar Styles */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -200px;
+  width: 250px;
+  height: 100vh;
+  background-color: #fff;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  padding: 20px 0; /* Changed from padding-top: 60px */
+  transition: left 0.3s ease; /* fixed this */
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  display:none
+}
+
+.sidebar-open .logo {
+  margin-bottom: 30px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #0073A8;
+}
+
+.sidebar-open {
+  left: 0;
+  display:flex;
+  
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar ul li {
+  padding: 16px 24px;
+  border-bottom: 1px solid #eee;
+}
+
+.sidebar ul li Link Logo{
+  text-decoration: none;
+  color: #333;
+  font-size: 16px;
+  display: block;
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+}
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background-image: url("../assets/background.jpg"); /* Replace with your image path */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
