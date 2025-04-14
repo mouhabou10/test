@@ -1,0 +1,34 @@
+.notifyuser {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: #0073A8;
+    cursor: pointer;
+    position: absolute;
+    margin: 0; /* you can adjust this to move it */
+    padding: 5px;
+    transition: color 0.3s ease;
+
+    margin-left: auto;       /* move it to left */
+        margin-right: 0;   /* push it away from the right */
+        display: flex;
+        align-items: center;
+        justify-content: start;
+      
+  }
+  
+  .notifyuser:hover {
+    color: #005f85;
+  }
+  
+  /* Optional red notification dot */
+  .notifyuser::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    border-radius: 50%;
+  }

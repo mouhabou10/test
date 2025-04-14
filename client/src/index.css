@@ -1,0 +1,988 @@
+*{
+  margin: 0px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+body{
+  background-color: #80808021;
+}
+/* ====================================== header ===========================*/  
+.nav-client{
+  box-shadow: 0 0.5rem 2cap rgba(0, 0, 0, 0.162);
+  background-color: #f8f9fa;
+  display: block;
+  position: fixed;
+  right: 0%;
+  top: 0;
+  margin-bottom: 1rem;
+  padding:  0.5rem;
+  width: 84%;
+  height: 8%;
+}
+.header-containerm{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+.icons{
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+
+
+
+
+
+
+
+/* ====================================== side bar ===========================*/
+
+
+
+
+
+
+
+
+
+.sidebar{
+  box-shadow: 0 0.5rem 2cap rgba(0, 0, 0, 0.162);
+  background-color: #0052E0;
+  display: block;
+  position: fixed;
+  left: 0%;
+  top: 0%;
+  width: 15%;
+  height: 100vh;
+}
+.ul-deisgn {
+  list-style: none;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-top: 30px;
+  padding: 0px;
+}
+
+.li-deign a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+  padding: 5px 0;
+  height: 50px;
+  justify-content: center;
+}
+.li-deign {
+  
+  width: 100%;
+}
+.li-deign:hover {
+  cursor: pointer;
+  background-color: #0167FB;
+}
+
+
+
+
+
+
+
+
+/* ====================================== info card ===========================*/
+
+
+
+
+
+
+
+
+.card-container{
+  margin: 6rem 20%; 
+  display: flex;
+  border-radius: 7px;
+  height: 120px;
+  width: 70%;
+  align-items: center;
+  display: flex;
+  background-color: #0052E0;
+  padding: 5px;
+}
+.card-container p {
+  color: white;
+  font-size: 32px;
+  font-family: sans-serif;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+.card-container img {
+  width: 100px;
+  height: 100px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ====================================== dashboard ===========================*/
+
+
+.first-cards{
+  display: flex;
+  margin: 0  4% 0 18% ;
+  gap: 20px;
+}
+
+
+
+
+
+.info{
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  height: 200px;
+  box-shadow: 0 0.5rem 2cap rgba(0, 0, 0, 0.162);
+  justify-content: center;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: white;
+  justify-content: space-evenly;
+  
+}
+.info-leftSide{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  font-size: 13px;
+}
+.info-rightSide{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 30;
+  font-size: medium;
+  justify-content: space-evenly;
+  
+}
+.info-row{
+  display: flex;
+  justify-content: space-between;
+}
+.appoint-text{
+  text-align: center;
+  font-size: 13px;
+  color: #808080;
+  width: 63px;
+}
+.appoint-info{
+  display: flex;
+  gap: 5px;
+  width: 100%;
+  height: 70px;
+  justify-content: space-between;
+  align-items: center;
+}
+.line{
+  width: 2px;
+  height: 95%;
+  background-color: black;
+}
+.email{
+  display: block;
+}
+
+.medical{
+  height: 200px;
+  box-shadow: 0 0.5rem 2cap rgba(0, 0, 0, 0.162);
+  flex: 1;
+  padding: 10px;
+  overflow: auto;
+  border-radius: 10px;
+  background-color: white;
+}
+
+
+
+.inforow-container{
+  display: flex;
+  background-color: #E2E6F0;
+  box-shadow: 0 0.5px 5px rgba(0, 0, 0, 0.162);
+  margin-top: 5px;
+  padding: 10px;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px;
+  color: #4c4c4c;
+  
+}
+
+
+
+
+
+
+
+.analyse-container{
+  margin: 5%  4% 5% 18% ;
+
+}
+.analyse-title{
+  display: flex;
+  justify-content: space-between;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #0052E0;
+}
+
+.analyse-cards{
+  display: flex;
+  gap: 30px;
+  justify-content: space-around;
+  margin-top: 20px;
+  padding: 0 20px;
+}
+.analyse-container select {
+  padding: 5px;
+  border-radius: 5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #4c4c4c;
+}
+
+.analyse-card{
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.162);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  border-radius: 10px;
+  background-color: white;
+}
+.analyse-card img {
+  width: 100px;
+  height: 100px;
+}
+.analyse-card p {
+  color: #4c4c4c;
+}
+
+
+
+
+
+
+
+
+.thourd-row{
+  margin: 0 4% 20% 18% ;
+  display: flex;
+  gap: 30px;
+
+}
+.thourd-row h1 {
+  color: #0052E0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.appintment{
+  flex: 3;
+}
+.appointment-cards{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 30px;
+  flex: 1;
+}
+
+.appintment-container{
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.162);
+  padding: 10px 10px 20px 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+  background-color: white;
+}
+.appointment-content{
+  background-color: #E2E6F0;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+  display: flex;
+  padding-left:30px ;
+  max-height: 252px;
+  overflow: auto;
+  margin-bottom: 30px;
+}
+.appointment-card{
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 0.5px 5px rgba(0, 0, 0, 0.162);
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.appointment-card div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+.appintment-container a {
+  text-decoration: none;
+  background-color: #0052E0;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+.Requests-container{
+  flex: 1.5;
+}
+.Requests-content{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.162);
+  border-radius: 10px;
+  height: 340px;
+  padding: 10px;
+  margin: 10px;
+  overflow: auto ;
+  background-color: white;
+}
+.RequestInfo-card{
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #9494945c;
+  padding: 10px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ================================== consultatuon ===================================*/
+
+
+
+
+
+
+
+
+
+
+
+
+.category-container{
+  margin: 5%  4% 5% 18% ;
+
+}
+.category-title{
+  display: flex;
+  justify-content: space-between;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #0052E0;
+}
+
+.category-cards {
+  display: flex;
+  gap: 20px;
+  background-color: #E2E6F0;
+  justify-content: space-around;
+  margin-top: 20px;
+  border-radius: 10px;
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.category-cards::-webkit-scrollbar {
+  height: 7px; 
+}
+
+.category-cards::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+.category-cards::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 5px;
+}
+
+.category-cards::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+  cursor: pointer;
+}
+
+.category-container select {
+  padding: 5px;
+  border-radius: 5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #4c4c4c;
+}
+
+.category-card{
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.162);
+  padding: 10px;
+  display: flex;
+  background-color: white;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  border-radius: 10px;
+}
+.category-card img {
+  width: 70px;
+  height: 70px;
+}
+.category-card p {
+  color: #4c4c4c;
+}
+
+
+
+
+
+.second-part{
+  margin: 5%  4% 5% 18% ;
+  display: flex;
+  gap: 10px;
+  height: fit-content;
+}
+
+
+.placeType-container{
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+  justify-content: space-around;
+  margin-top: 20px;
+  border-radius: 10px;
+  padding: 20px 20px;
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.162);
+  flex: 2;
+}
+
+.placeType-container img {
+  width: 70px;
+  height: 70px;
+}
+.placeType-container div {
+  display: flex;
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.162);
+  align-items: center;
+  gap: 20px;
+  background-color: white;
+  border-radius: 13px;
+}
+
+.rightSide{
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.State{
+  width: 100%;
+  height: 50%; 
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+.State-container{
+  margin-top: 20px;
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.162);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.State-container select {
+  border-radius: 5px;
+  margin: 10px 0px;
+  color: #4c4c4c;
+  padding: 15px 10px;
+  width: 100%;
+  height: 100%;
+  font-size: medium;
+  border: none;
+  background-color: #E2E6F0;
+}
+
+.advice-container{
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.162);
+  padding: 10px;
+  background-color: white;
+  border-radius: 10px;
+  margin-bottom: 0px !important;
+  margin: 10px;
+  height: 100%;
+}
+
+.advice-container p{
+  padding: 10px 5px;
+}
+
+.search-btn{ 
+  margin: 3%  14% 5% 30% ;
+  background-color: #0052E0;
+  color: white;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  font-size: x-large;
+  font-weight: bold;
+  width: 45%;
+}
+
+
+
+
+
+
+
+
+
+/*==================================== Opiration ==========================*/
+/* Main container for selecting state */
+.opiration-state-select {
+  margin: 5% 4% 5% 18%;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .opiration-state-select,
+  .upload-div {
+    margin: 5% 4%;
+    flex-direction: column;
+  }
+}
+
+/* Container for file upload section */
+.upload-div {
+  display: flex;
+  padding: 20px;
+  gap: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin: 1% 4% 5% 18%;
+  background: white;
+  flex-wrap: wrap;
+  height: 200px;
+}
+
+/* Hide default file input */
+.upload-section input {
+  display: none;
+}
+
+/* Styling for file upload label */
+.upload-section label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+  height: 200px;
+  border: 2px dashed #999;
+  border-radius: 6px;
+  background-color: rgba(219, 226, 239, 0.3);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.upload-section label:hover {
+  background-color: rgba(170, 181, 204, 0.4);
+}
+
+/* Styling for file list */
+.upload-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+}
+
+.uploaded-files-container{
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+/* Individual file item style */
+.uploaded-file {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #f9f9f9;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  transition: transform 0.2s ease-in-out;
+}
+
+.uploaded-file:hover {
+  transform: scale(1.02);
+}
+
+/* Icon styling for files */
+.file-icon {
+  font-size: 32px;
+  color: red;
+}
+
+/* File info container */
+.file-info {
+  flex: 1;
+}
+
+/* Progress bar container */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #ddd;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+/* Progress bar itself */
+.progress {
+  height: 100%;
+  background: #0052e0;
+  transition: width 0.3s ease-in-out;
+  border-radius: 3px;
+}
+
+/* Buttons */
+.view-btn,
+.cancel-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 5px 10px;
+  transition: color 0.3s ease;
+}
+
+.view-btn {
+  color: gray;
+}
+
+.view-btn:hover {
+  color: #0052e0;
+}
+
+.cancel-btn {
+  color: red;
+}
+
+.cancel-btn:hover {
+  color: darkred;
+}
+
+
+
+.place-type{
+  margin: 2% 4% 5% 18%;
+  display: flex;
+  width: 80%;
+  gap: 10px;
+  box-sizing: border-box;
+  justify-content: space-around;
+}
+.place-type div{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 10px;
+  box-shadow: 0 0.5px 5px rgba(0, 0, 0, 0.162);
+  justify-content: center;
+  background-color: white;
+}
+
+.place-type div img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  padding: 20px 40px;
+}
+
+.place-type div p{
+  padding: 10px;
+  font-size: 20px;
+  box-sizing: border-box;
+  color: #4c4c4c;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* ===================================== Result =========================================*/
+
+.result-table{
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 1%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 10px;
+
+}
+
+.result-content{
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: #E2E6F0;
+  border-radius: 8px;
+  box-sizing: border-box;
+  justify-content: space-between;
+  box-shadow: 0px 2px 5px -2px rgba(0, 0, 0, 0.25);
+
+
+}
+.result-content img{
+  width: 50px;
+  height: 50px;
+}
+.result-content div {
+  display: flex;
+  gap: 7px;
+  box-sizing: border-box;
+  padding: 7px;
+  align-items: center;
+}
+.result-content p{
+  padding: 7px 15px;
+  box-sizing: border-box;
+  color: #808080;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===================================== labo =========================================*/
+
+
+
+
+.labo-container{
+  display: flex;
+  margin-top: 2%;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+.labo-container img{
+  width: 100px;
+  height: 100px;
+}
+
+.ticket, .result ,.prescription {
+  display: flex;
+  gap: 5px;
+  background-color: white;
+  border-radius: 19px;
+  gap: 30px;
+  align-items: center;
+  box-shadow: 0px 2px 5px -2px rgba(0, 0, 0, 0.25);
+
+}
+
+.labo-container a {
+  text-decoration: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+
+
+
+
+
+
+
+
+
+/* ===================================== radio ticket =========================================*/
+
+
+
+.allowed{
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.book-div{
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  gap: 30px;
+  align-items: center;
+  box-sizing: border-box;
+  margin: 2% 10% 10px 5%;
+  border-radius: 10px;
+}
+.book-div a{ 
+  text-decoration: none;
+  color: white;
+  padding: 13px 70px;
+  border-radius: 8px;
+  font-size: large;
+  background-color: #0052E0;
+}
+
+.book-div a:hover{
+  background-color: #003595;
+}
+.book-div p{
+  margin: 10px;
+  color: #4c4c4c;
+  font-size: x-large;
+}
+.note{
+  margin: 3% 15%;
+  padding: 20px;
+  border-radius: 10px;
+  font-size: large;
+  background-color: hwb(0 85% 15% / 0.32);
+  box-sizing: border-box;
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+}
+
+.note span{
+  color: #0167FB;
+}
+
+.not-allowed-container{
+  margin: 2% 10%;
+  padding: 20px 30px 30px 50px;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===================================== online ticket =========================================*/
+
+
+
+
+.ticket-content{
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  gap: 30px;
+  box-sizing: border-box;
+  margin: 2% 10% 10px 5%;
+  border-radius: 10px;
+}
+
+.ticket-content p{
+  color: #4c4c4c;
+  font-size: x-large;
+}
+.ticket-header{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+
+}
+
+.ticket-info{
+  padding-left: 5%;
+}
+
+.ticket-num{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px dashed black;
+  height: 150px;
+  width: 70%;
+  padding: 5% 0;
+  margin:  auto;
+}
+
+
+

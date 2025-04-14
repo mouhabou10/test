@@ -1,0 +1,29 @@
+/* Container for the whole header */
+.headers-container {
+  justify-content: space-between;
+    flex-direction: column; /* Stack logo, sidebar, and name */
+    align-items: flex-start;
+  }
+  
+/* Name styling */
+.namek {
+  color: black;
+  font-size: 20px;
+  padding: 5px;
+  width:60%;
+  border-radius: 4px;
+  text-align: left;
+  position: absolute; /* Make the name independent of other elements */
+  top: 30px; /* Adjust the vertical position */
+  left: 300px; 
+  z-index: 10; /* Adjust the horizontal position */
+}
+
+.separation{
+    height:2px;
+    width:72%;
+    background-color: rgba(0, 0, 0, 0.22);
+    margin-top:10px;
+    margin-left:270px;
+}
+  

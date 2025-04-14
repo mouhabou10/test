@@ -1,0 +1,17 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+
+}
+
+.fullscreen-background {
+  height: 100vh;  /* Use 100vh to cover full viewport */
+  width: 100vw;   /* Ensure it takes full width */
+  background-image: url('./assets/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+@import "tailwindcss";

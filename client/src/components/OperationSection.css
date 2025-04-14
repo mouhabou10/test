@@ -1,0 +1,75 @@
+.operation-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 90%;
+  margin: auto;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.operation-content {
+  width: 55%;
+  text-align: left;
+  font-size: 16px;
+  color: #333;
+}
+
+.operation-title {
+  font-size: 18px;
+  color: #2b5daa;
+  font-weight: bold;
+}
+
+.operation-priority {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.operation-highlight {
+  color: #007bff;
+}
+
+.operation-image {
+  width: 40%;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.operation-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.operation-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.operation-btn:hover {
+  background-color: #0056b3;
+}
+
+.operation-link {
+  text-decoration: none;
+  color: #007bff;
+  font-size: 16px;
+  padding: 10px 15px;
+  border: 1px solid #007bff;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+}
+
+.operation-link:hover {
+  background-color: #007bff;
+  color: white;
+}

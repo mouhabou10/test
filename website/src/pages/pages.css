@@ -1,0 +1,28 @@
+
+.rectangle {
+    height: 70vh;
+    width: 70vw;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    margin: auto;
+    margin-top: 7%;
+    display: flex;
+    background-color: rgba(255, 255, 255, 0.8); /* White with transparency */
+    transition: transform 10s ease-in-out;
+}
+
+.rectangle1 {
+    height: 80vh;
+    width: 80vw;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    margin: auto;
+    margin-top: 4%;
+    display: flex;
+    background-color: rgba(255, 255, 255, 0.8); /* White with transparency */
+    transition: transform 10s ease-in-out;
+}
+.perton {
+    font-size: 2rem;
+    position: relative; /* or absolute/fixed if needed */
+    left:250px;
+    top:100px;
+}
