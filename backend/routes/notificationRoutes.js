@@ -9,4 +9,5 @@ notificationRoutes.get('/:id',(req,res)=>
 
 notificationRoutes.post('/',(req,res)=>
 {res.send('create new account')})
+
 export default notificationRoutes
