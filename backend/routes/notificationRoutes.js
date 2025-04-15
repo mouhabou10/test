@@ -9,11 +9,4 @@ notificationRoutes.get('/:id',(req,res)=>
 
 notificationRoutes.post('/',(req,res)=>
 {res.send('create new account')})
-
-notificationRoutes.put('/:id',(req,res)=>
-{res.send('Update account')})
-
-notificationRoutes.delete('/:id',(req,res)=>
-    {res.send('Delet account')})
- 
 export default notificationRoutes
