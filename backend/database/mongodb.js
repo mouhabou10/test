@@ -10,6 +10,7 @@ const connectToDatabase =async()=>{
     }catch(error){
         console.error('error conection to data base ',error);
         process.exit(1);
+        
     }
 }
 export default connectToDatabase
