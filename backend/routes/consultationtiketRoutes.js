@@ -10,7 +10,7 @@ consultationtiketRoutes.get('/:id',(req,res)=>
 consultationtiketRoutes.post('/',(req,res)=>
 {res.send('create new account')})
 
-consultationtiketRoutes.delete('/:id',(req,res)=>
+consultationtiketRoutes.delete('/',(req,res)=>
     {res.send('Delet account')})
  
 export default consultationtiketRoutes
