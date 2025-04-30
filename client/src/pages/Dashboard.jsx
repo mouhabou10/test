@@ -5,8 +5,9 @@ import Card1 from "../images/healthcare.png";
 import Card2 from "../images/mri.png";
 import Card3 from "../images/chemistry.png";
 import Card4 from "../images/patient.png";
-import RequestInfo from "../components/RequestInfo";
 import AppointmentCards from "../components/AppointmentCards";
+import RequestInfo from "../components/RequestInfo"; 
+
 import { Link } from "react-router-dom";
 const Dashboard = () => {
   const gender = "male";
@@ -152,7 +153,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div>
-              <Link to={'consulation'}>Add appointment</Link>
+              <Link to={'consultation'}>Add appointment</Link>
             </div>
           </div>
         </div>
