@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
-// Import pages and components
+
 import Layout from './components/Layout';
 import Consultation from './pages/Consultation';
 import Dashboard from './pages/Dashboard';
@@ -25,7 +25,7 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { index: true, element: <Dashboard /> },
-      { path: 'consulation', element: <Consultation /> },
+      { path: 'consultation', element: <Consultation /> },
       { path: 'labo', element: <Labo /> },
       { path: 'opiration', element: <Opiration /> },
       { path: 'requestes/:id', element: <Requestes /> },
