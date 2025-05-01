@@ -2,18 +2,18 @@ import { Router } from "express";
 const staffRoutes = Router();
 
 staffRoutes.get('/',(req,res)=>
-{res.send('Get all accounts')})
+{res.send('Get all workers')})
 
 staffRoutes.get('/:id',(req,res)=>
-    {res.send('Get account details')})
+    {res.send('Get worker details')})
 
 staffRoutes.post('/',(req,res)=>
-{res.send('create new account')})
+{res.send('create new worker')})
 
 staffRoutes.put('/:id',(req,res)=>
-{res.send('Update account')})
+{res.send('Update worker')})
 
 staffRoutes.delete('/:id',(req,res)=>
-    {res.send('Delet account')})
+    {res.send('Delet worker')})
  
 export default staffRoutes
