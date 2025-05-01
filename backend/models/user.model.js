@@ -2,40 +2,50 @@ import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema(
   {
-    id: {
+    userId: {
       type: Number,
-      required: [true, 'The id is required'],
-      unique: true,
-      // `length` doesn't exist for numbers, consider using string for exact length
+      required: true,
+      unique: true
     },
-    fullname: {
+    fullName: {
       type: String,
-      required: [true, 'Full name is required'],
+      required: true,
       minlength: 2,
-      maxlength: 18,
+      maxlength: 50,
       trim: true
     },
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: true,
       unique: true,
-      minlength: 5,
-      maxlength: 50,
-      trim: true,
       match: [/\S+@\S+\.\S+/, 'Please provide a valid email address']
     },
-    phonenumber: {
+    phoneNumber: {
       type: String,
-      required: [true, 'Phone number is required'],
+      required: true,
       unique: true,
-      minlength: 10,
-      maxlength: 10,
       match: [/^0[5-7]\d{8}$/, 'Please provide a valid Algerian phone number']
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 6
+    },
+    role: {
+      type: String,
+      required: true,
+      enum: [
+        'manager',
+        'worker',
+        'client',
+        'chefDepartment',
+        'laboAgent',
+        'radioAgent',
+        'consultation agent'
+      ]
     }
   },
-  {
-    timestamps: true
-  }
+  { timestamps: true }
 );
 
 const User = mongoose.model('User', userSchema);
