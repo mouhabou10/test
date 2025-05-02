@@ -3,12 +3,12 @@ import { AiOutlineDashboard } from "react-icons/ai";
 import { IoSettingsOutline } from "react-icons/io5";
 import { IoIosRadio } from "react-icons/io";
 import { Link } from 'react-router-dom';
-import Logo from '../components/logo.jsx'
 const SideBare = () => {
+
+  
   return (
     <div className='sidebar'>
-<Logo style={{ color: "white" }} />
-<ul className='ul-deisgn'> 
+      <ul className='ul-deisgn'> 
         <li className='li-deign'> <Link to="/"><AiOutlineDashboard size={30}/> Home</Link></li>
         <li className='li-deign'> <Link to="/consultation"><IoSettingsOutline size={30}/> consultation</Link></li>
         <li className='li-deign'> <Link to="/radio"><IoIosRadio size={30}/> Radio</Link></li>
