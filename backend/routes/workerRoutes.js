@@ -1,19 +1,18 @@
-import { Router } from "express";
-const staffRoutes = Router();
+import { Router } from 'express';
+import {
+  createWorker,
+  getAllWorkers,
+  getWorkerById,
+  updateWorker,
+  deleteWorker
+} from '../controllers/WorkerController.js';
 
-staffRoutes.get('/',(req,res)=>
-{res.send('Get all workers')})
+const workerRouter = Router();
 
-staffRoutes.get('/:id',(req,res)=>
-    {res.send('Get worker details')})
+workerRouter.post('/', createWorker);
+workerRouter.get('/', getAllWorkers);
+workerRouter.get('/:id', getWorkerById);
+workerRouter.put('/:id', updateWorker);
+workerRouter.delete('/:id', deleteWorker);
 
-staffRoutes.post('/',(req,res)=>
-{res.send('create new worker')})
-
-staffRoutes.put('/:id',(req,res)=>
-{res.send('Update worker')})
-
-staffRoutes.delete('/:id',(req,res)=>
-    {res.send('Delet worker')})
- 
-export default staffRoutes
+export default workerRouter;

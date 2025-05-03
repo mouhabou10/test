@@ -1,19 +1,18 @@
-import { Router } from "express";
-const consultationagentRoutes = Router();
+import { Router } from 'express';
+import {
+  createConsultationAgent,
+  getAllConsultationAgents,
+  getConsultationAgentById,
+  updateConsultationAgent,
+  deleteConsultationAgent
+} from '../controllers/ConsultationAgentController.js';
 
-consultationagentRoutes.get('/',(req,res)=>
-{res.send('Get all consultation agents')})
+const consultationAgentRouter = Router();
 
-consultationagentRoutes.get('/:id',(req,res)=>
-    {res.send('Get consultation agent details')})
+consultationAgentRouter.post('/', createConsultationAgent);
+consultationAgentRouter.get('/', getAllConsultationAgents);
+consultationAgentRouter.get('/:id', getConsultationAgentById);
+consultationAgentRouter.put('/:id', updateConsultationAgent);
+consultationAgentRouter.delete('/:id', deleteConsultationAgent);
 
-consultationagentRoutes.post('/',(req,res)=>
-{res.send('create new consultation agent')})
-
-consultationagentRoutes.put('/:id',(req,res)=>
-{res.send('Update consultation agent')})
-
-consultationagentRoutes.delete('/:id',(req,res)=>
-    {res.send('Delet consultation agent')})
- 
-export default consultationagentRoutes
+export default consultationAgentRouter;

@@ -1,19 +1,18 @@
-import { Router } from "express";
-const radioAgentRoutes = Router();
+import { Router } from 'express';
+import {
+  createAgentRadio,
+  getAllAgentRadio,
+  getAgentRadioById,
+  updateAgentRadio,
+  deleteAgentRadio
+} from '../controllers/AgentRadioController.js';
 
-radioAgentRoutes.get('/',(req,res)=>
-{res.send('Get all radio Agents')})
+const agentRadioRouter = Router();
 
-radioAgentRoutes.get('/:id',(req,res)=>
-    {res.send('Get radio Agent details')})
+agentRadioRouter.post('/', createAgentRadio);
+agentRadioRouter.get('/', getAllAgentRadio);
+agentRadioRouter.get('/:id', getAgentRadioById);
+agentRadioRouter.put('/:id', updateAgentRadio);
+agentRadioRouter.delete('/:id', deleteAgentRadio);
 
-radioAgentRoutes.post('/',(req,res)=>
-{res.send('create new radio Agent')})
-
-radioAgentRoutes.put('/:id',(req,res)=>
-{res.send('Update radio Agent')})
-
-radioAgentRoutes.delete('/:id',(req,res)=>
-    {res.send('Delet radio Agent')})
- 
-export default radioAgentRoutes
+export default agentRadioRouter;

@@ -1,19 +1,18 @@
-import { Router } from "express";
-const resultRoutes = Router();
+import { Router } from 'express';
+import {
+  createResult,
+  getAllResults,
+  getResultById,
+  updateResult,
+  deleteResult
+} from '../controllers/ResultController.js';
 
-resultRoutes.get('/',(req,res)=>
-{res.send('Get all results')})
+const resultRouter = Router();
 
-resultRoutes.get('/:id',(req,res)=>
-    {res.send('Get result details')})
+resultRouter.post('/', createResult);
+resultRouter.get('/', getAllResults);
+resultRouter.get('/:id', getResultById);
+resultRouter.put('/:id', updateResult);
+resultRouter.delete('/:id', deleteResult);
 
-resultRoutes.post('/',(req,res)=>
-{res.send('create new result')})
-
-resultRoutes.put('/:id',(req,res)=>
-{res.send('Update result')})
-
-resultRoutes.delete('/:id',(req,res)=>
-    {res.send('Delet result')})
- 
-export default resultRoutes
+export default resultRouter;

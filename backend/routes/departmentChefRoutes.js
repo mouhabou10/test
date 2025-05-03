@@ -1,19 +1,18 @@
-import { Router } from "express";
-const departementChefRoutes = Router();
+import { Router } from 'express';
+import {
+  createDepartment,
+  getAllDepartments,
+  getDepartmentById,
+  updateDepartment,
+  deleteDepartment
+} from '../controllers/DepartementChefController.js';
 
-departementChefRoutes.get('/',(req,res)=>
-{res.send('Get all departement Chefs')})
+const departmentRouter = Router();
 
-departementChefRoutes.get('/:id',(req,res)=>
-    {res.send('Get departement Chef details')})
+departmentRouter.post('/', createDepartment);
+departmentRouter.get('/', getAllDepartments);
+departmentRouter.get('/:id', getDepartmentById);
+departmentRouter.put('/:id', updateDepartment);
+departmentRouter.delete('/:id', deleteDepartment);
 
-departementChefRoutes.post('/',(req,res)=>
-{res.send('create new departement Chef')})
-
-departementChefRoutes.put('/:id',(req,res)=>
-{res.send('Update departement Chef')})
-
-departementChefRoutes.delete('/:id',(req,res)=>
-    {res.send('Delet departement Chef')})
- 
-export default departementChefRoutes
+export default departmentRouter;

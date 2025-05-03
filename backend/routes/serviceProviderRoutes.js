@@ -1,19 +1,18 @@
-import { Router } from "express";
-const serviceProviderRoutes = Router();
+import { Router } from 'express';
+import {
+  createServiceProvider,
+  getAllServiceProviders,
+  getServiceProviderById,
+  updateServiceProvider,
+  deleteServiceProvider
+} from '../controllers/ServiceProviderController.js';
 
-serviceProviderRoutes.get('/',(req,res)=>
-{res.send('Get all service Providers')})
+const serviceProviderRouter = Router();
 
-serviceProviderRoutes.get('/:id',(req,res)=>
-    {res.send('Get service Provider details')})
+serviceProviderRouter.post('/', createServiceProvider);
+serviceProviderRouter.get('/', getAllServiceProviders);
+serviceProviderRouter.get('/:id', getServiceProviderById);
+serviceProviderRouter.put('/:id', updateServiceProvider);
+serviceProviderRouter.delete('/:id', deleteServiceProvider);
 
-serviceProviderRoutes.post('/',(req,res)=>
-{res.send('create new service Provider')})
-
-serviceProviderRoutes.put('/:id',(req,res)=>
-{res.send('Update service Provider')})
-
-serviceProviderRoutes.delete('/:id',(req,res)=>
-    {res.send('Delet service Provider')})
- 
-export default serviceProviderRoutes
+export default serviceProviderRouter;

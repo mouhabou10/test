@@ -1,19 +1,18 @@
-import { Router } from "express";
-const managerRoutes = Router();
+import { Router } from 'express';
+import {
+  createManager,
+  getAllManagers,
+  getManagerById,
+  updateManager,
+  deleteManager
+} from '../controllers/ManagerController.js';
 
-managerRoutes.get('/',(req,res)=>
-{res.send('Get all managers')})
+const managerRouter = Router();
 
-managerRoutes.get('/:id',(req,res)=>
-    {res.send('Get manager details')})
+managerRouter.post('/', createManager);
+managerRouter.get('/', getAllManagers);
+managerRouter.get('/:id', getManagerById);
+managerRouter.put('/:id', updateManager);
+managerRouter.delete('/:id', deleteManager);
 
-managerRoutes.post('/',(req,res)=>
-{res.send('create new manager')})
-
-managerRoutes.put('/:id',(req,res)=>
-{res.send('Update manager')})
-
-managerRoutes.delete('/:id',(req,res)=>
-    {res.send('Delet manager')})
- 
-export default managerRoutes
+export default managerRouter;

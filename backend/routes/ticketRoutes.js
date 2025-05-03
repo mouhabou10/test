@@ -1,16 +1,19 @@
-import { Router } from "express";
-const tiketRoutes = Router();
+// TicketRoutes.js
+import { Router } from 'express';
+import {
+  createTicket,
+  getTicketStatus,
+  incrementPassedTickets,
+  pauseTicketDemand,
+  resetDay,
+} from '../controllers/TicketController.js';
 
-tiketRoutes.get('/',(req,res)=>
-{res.send('Get all accounts')})
+const ticketRouter = Router();
 
-tiketRoutes.get('/:id',(req,res)=>
-    {res.send('Get account details')})
+ticketRouter.post('/create', createTicket);
+ticketRouter.get('/status/:id', getTicketStatus);
+ticketRouter.post('/next/:id', incrementPassedTickets);
+ticketRouter.post('/pause/:id', pauseTicketDemand);
+ticketRouter.post('/reset/:id', resetDay);
 
-tiketRoutes.post('/',(req,res)=>
-{res.send('create new account')})
-
-tiketRoutes.delete('/',(req,res)=>
-    {res.send('Delet account')})
- 
-export default tiketRoutes
+export default ticketRouter;

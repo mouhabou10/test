@@ -1,19 +1,18 @@
-import { Router } from "express";
-const laboAgentRoutes = Router();
+import { Router } from 'express';
+import {
+  createAgentLab,
+  getAllAgentLab,
+  getAgentLabById,
+  updateAgentLab,
+  deleteAgentLab
+} from '../controllers/AgentLabController.js';
 
-laboAgentRoutes.get('/',(req,res)=>
-{res.send('Get all labo Agents')})
+const agentLabRouter = Router();
 
-laboAgentRoutes.get('/:id',(req,res)=>
-    {res.send('Get labo Agent details')})
+agentLabRouter.post('/', createAgentLab);
+agentLabRouter.get('/', getAllAgentLab);
+agentLabRouter.get('/:id', getAgentLabById);
+agentLabRouter.put('/:id', updateAgentLab);
+agentLabRouter.delete('/:id', deleteAgentLab);
 
-laboAgentRoutes.post('/',(req,res)=>
-{res.send('create new labo Agent')})
-
-laboAgentRoutes.put('/:id',(req,res)=>
-{res.send('Update labo Agent')})
-
-laboAgentRoutes.delete('/:id',(req,res)=>
-    {res.send('Delet labo Agent')})
- 
-export default laboAgentRoutes
+export default agentLabRouter;

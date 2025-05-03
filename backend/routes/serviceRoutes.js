@@ -1,19 +1,18 @@
-import { Router } from "express";
-const serviceRoutes = Router();
+import { Router } from 'express';
+import {
+  createService,
+  getAllServices,
+  getServiceById,
+  updateService,
+  deleteService
+} from '../controllers/ServiceController.js';
 
-serviceRoutes.get('/',(req,res)=>
-{res.send('Get all accounts')})
+const serviceRouter = Router();
 
-serviceRoutes.get('/:id',(req,res)=>
-    {res.send('Get account details')})
+serviceRouter.post('/', createService);
+serviceRouter.get('/', getAllServices);
+serviceRouter.get('/:id', getServiceById);
+serviceRouter.put('/:id', updateService);
+serviceRouter.delete('/:id', deleteService);
 
-serviceRoutes.post('/',(req,res)=>
-{res.send('create new account')})
-
-serviceRoutes.put('/:id',(req,res)=>
-{res.send('Update account')})
-
-serviceRoutes.delete('/:id',(req,res)=>
-    {res.send('Delet account')})
- 
-export default serviceRoutes
+export default serviceRouter;

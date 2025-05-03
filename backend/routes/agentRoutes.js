@@ -1,19 +1,18 @@
-import { Router } from "express";
-const agentRoutes = Router();
+import { Router } from 'express';
+import {
+  createAgent,
+  getAllAgents,
+  getAgentById,
+  updateAgent,
+  deleteAgent
+} from '../controllers/AgentController.js';
 
-agentRoutes.get('/',(req,res)=>
-{res.send('Get all agents')})
+const agentRouter = Router();
 
-agentRoutes.get('/:id',(req,res)=>
-    {res.send('Get agent details')})
+agentRouter.post('/', createAgent);
+agentRouter.get('/', getAllAgents);
+agentRouter.get('/:id', getAgentById);
+agentRouter.put('/:id', updateAgent);
+agentRouter.delete('/:id', deleteAgent);
 
-agentRoutes.post('/',(req,res)=>
-{res.send('create new agen worker')})
-
-agentRoutes.put('/:id',(req,res)=>
-{res.send('Update agent data')})
-
-agentRoutes.delete('/:id',(req,res)=>
-    {res.send('Delet agent')})
- 
-export default agentRoutes
+export default agentRouter;

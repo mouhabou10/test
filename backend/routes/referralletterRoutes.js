@@ -1,13 +1,18 @@
-import { Router } from "express";
-const referralRoutes = Router();
+import { Router } from 'express';
+import {
+  createReferralLetter,
+  getAllReferralLetters,
+  getReferralLetterById,
+  updateReferralLetter,
+  deleteReferralLetter
+} from '../controllers/ReferralLetterController.js';
 
-referralRoutes.get('/',(req,res)=>
-{res.send('Get all accounts')})
+const referralLetterRouter = Router();
 
-referralRoutes.get('/:id',(req,res)=>
-    {res.send('Get account details')})
+referralLetterRouter.post('/', createReferralLetter);
+referralLetterRouter.get('/', getAllReferralLetters);
+referralLetterRouter.get('/:id', getReferralLetterById);
+referralLetterRouter.put('/:id', updateReferralLetter);
+referralLetterRouter.delete('/:id', deleteReferralLetter);
 
-referralRoutes.post('/',(req,res)=>
-{res.send('create new prescription')})
-
-export default referralRoutes
+export default referralLetterRouter;

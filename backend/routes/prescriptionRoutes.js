@@ -1,13 +1,18 @@
-import { Router } from "express";
-const radioprescriptionroutes = Router();
+import { Router } from 'express';
+import {
+  createPrescription,
+  getAllPrescriptions,
+  getPrescriptionById,
+  updatePrescription,
+  deletePrescription
+} from '../controllers/PrescriptionController.js';
 
-radioprescriptionroutes.get('/',(req,res)=>
-{res.send('Get all accounts')})
+const prescriptionRouter = Router();
 
-radioprescriptionroutes.get('/:id',(req,res)=>
-    {res.send('Get account details')})
+prescriptionRouter.post('/', createPrescription);
+prescriptionRouter.get('/', getAllPrescriptions);
+prescriptionRouter.get('/:id', getPrescriptionById);
+prescriptionRouter.put('/:id', updatePrescription);
+prescriptionRouter.delete('/:id', deletePrescription);
 
-radioprescriptionroutes.post('/',(req,res)=>
-{res.send('create new prescription')})
-
-export default radioprescriptionroutes
+export default prescriptionRouter;

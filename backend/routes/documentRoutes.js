@@ -1,19 +1,18 @@
-import { Router } from "express";
-const documentRoutes = Router();
+import { Router } from 'express';
+import {
+  createDocument,
+  getAllDocuments,
+  getDocumentById,
+  updateDocument,
+  deleteDocument
+} from '../controllers/DocumentController.js';
 
-documentRoutes.get('/',(req,res)=>
-{res.send('Get all documents')})
+const documentRouter = Router();
 
-documentRoutes.get('/:id',(req,res)=>
-    {res.send('Get document details')})
+documentRouter.post('/', createDocument);
+documentRouter.get('/', getAllDocuments);
+documentRouter.get('/:id', getDocumentById);
+documentRouter.put('/:id', updateDocument);
+documentRouter.delete('/:id', deleteDocument);
 
-documentRoutes.post('/',(req,res)=>
-{res.send('create new document')})
-
-documentRoutes.put('/:id',(req,res)=>
-{res.send('Update document')})
-
-documentRoutes.delete('/:id',(req,res)=>
-    {res.send('Delet document')})
- 
-export default documentRoutes
+export default documentRouter;
