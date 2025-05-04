@@ -1,42 +1,55 @@
-import Service from '../models/Service.js';
+import Speciality from '../models/specialty.model.js';  // Make sure this path is correct
 
-// ─── CREATE SERVICE ───────────────────────────────────────────────────────
-export const createService = async (req, res, next) => {
+// ─── CREATE SPECIALITY ─────────────────────────────────────────────────────
+export const createSpeciality = async (req, res, next) => {
   try {
-    const { id, name, description } = req.body;
-    const service = await Service.create({ id, name, description });
-    res.status(201).json({ success: true, message: 'Service created', data: service });
+    const { name } = req.body;
+
+    const speciality = await Speciality.create({ name });
+
+    res.status(201).json({
+      success: true,
+      message: 'Speciality created successfully',
+      data: speciality
+    });
   } catch (error) {
     next(error);
   }
 };
 
-// ─── GET ALL SERVICES ─────────────────────────────────────────────────────
-export const getAllServices = async (req, res, next) => {
+// ─── GET ALL SPECIALITIES ──────────────────────────────────────────────────
+export const getAllSpecialities = async (req, res, next) => {
   try {
-    const services = await Service.find();
-    res.status(200).json({ success: true, data: services });
+    const specialities = await Speciality.find();
+    res.status(200).json({ success: true, data: specialities });
   } catch (error) {
     next(error);
   }
 };
 
-// ─── GET SERVICE BY ID ────────────────────────────────────────────────────
-export const getServiceById = async (req, res, next) => {
+// ─── GET SPECIALITY BY ID ──────────────────────────────────────────────────
+export const getSpecialityById = async (req, res, next) => {
   try {
-    const service = await Service.findById(req.params.id);
-    if (!service) throw new Error('Service not found');
-    res.status(200).json({ success: true, data: service });
+    const speciality = await Speciality.findById(req.params.id);
+    if (!speciality) {
+      return res.status(404).json({ success: false, message: 'Speciality not found' });
+    }
+
+    res.status(200).json({ success: true, data: speciality });
   } catch (error) {
     next(error);
   }
 };
 
-// ─── DELETE SERVICE ───────────────────────────────────────────────────────
-export const deleteService = async (req, res, next) => {
+// ─── DELETE SPECIALITY ─────────────────────────────────────────────────────
+export const deleteSpeciality = async (req, res, next) => {
   try {
-    await Service.findByIdAndDelete(req.params.id);
-    res.status(200).json({ success: true, message: 'Service deleted' });
+    const deleted = await Speciality.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: 'Speciality not found' });
+    }
+
+    res.status(200).json({ success: true, message: 'Speciality deleted' });
   } catch (error) {
     next(error);
   }

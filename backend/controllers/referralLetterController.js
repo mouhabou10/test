@@ -1,4 +1,4 @@
-import ReferralLetter from '../models/ReferralLetter.js';
+import ReferralLetter from '../models/referralLetter.model.js';
 
 // ─── CREATE REFERRAL LETTER ───────────────────────────────────────────────
 export const createReferralLetter = async (req, res, next) => {

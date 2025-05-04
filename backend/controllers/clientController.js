@@ -1,11 +1,46 @@
-import Document from '../models/Document.js';
-import Ticket from '../models/Ticket.js';
+import Document from '../models/document.model.js';
+import Ticket from '../models/ticket.model.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-
+import User from '../models/user.model.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+
+// ─── CREATE CLIENT ───────────────────────────────────────────────────────
+export const createClient = async (req, res, next) => {
+  try {
+    const { userId } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user || user.role !== 'client') {
+      return res.status(400).json({ success: false, message: 'Invalid or missing client user' });
+    }
+
+    res.status(201).json({ success: true, message: 'Client created successfully', data: user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─── DELETE CLIENT ───────────────────────────────────────────────────────
+export const deleteClient = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+    if (!user || user.role !== 'client') {
+      return res.status(404).json({ success: false, message: 'Client not found' });
+    }
+
+    await User.findByIdAndDelete(id);
+
+    res.status(200).json({ success: true, message: 'Client deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // Upload a document
 export const uploadDocument = async (req, res, next) => {

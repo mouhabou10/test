@@ -1,18 +1,35 @@
-import { Router } from 'express';
+// routes/managerRoutes.js
+import express from 'express';
 import {
   createManager,
   getAllManagers,
   getManagerById,
-  updateManager,
-  deleteManager
-} from '../controllers/ManagerController.js';
+  deleteManager,
+  createWorker,
+  updateWorker,
+  deleteWorker,
+  createService,
+  updateService,
+  deleteService
+} from '../controllers/managerController.js';
 
-const managerRouter = Router();
+const router = express.Router();
 
-managerRouter.post('/', createManager);
-managerRouter.get('/', getAllManagers);
-managerRouter.get('/:id', getManagerById);
-managerRouter.put('/:id', updateManager);
-managerRouter.delete('/:id', deleteManager);
+// Manager CRUD
+router.post('/', createManager);
+router.get('/', getAllManagers);
+router.get('/:id', getManagerById);
+router.delete('/:id', deleteManager);
 
-export default managerRouter;
+// Worker management by manager
+router.post('/worker', createWorker);
+router.put('/worker/:id', updateWorker);
+router.delete('/worker/:id', deleteWorker);
+
+// Service management by manager
+router.post('/service', createService);
+router.put('/service/:id', updateService);
+router.delete('/service/:id', deleteService);
+
+export default router;
+

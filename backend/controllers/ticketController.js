@@ -1,7 +1,7 @@
 // TicketController.js
-import Ticket from '../models/Ticket.js';
-import Worker from '../models/Worker.js';
-import Speciality from '../models/Speciality.js';
+import Ticket from '../models/ticket.model.js';
+import Worker from '../models/worker.model.js';
+import Speciality from '../models/specialty.model.js';
 
 // Create a ticket for a client
 export const createTicket = async (req, res) => {

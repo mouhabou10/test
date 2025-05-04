@@ -1,18 +1,26 @@
-import { Router } from 'express';
+
+// routes/departmentChefRoutes.js
+import express from 'express';
 import {
-  createDepartment,
-  getAllDepartments,
-  getDepartmentById,
-  updateDepartment,
-  deleteDepartment
-} from '../controllers/DepartementChefController.js';
+  createDepartementChef,
+  getDepartementChefs
+} from '../controllers/departmentChefController.js';
 
-const departmentRouter = Router();
+import {
 
-departmentRouter.post('/', createDepartment);
-departmentRouter.get('/', getAllDepartments);
-departmentRouter.get('/:id', getDepartmentById);
-departmentRouter.put('/:id', updateDepartment);
-departmentRouter.delete('/:id', deleteDepartment);
+  getAllReferralLetters
+} from '../controllers/referralLetterController.js';
 
-export default departmentRouter;
+import multer from 'multer';
+const upload = multer({ dest: 'uploads/referrals/' });
+
+const router = express.Router();
+
+router.post('/', createDepartementChef);
+router.get('/', getDepartementChefs);
+
+// Referral Letters
+
+router.get('/referral', getAllReferralLetters);
+
+export default router;

@@ -13,22 +13,28 @@ import prescriptionRoutes from './routes/prescriptionRoutes.js';
 import radioAgentRoutes from './routes/radioAgentRoutes.js';
 import referralLetterRoutes from './routes/referralLetterRoutes.js';
 import resultRoutes from './routes/resultRoutes.js';
-import specialityRoutes from './routes/specialityRoutes.js';
+import serviceRoutes from './routes/serviceRoutes.js';
 import ticketRoutes from './routes/ticketRoutes.js';
 import workerRoutes from './routes/workerRoutes.js';
+import userRoutes from './routes/user.Routes.js';
+import authRoutes from './routes/auth.Routes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 
-
- import userRoutes from './routes/userRoutes.js';
- import authRoutes from './routes/auth.Routes.js';
- import notificationRoutes from './routes/notificationRoutes.js';
- import serviceRoutes from './routes/serviceRoutes.js';
 import errorMiddleware from './Middlewares/error.Middleware.js';
 import cookieParser from 'cookie-parser';
 
 const app = express();
-app.use(express.json()); // Important to parse incoming JSON
-app.use(express.urlencoded({extended: false}));
-app.use(cookieParser)
+
+// Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+
+// Test route (homepage)
+app.get('/', (req, res) => {
+  res.send('✅ Server is working!');
+});
+
 // Routes setup
 app.use('/api/v1/agents', agentRoutes);
 app.use('/api/v1/clients', clientRoutes);
@@ -41,20 +47,25 @@ app.use('/api/v1/prescriptions', prescriptionRoutes);
 app.use('/api/v1/radio-agents', radioAgentRoutes);
 app.use('/api/v1/referral-letters', referralLetterRoutes);
 app.use('/api/v1/results', resultRoutes);
-app.use('/api/v1/specialities', specialityRoutes);
 app.use('/api/v1/tickets', ticketRoutes);
 app.use('/api/v1/workers', workerRoutes);
-
-
- app.use('/api/v1/users', userRoutes);
- app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
- app.use('/api/v1/services', serviceRoutes);
- app.use(errorMiddleware)
+app.use('/api/v1/services', serviceRoutes);
 
-app.listen(PORT, async () => {
-  await connectToDatabase();
-  console.log(`✅ Server running in ${NODE_ENV} mode on http://localhost:${PORT}`);
-});
+// Global error handler
+app.use(errorMiddleware);
+
+// Connect to DB then start server
+connectToDatabase()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`✅ Server running in ${NODE_ENV} mode on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('❌ Failed to connect to database:', err);
+  });
 
 export default app;

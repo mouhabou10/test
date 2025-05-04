@@ -6,7 +6,7 @@ import {
   incrementPassedTickets,
   pauseTicketDemand,
   resetDay,
-} from '../controllers/TicketController.js';
+} from '../controllers/ticketController.js';
 
 const ticketRouter = Router();
 

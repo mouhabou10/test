@@ -1,18 +1,31 @@
-import { Router } from 'express';
+import express from 'express';
 import {
-  createAgentLab,
-  getAllAgentLab,
-  getAgentLabById,
-  updateAgentLab,
-  deleteAgentLab
-} from '../controllers/AgentLabController.js';
+  assignNextLabTicket,
+  pauseLabDemand,
+  resetLabTickets,
+  uploadLabResult,
+  updateLabPrescription,
+  createAgent,
+  getAllAgents,
+  getAgentById,
+  updateAgent,
+  deleteAgent
+} from '../controllers/laboAgentController.js';
 
-const agentLabRouter = Router();
+const router = express.Router();
 
-agentLabRouter.post('/', createAgentLab);
-agentLabRouter.get('/', getAllAgentLab);
-agentLabRouter.get('/:id', getAgentLabById);
-agentLabRouter.put('/:id', updateAgentLab);
-agentLabRouter.delete('/:id', deleteAgentLab);
+// Lab ticket operations
+router.post('/assign', assignNextLabTicket);
+router.post('/pause', pauseLabDemand);
+router.delete('/reset', resetLabTickets);
+router.post('/upload-result/:ticketId', uploadLabResult);
+router.put('/update-prescription/:prescriptionId', updateLabPrescription);
 
-export default agentLabRouter;
+// Agent data operations
+router.post('/', createAgent);
+router.get('/', getAllAgents);
+router.get('/:id', getAgentById);
+router.put('/:id', updateAgent);
+router.delete('/:id', deleteAgent);
+
+export default router;

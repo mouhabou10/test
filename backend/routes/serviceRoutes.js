@@ -1,18 +1,16 @@
 import { Router } from 'express';
 import {
-  createService,
-  getAllServices,
-  getServiceById,
-  updateService,
-  deleteService
-} from '../controllers/ServiceController.js';
+  createSpeciality,
+  getAllSpecialities,
+  getSpecialityById,
+  deleteSpeciality
+} from '../controllers/serviceController.js';
 
-const serviceRouter = Router();
+const SpecialityRouter = Router();
 
-serviceRouter.post('/', createService);
-serviceRouter.get('/', getAllServices);
-serviceRouter.get('/:id', getServiceById);
-serviceRouter.put('/:id', updateService);
-serviceRouter.delete('/:id', deleteService);
+SpecialityRouter.post('/', createSpeciality);
+SpecialityRouter.get('/', getAllSpecialities);
+SpecialityRouter.get('/:id', getSpecialityById);
+SpecialityRouter.delete('/:id', deleteSpeciality);
 
-export default serviceRouter;
+export default SpecialityRouter;

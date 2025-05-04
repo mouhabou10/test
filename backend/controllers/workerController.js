@@ -1,6 +1,6 @@
 // controllers/WorkerController.js
 
-import Worker from '../models/Worker.js';
+import Worker from '../models/worker.model.js';
 import mongoose from 'mongoose';
 
 // ─── CREATE WORKER ──────────────────────────────────────────────────────

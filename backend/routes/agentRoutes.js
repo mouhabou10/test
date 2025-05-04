@@ -1,18 +1,29 @@
-import { Router } from 'express';
+import express from 'express';
 import {
   createAgent,
   getAllAgents,
   getAgentById,
   updateAgent,
-  deleteAgent
-} from '../controllers/AgentController.js';
+  deleteAgent,
+  getAssignedTickets,
+  updateTicketStatus,
+  assignTicketToAgent
+} from '../controllers/agentController.js';
+import { isAuthenticated } from '../Middlewares/auth.js'; // adjust if needed
 
-const agentRouter = Router();
+const agentRouter = express.Router();
 
-agentRouter.post('/', createAgent);
-agentRouter.get('/', getAllAgents);
-agentRouter.get('/:id', getAgentById);
-agentRouter.put('/:id', updateAgent);
-agentRouter.delete('/:id', deleteAgent);
+// ─── Agent CRUD Routes ────────────────────────────────────────
+agentRouter.post('/', createAgent);               // Create new agent
+agentRouter.get('/', getAllAgents);               // Get all agents
+agentRouter.get('/:id', getAgentById);            // Get single agent by ID
+agentRouter.put('/:id', updateAgent);             // Update agent
+agentRouter.delete('/:id', deleteAgent);          // Delete agent
+
+// ─── Ticket-Related Routes ─────────────────────────────────────
+// Must be authenticated to fetch or update tickets
+agentRouter.get('/tickets/assigned', isAuthenticated, getAssignedTickets);       // Tickets assigned to agent
+agentRouter.put('/tickets/:ticketId/status', isAuthenticated, updateTicketStatus); // Update ticket status
+agentRouter.post('/tickets/assign', assignTicketToAgent);                         // Assign ticket to agent
 
 export default agentRouter;

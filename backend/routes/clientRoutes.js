@@ -1,18 +1,21 @@
-import { Router } from 'express';
+import express from 'express';
 import {
   createClient,
-  getAllClients,
-  getClientById,
-  updateClient,
-  deleteClient
-} from '../controllers/ClientController.js';
+  deleteClient,
+  uploadDocument,
+  downloadDocument,
+  getMyTickets
+} from '../controllers/clientController.js';
+import multer from 'multer';
 
-const clientRouter = Router();
+const router = express.Router();
+const upload = multer({ dest: 'uploads/documents/' });
 
-clientRouter.post('/', createClient);
-clientRouter.get('/', getAllClients);
-clientRouter.get('/:id', getClientById);
-clientRouter.put('/:id', updateClient);
-clientRouter.delete('/:id', deleteClient);
+router.post('/', createClient);
+router.delete('/:id', deleteClient);
+router.post('/documents', upload.single('file'), uploadDocument);
+router.get('/documents/:documentId', downloadDocument);
+router.get('/tickets', getMyTickets);
 
-export default clientRouter;
+export default router;
+
