@@ -4,22 +4,28 @@ import bcrypt from 'bcryptjs';
 import User from '../models/user.model.js';
 import { JWT_EXPIRES_IN, JWT_SECRET } from '../config/env.js';
 
+
 // ─── SIGN UP ─────────────────────────────────────────────────────────────
 export const signUp = async (req, res, next) => {
   const session = await mongoose.startSession();
   session.startTransaction();
+  console.log('Request body:', req.body);
+  console.log('Received body:', req.body);
 
   try {
     const {
-      id,
-      fullname,
+      userId,
+      fullName,
       email,
-      phonenumber,
+      phoneNumber,
       password,
-      dateOfBirth,
-      address,
-      gender,
+      role
     } = req.body;
+
+    // Basic validation
+    if (!userId || !fullName || !email || !phoneNumber || !password || !role) {
+      return res.status(400).json({ success: false, error: 'All fields are required' });
+    }
 
     const existingUser = await User.findOne({ email }).session(session);
     if (existingUser) {
@@ -33,14 +39,12 @@ export const signUp = async (req, res, next) => {
 
     const [newUser] = await User.create(
       [{
-        id,
-        fullname,
+        userId,
+        fullName,
         email,
-        phonenumber,
+        phoneNumber,
         password: hashedPassword,
-        dateOfBirth,
-        address,
-        gender,
+        role
       }],
       { session }
     );
