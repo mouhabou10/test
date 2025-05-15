@@ -15,8 +15,7 @@ const Dashboard = () => {
     fullName: '',
     gender: '',
     age: '',
-    phone: '',
-    address: '',
+    phoneNumber: '',
     email: '',
     userId: ''
   });
@@ -92,149 +91,118 @@ const Dashboard = () => {
                 <IoMdPerson size={70} />
                 <h2 style={{ color: "#0052E0" }}>{userData.fullName}</h2>
                 <p style={{ color: "#808080" }}>Appointment</p>
-              <div className="appoint-info">
-                <div className="appoint-text">
-                  {stats.upcomingAppointments} <br /> upcoming
+                <div className="appoint-info">
+                  <div className="appoint-text">
+                    {stats.upcomingAppointments} <br /> upcoming
+                  </div>
+                  <div className="line"></div>
+                  <div className="appoint-text">
+                    {stats.pastAppointments} <br /> past
+                  </div>
                 </div>
-                <div className="line"></div>
-                <div className="appoint-text">
-                  {stats.pastAppointments} <br /> past
+              </div>
+              <div className="line"></div>
+              <div className="info-rightSide">
+                <div className="info-row">
+                  <p>
+                    Gender : {userData.gender ? userData.gender.charAt(0).toUpperCase() + userData.gender.slice(1) : 'Not specified'}
+                    <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
+                  </p>
+                  <p>
+                    Age : {userData.age || 'Not specified'}
+                    <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
+                  </p>
+                </div>
+                <div className="info-row">
+                  <p>
+                    Phone : {userData.phoneNumber}
+                    <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
+                  </p>
+                  <p>
+                    User ID : {userData.userId}
+                    <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
+                  </p>
+                </div>
+                <div className="info-row">
+                  <p>
+                    Email : {userData.email}
+                    <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
+                  </p>
                 </div>
               </div>
             </div>
-            <div className="line"></div>
-            <div className="info-rightSide">
-              <div className="info-row">
-                <p>
-                  gender : {userData.gender}{" "}
-                  <hr
-                    style={{
-                      border: "0.1px solid rgba(0, 94, 255, 0.19)",
-                      marginTop: "2px",
-                    }}
-                  />
-                </p>
-                <p>
-                  age : {userData.age}
-                  <hr
-                    style={{
-                      border: "0.1px solid rgba(0, 94, 255, 0.19)",
-                      marginTop: "2px",
-                    }}
-                  />
-                </p>
-              </div>
-              <div className="info-row">
-                <p>
-                  phone : {userData.phone}{" "}
-                  <hr
-                    style={{
-                      border: "0.1px solid rgba(0, 94, 255, 0.19)",
-                      marginTop: "2px",
-                    }}
-                  />
-                </p>
-                <p>
-                  address : {userData.address}{" "}
-                  <hr
-                    style={{
-                      border: "0.1px solid rgba(0, 94, 255, 0.19)",
-                      marginTop: "2px",
-                    }}
-                  />
-                </p>
-              </div>
-              <p>
-                email : {userData.email}
-                <hr
-                  style={{
-                    border: "0.1px solid rgba(0, 94, 255, 0.19)",
-                    marginTop: "2px",
-                  }}
-                />
-              </p>
-              <p>
-                NIN : {userData.userId}
-                <hr
-                  style={{
-                    border: "0.1px solid rgba(0, 94, 255, 0.19)",
-                    marginTop: "2px",
-                  }}
-                />
-            </p>
-          </div>
-        </div>
-        <div className="medical">
-          <h3>Appointments</h3>
-          <InfoRow />
-          <InfoRow />
-          <InfoRow />
-          <InfoRow />
-        </div>
-      </div>
-      <div className="analyse-container">
-        <div className="analyse-title">
-          <h1>Analyse</h1>
-          <select>
-            <option value="today">Today</option>
-            <option value="week">Week</option>
-            <option value="month">Month</option>
-          </select>
-        </div>
-        <div className="analyse-cards">          <div className="analyse-card">
-            <img src={Card1} alt="error" />
-            <b>{stats.consultations}</b>
-            <p>consultation</p>
-          </div>
-          <div className="analyse-card">
-            <img src={Card2} alt="error" />
-            <b>{stats.radioTests}</b>
-            <p>Radio</p>
-          </div>
-          <div className="analyse-card">
-            <img src={Card3} alt="error" />
-            <b>{stats.laboTests}</b>
-            <p>Labo</p>
-          </div>
-          <div className="analyse-card">
-            <img src={Card4} alt="error" />
-            <b>{stats.operations}</b>
-            <p>Operation</p>
-          </div>
-        </div>
-      </div>
-      <div className="thourd-row">
-        <div className="appintment">
-          <h1>My appintment</h1>
-          <div className="appintment-container">
-            <div className="appointment-content">
-              <div className="line" style={{ width: "4px" }}></div>
-              <div className="appointment-cards">
-                <AppointmentCards />
-                <AppointmentCards />
-                <AppointmentCards />
-                <AppointmentCards />
-                <AppointmentCards />
-              </div>
-            </div>
-            <div>
-              <Link to={'consultation'}>Add appointment</Link>
+            <div className="medical">
+              <h3>Appointments</h3>
+              <InfoRow />
+              <InfoRow />
+              <InfoRow />
+              <InfoRow />
             </div>
           </div>
-        </div>
-        
-        <div className="Requests-container">
-          <h1>Requestes status</h1>
-          <div className="Requests-content">
-            <RequestInfo />
-            <RequestInfo />
-            <RequestInfo />
-            <RequestInfo />
-            <RequestInfo />
-            <RequestInfo />
+          <div className="analyse-container">
+            <div className="analyse-title">
+              <h1>Analyse</h1>
+              <select>
+                <option value="today">Today</option>
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+              </select>
+            </div>
+            <div className="analyse-cards">
+              <div className="analyse-card">
+                <img src={Card1} alt="error" />
+                <b>{stats.consultations}</b>
+                <p>consultation</p>
+              </div>
+              <div className="analyse-card">
+                <img src={Card2} alt="error" />
+                <b>{stats.radioTests}</b>
+                <p>Radio</p>
+              </div>
+              <div className="analyse-card">
+                <img src={Card3} alt="error" />
+                <b>{stats.laboTests}</b>
+                <p>Labo</p>
+              </div>
+              <div className="analyse-card">
+                <img src={Card4} alt="error" />
+                <b>{stats.operations}</b>
+                <p>Operation</p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+          <div className="thourd-row">
+            <div className="appintment">
+              <h1>My appintment</h1>
+              <div className="appintment-container">
+                <div className="appointment-content">
+                  <div className="line" style={{ width: "4px" }}></div>
+                  <div className="appointment-cards">
+                    <AppointmentCards />
+                    <AppointmentCards />
+                    <AppointmentCards />
+                    <AppointmentCards />
+                    <AppointmentCards />
+                  </div>
+                </div>
+                <div>
+                  <Link to={'consultation'}>Add appointment</Link>
+                </div>
+              </div>
+            </div>
+            
+            <div className="Requests-container">
+              <h1>Requestes status</h1>
+              <div className="Requests-content">
+                <RequestInfo />
+                <RequestInfo />
+                <RequestInfo />
+                <RequestInfo />
+                <RequestInfo />
+                <RequestInfo />
+              </div>
+            </div>
+          </div>
         </>
       )}
     </section>

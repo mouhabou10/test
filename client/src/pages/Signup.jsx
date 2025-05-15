@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -9,6 +9,8 @@ const Signup = () => {
     email: '',
     phoneNumber: '',
     password: '',
+    gender: '',
+    age: '',
     role: 'client' // Default role
   });
   const [error, setError] = useState('');
@@ -49,73 +51,100 @@ const Signup = () => {
   };
 
   return (
-    <div className="signup-container">
-      <form onSubmit={handleSubmit} className="signup-form">
-        <h2>Create an Account</h2>
-        {error && <div className="error-message">{error}</div>}
-        
-        <div className="form-group">
-          <label htmlFor="userId">User ID (NIN)</label>
+    <div className="rectangle">
+      <div className="formrectangle">
+        <form onSubmit={handleSubmit} className="login-form" style={{ width: '320px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div className="div-but">
+            <h2>Create Account</h2>
+            <div className="social-buttons">
+              <button type="button" className="btn-sig">G</button>
+              <button type="button" className="btn-sig">F</button>
+              <button type="button" className="btn-sig">in</button>
+            </div>
+            <p className="text-sm text-gray-600">or use your email for registration</p>
+          </div>
+          {error && <div className="error" style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+          
           <input
             type="text"
-            id="userId"
+            placeholder="User ID (NIN)"
+            className="input-field"
             name="userId"
             value={formData.userId}
             onChange={handleChange}
             required
           />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="fullName">Full Name</label>
           <input
             type="text"
-            id="fullName"
+            placeholder="Full Name"
+            className="input-field"
             name="fullName"
             value={formData.fullName}
             onChange={handleChange}
             required
           />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
           <input
             type="email"
-            id="email"
+            placeholder="Email"
+            className="input-field"
             name="email"
             value={formData.email}
             onChange={handleChange}
             required
           />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="phoneNumber">Phone Number</label>
           <input
             type="tel"
-            id="phoneNumber"
+            placeholder="Phone Number"
+            className="input-field"
             name="phoneNumber"
             value={formData.phoneNumber}
             onChange={handleChange}
             required
           />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
           <input
             type="password"
-            id="password"
+            placeholder="Password"
+            className="input-field"
             name="password"
             value={formData.password}
             onChange={handleChange}
             required
           />
-        </div>
-
-        <button type="submit" className="submit-btn">Sign Up</button>
-      </form>
+          <select
+            className="input-field"
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            style={{ backgroundColor: 'white' }}
+          >
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+          <input
+            type="number"
+            placeholder="Age"
+            className="input-field"
+            name="age"
+            value={formData.age}
+            onChange={handleChange}
+            min="0"
+            max="120"
+          />
+          <button className="btn-login" type="submit">Sign Up</button>
+          <p style={{ marginTop: '15px', color: '#666' }}>
+            Already have an account? <Link to="/login" style={{ color: '#0052E0', textDecoration: 'none', fontWeight: '500' }}>Login</Link>
+          </p>
+        </form>
+      </div>
+      
+      <div className="signinrectangle23">
+        <h4>Welcome Back!</h4>
+        <h3>To keep connected with us please login with your personal info</h3>
+        <Link to="/login">
+          <button className="btn-signin4">Sign In</button>
+        </Link>
+      </div>
     </div>
   );
 };
