@@ -2,7 +2,7 @@ import express from 'express';
 import { PORT, NODE_ENV } from './config/env.js';
 import connectToDatabase from './database/mongodb.js';
 
-
+import cors from 'cors';
 
 
 import agentRoutes from './routes/agentRoutes.js';
@@ -27,6 +27,11 @@ import errorMiddleware from './Middlewares/error.Middleware.js';
 import cookieParser from 'cookie-parser';
 
 const app = express();
+
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 
 // Middlewares
 app.use(express.json());
