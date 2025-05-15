@@ -18,6 +18,7 @@ import LaboTicket from './pages/LaboTicket';
 import PriscriotionRadio from './pages/PriscriotionRadio';
 import OnlineTicket from './pages/OnlineTicket';
 import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Create router for navigation
 const router = createBrowserRouter([
@@ -25,7 +26,14 @@ const router = createBrowserRouter([
     path: '/',
     element: <Layout />,
     children: [
-      { index: true, element: <Dashboard /> },
+      { 
+        index: true, 
+        element: <ProtectedRoute><Dashboard /></ProtectedRoute> 
+      },
+      { 
+        path: 'dashboard', 
+        element: <ProtectedRoute><Dashboard /></ProtectedRoute> 
+      },
       { path: 'consultation', element: <Consultation /> },
       { path: 'labo', element: <Labo /> },
       { path: 'opiration', element: <Opiration /> },
