@@ -17,6 +17,7 @@ import PriscriptionLabo from './pages/PriscriptionLabo';
 import LaboTicket from './pages/LaboTicket';
 import PriscriotionRadio from './pages/PriscriotionRadio';
 import OnlineTicket from './pages/OnlineTicket';
+import Login from './pages/Login';
 
 // Create router for navigation
 const router = createBrowserRouter([
@@ -37,6 +38,7 @@ const router = createBrowserRouter([
       { path: 'radio/radio-ticket/:id', element: <RadioTicket /> },
       { path: 'radio/radio-ticket/:id/online-ticket', element: <OnlineTicket /> },
       { path: 'labo/labo-ticket/:id/online-ticket', element: <OnlineTicket /> },
+      { path: 'login', element: <Login />},
     ]
   }
 ]);
