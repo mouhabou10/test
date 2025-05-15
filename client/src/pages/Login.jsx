@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -40,7 +40,8 @@ const Login = () => {
       <div className="formrectangle">
         <form className="login-form" onSubmit={handleSubmit} style={{ width: '320px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div className="div-but">
-            <h2>Login to AlgiCare</h2>            <div className="social-buttons">
+            <h2>Login to AlgiCare</h2>
+            <div className="social-buttons">
               <button className="btn-sig" type="button">G</button>
               <button className="btn-sig" type="button">F</button>
               <button className="btn-sig" type="button">in</button>
@@ -65,6 +66,9 @@ const Login = () => {
             required
           />
           <button className="btn-login" type="submit">Login</button>
+          <p style={{ marginTop: '15px', color: '#666' }}>
+            Don't have an account? <Link to="/signup" style={{ color: '#0052E0', textDecoration: 'none', fontWeight: '500' }}>Sign up</Link>
+          </p>
         </form>
       </div>
     </div>

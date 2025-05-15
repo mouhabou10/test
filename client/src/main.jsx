@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
-
 import Layout from './components/Layout';
 import Consultation from './pages/Consultation';
 import Dashboard from './pages/Dashboard';
@@ -18,6 +17,7 @@ import LaboTicket from './pages/LaboTicket';
 import PriscriotionRadio from './pages/PriscriotionRadio';
 import OnlineTicket from './pages/OnlineTicket';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Create router for navigation
@@ -26,14 +26,8 @@ const router = createBrowserRouter([
     path: '/',
     element: <Layout />,
     children: [
-      { 
-        index: true, 
-        element: <ProtectedRoute><Dashboard /></ProtectedRoute> 
-      },
-      { 
-        path: 'dashboard', 
-        element: <ProtectedRoute><Dashboard /></ProtectedRoute> 
-      },
+      { index: true, element: <ProtectedRoute><Dashboard /></ProtectedRoute> },
+      { path: 'dashboard', element: <ProtectedRoute><Dashboard /></ProtectedRoute>},
       { path: 'consultation', element: <Consultation /> },
       { path: 'labo', element: <Labo /> },
       { path: 'opiration', element: <Opiration /> },
@@ -47,6 +41,7 @@ const router = createBrowserRouter([
       { path: 'radio/radio-ticket/:id/online-ticket', element: <OnlineTicket /> },
       { path: 'labo/labo-ticket/:id/online-ticket', element: <OnlineTicket /> },
       { path: 'login', element: <Login />},
+      { path: 'signup', element: <Signup />}
     ]
   }
 ]);

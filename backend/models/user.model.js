@@ -25,11 +25,20 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       match: [/^0[5-7]\d{8}$/, 'Please provide a valid Algerian phone number']
-    },
-    password: {
+    },    password: {
       type: String,
       required: true,
       minlength: 6
+    },
+    gender: {
+      type: String,
+      enum: ['male', 'female'],
+      trim: true
+    },
+    age: {
+      type: Number,
+      min: 0,
+      max: 120
     },
     role: {
       type: String,

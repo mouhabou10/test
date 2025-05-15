@@ -4,7 +4,8 @@ import {
   deleteClient,
   uploadDocument,
   downloadDocument,
-  getMyTickets
+  getMyTickets,
+  getClientStats
 } from '../controllers/clientController.js';
 import multer from 'multer';
 
@@ -16,6 +17,7 @@ router.delete('/:id', deleteClient);
 router.post('/documents', upload.single('file'), uploadDocument);
 router.get('/documents/:documentId', downloadDocument);
 router.get('/tickets', getMyTickets);
+router.get('/:id/stats', getClientStats);
 
 export default router;
 

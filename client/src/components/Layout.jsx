@@ -7,8 +7,8 @@ import InfoCard from './InfoCard'
 
 const Layout = () => {
   const location = useLocation();
-  const isLoginPage = location.pathname === '/login';
-  if (isLoginPage) {
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+  if (isAuthPage) {
     return <Outlet />;
   }
   return (

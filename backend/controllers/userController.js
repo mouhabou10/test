@@ -14,12 +14,21 @@ export const getAllUsers = async (req, res, next) => {
 // ─── GET USER BY ID ───────────────────────────────────────────────────────
 export const getUserById = async (req, res, next) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user ID format'
+      });
+    }
+
     const user = await User.findById(req.params.id);
     if (!user) {
-      const err = new Error('User not found');
-      err.statusCode = 404;
-      throw err;
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
     }
+
     res.status(200).json({ success: true, data: user });
   } catch (error) {
     next(error);
