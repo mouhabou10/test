@@ -8,7 +8,7 @@ const SignInRectengle = () => {
       <h4>Welcome back!</h4>
       <h3>To keep connected with us, please login with your personal information</h3>
 
-      <Link to="/login">  {/* Ensure this links to the correct route */}
+      <Link to="/">  {/* Ensure this links to the correct route */}
         <button className="btn-signin4">Signin</button>
       </Link>
     </div>

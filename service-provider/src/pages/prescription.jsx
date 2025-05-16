@@ -11,7 +11,7 @@ const Prescription = () => {
     <Headerservice/>
     <p className='perton'>Prescriptions dashbord</p>
     <PrescriptionList/>
-    <Sidebar/>
+   
     </div>
   )
 }

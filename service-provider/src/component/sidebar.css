@@ -1,27 +1,41 @@
-/* Hamburger Button */
 .hamburger {
   position: absolute;
-  top: 40px;
-  left: 220px;
+  top: -50px;
+  left: 210px;
   width: 30px;
-  height: 18px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  height: 24px;
   cursor: pointer;
   z-index: 1001;
- 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 }
 
 .hamburger div {
+  position: absolute;
+  width: 100%;
   height: 3px;
   background-color: #333;
   border-radius: 2px;
   transition: all 0.3s ease;
 }
 
+.hamburger .one {
+  top: 0;
+}
+
+.hamburger .two {
+  top: 10px;
+}
+
+.hamburger .three {
+  top: 20px;
+}
+
 .hamburger.open .one {
-  transform: rotate(45deg) translate(5px, 5px);
+  transform: rotate(45deg);
+  top: 10px;
 }
 
 .hamburger.open .two {
@@ -29,26 +43,27 @@
 }
 
 .hamburger.open .three {
-  transform: rotate(-45deg) translate(5px, -5px);
+  transform: rotate(-45deg);
+  top: 10px;
 }
 
 /* Sidebar Styles */
 .sidebar {
   position: fixed;
   top: 0;
-  left: -200px;
+  left: -250px;
   width: 250px;
   height: 100vh;
   background-color: #fff;
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
-  padding: 20px 0; /* Changed from padding-top: 60px */
-  transition: left 0.3s ease; /* fixed this */
+  padding: 20px 0;
+  transition: left 0.3s ease;
   z-index: 1000;
-  display: flex;
   flex-direction: column;
   align-items: center;
-  display:none
+  overflow-y: auto; /* ✅ Enables vertical scrolling */
 }
+
 
 .sidebar-open .logo {
   margin-bottom: 30px;

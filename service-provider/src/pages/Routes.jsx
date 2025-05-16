@@ -12,9 +12,11 @@ import AccountDemandeList from "./accountDemandeList.jsx";
 function AppRoutes() {
   return (
       <Routes>
-        <Route path="/login" element={< Login/>} />
+        
         <Route path="/signup" element={<Signup />} /> 
         <Route path="/service-signup" element={<SignupService />} /> 
+        <Route path="/" element={< Login/>} />
+        <Route path="/login" element={< Login/>} />
         <Route path="/prescription" element={<Prescription />} />   
         <Route path="/result" element={<Result/>} />  
         <Route path="/staff-manager" element={<StaffManagement/>} />   

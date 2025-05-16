@@ -25,6 +25,7 @@ import notificationRoutes from './routes/notificationRoutes.js';
 
 import errorMiddleware from './Middlewares/error.Middleware.js';
 import cookieParser from 'cookie-parser';
+import serviceProviderRouter from './routes/serviceProviderRoutes.js';
 
 const app = express();
 
@@ -63,6 +64,7 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/services', serviceRoutes);
+app.use('/api/v1/service-provider',serviceProviderRouter);
 
 // Global error handler
 app.use(errorMiddleware);
