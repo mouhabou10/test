@@ -3,9 +3,22 @@ import Document from '../models/document.model.js';
 // ─── CREATE DOCUMENT ──────────────────────────────────────────────────────
 export const createDocument = async (req, res, next) => {
   try {
-    const { id, name, path, ownerId, date } = req.body;
-    const newDocument = await Document.create({ id, name, path, ownerId, date });
-    res.status(201).json({ success: true, message: 'Document created', data: newDocument });
+    const { title, type, client, createdBy } = req.body;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+
+    const newDocument = await Document.create({
+      title,
+      type,
+      client,
+      createdBy,
+      path: file.path // save file path in DB
+    });
+
+    res.status(201).json({ success: true, message: 'Document uploaded successfully', data: newDocument });
   } catch (error) {
     next(error);
   }
