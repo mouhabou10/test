@@ -1,7 +1,5 @@
 import ServiceProvider from '../models/serviceProvider.model.js';
 
-// ─── CREATE SERVICE PROVIDER ──────────────────────────────────────────────
-import ServiceProvider from '../models/serviceProvider.model.js';
 
 // ─── CREATE SERVICE PROVIDER ──────────────────────────────────────────────
 export const createServiceProvider = async (req, res, next) => {
