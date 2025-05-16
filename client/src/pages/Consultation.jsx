@@ -7,22 +7,49 @@ import { Link } from "react-router-dom";
 import Header from "../components/Header.jsx";
 import SideBare from "../components/SideBareClient.jsx";
 
-
 const Consultation = () => {
-  const [category, setCategory] = useState(Categores);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedPlace, setSelectedPlace] = useState(null);
+  const [selectedState, setSelectedState] = useState("");
+
+  const states = [
+    "Adrar", "Chlef", "Laghouat", "Oum El Bouaghi", "Batna", "Béjaïa", "Biskra", 
+    "Béchar", "Blida", "Bouïra", "Tamanrasset", "Tébessa", "Tlemcen", "Tiaret", 
+    "Tizi Ouzou", "Algiers", "Djelfa", "Jijel", "Sétif", "Saïda", "Skikda", 
+    "Sidi Bel Abbès", "Annaba", "Guelma", "Constantine", "Médéa", "Mostaganem", 
+    "M'Sila", "Mascara", "Ouargla", "Oran", "El Bayadh", "Illizi", 
+    "Bordj Bou Arréridj", "Boumerdès", "El Tarf", "Tindouf", "Tissemsilt", 
+    "El Oued", "Khenchela", "Souk Ahras", "Tipaza", "Mila", "Aïn Defla", 
+    "Naâma", "Aïn Témouchent", "Ghardaïa", "Relizane"
+  ];
+
+  const handleSearch = () => {
+    // We'll use the search query parameters to pass the selected values
+    const searchParams = new URLSearchParams();
+    if (selectedCategory) searchParams.append("category", selectedCategory);
+    if (selectedPlace) searchParams.append("place", selectedPlace);
+    if (selectedState) searchParams.append("state", selectedState);
+    
+    return `/consultation/search?${searchParams.toString()}`;
+  };
 
   return (
     <section>
-     <Header/>
-     <SideBare/>
+      <Header/>
+      <SideBare/>
       <div className="category-container">
         <div className="category-title">
-          <h1>shoose a category</h1>
+          <h1>Choose a category</h1>
           <h3>See all</h3>
         </div>
         <div className="category-cards">
-          {category.map(({ name, icon, id }) => (
-            <div key={id} className="category-card">
+          {Categores.map(({ name, icon, id }) => (
+            <div 
+              key={id} 
+              className={`category-card ${selectedCategory === name ? 'selected' : ''}`}
+              onClick={() => setSelectedCategory(name)}
+              style={{ cursor: 'pointer' }}
+            >
               <img src={icon} alt={name} />
               <p>{name}</p>
             </div>
@@ -31,69 +58,83 @@ const Consultation = () => {
       </div>
       <div className="second-part">
         <div className="placeType">
-          <h1 style={{ color: "#0052E0" }}>shoose place</h1>
+          <h1 style={{ color: "#0052E0" }}>Choose place</h1>
           <div className="placeType-container">
-            <div>
+            <div 
+              onClick={() => setSelectedPlace('clinic')}
+              style={{ cursor: 'pointer' }}
+              className={selectedPlace === 'clinic' ? 'selected' : ''}
+            >
               <img src={Photo1} alt="clinic" style={{ borderRadius: "13px" }} />
               <p>
                 <h3 style={{ color: "#0167FB", paddingBottom: "3px" }}>
-                  clinic
+                  Clinic
                 </h3>
-                A private clinic for routine check-ups, diagnoses, and
-                treatments{" "}
+                A private clinic for routine check-ups, diagnoses, and treatments
               </p>
             </div>
-            <div>
-              <img
-                src={Photo2}
-                alt="hospital"
-                style={{ borderRadius: "13px" }}
-              />
+            <div 
+              onClick={() => setSelectedPlace('hospital')}
+              style={{ cursor: 'pointer' }}
+              className={selectedPlace === 'hospital' ? 'selected' : ''}
+            >
+              <img src={Photo2} alt="hospital" style={{ borderRadius: "13px" }} />
               <p>
                 <h3 style={{ color: "#0167FB", paddingBottom: "3px" }}>
                   Hospital
                 </h3>
-                A large medical facility offering specialized care, surgeries.{" "}
+                A large medical facility offering specialized care, surgeries.
               </p>
             </div>
-            <div>
+            <div 
+              onClick={() => setSelectedPlace('cabine')}
+              style={{ cursor: 'pointer' }}
+              className={selectedPlace === 'cabine' ? 'selected' : ''}
+            >
               <img src={Photo3} alt="medical doctor" />
               <p>
                 <h3 style={{ color: "#0167FB", paddingBottom: "3px" }}>
-                  cabine
-                </h3>{" "}
-                A healthcare facility providing outpatient medical care, and
-                treatments.{" "}
+                  Cabinet
+                </h3>
+                A healthcare facility providing outpatient medical care, and treatments.
               </p>
             </div>
           </div>
         </div>
         <div className="rightSide">
           <div className="State">
-            <h1 style={{ color: "#0052E0" }}>shoose a State</h1>
+            <h1 style={{ color: "#0052E0" }}>Choose a State</h1>
             <div className="State-container">
-              <select>
-                <option value="state1">state1</option>
-                <option value="state2">state2</option>
-                <option value="state3">state3</option>
-                <option value="state4">state4</option>
+              <select 
+                value={selectedState} 
+                onChange={(e) => setSelectedState(e.target.value)}
+              >
+                <option value="">Select a state</option>
+                {states.map((state) => (
+                  <option key={state} value={state}>{state}</option>
+                ))}
               </select>
             </div>
           </div>
           <div className="advises">
             <div className="advice-container">
-              <h1 style={{ color: "#0052E0" }}>Health advice :</h1>
+              <h1 style={{ color: "#0052E0" }}>Health advice:</h1>
               <p>
-              Stay hydrated, exercise daily, and get enough rest.
-              Good sleep and a balanced diet keep you healthy! 
+                Stay hydrated, exercise daily, and get enough rest.
+                Good sleep and a balanced diet keep you healthy! 
               </p>
             </div>
           </div>
         </div>
       </div>
       <div className="">
-        <Link to={'/consultation/search'}>
-          <button className="search-btn">Search</button>
+        <Link to={handleSearch()}>
+          <button 
+            className="search-btn"
+            disabled={!selectedCategory || !selectedPlace || !selectedState}
+          >
+            Search
+          </button>
         </Link>
       </div>
     </section>

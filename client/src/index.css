@@ -44,8 +44,8 @@ body{
 
 
 
-
 /* ====================================== side bar ===========================*/
+
 
 
 
@@ -100,10 +100,7 @@ body{
 
 
 
-
-
 /* ====================================== info card ===========================*/
-
 
 
 
@@ -420,12 +417,7 @@ body{
 
 
 
-
-
-
 /* ================================== consultatuon ===================================*/
-
-
 
 
 
@@ -449,21 +441,23 @@ body{
 
 .category-cards {
   display: flex;
-  gap: 20px;
+  flex-direction: row;
+  gap: 15px;
   background-color: #E2E6F0;
-  justify-content: space-around;
   margin-top: 20px;
   border-radius: 10px;
   padding: 20px;
   overflow-x: auto;
+  white-space: nowrap;
 }
 
 .category-cards::-webkit-scrollbar {
-  height: 7px; 
+  height: 7px;
 }
 
 .category-cards::-webkit-scrollbar-track {
   background-color: #f1f1f1;
+  border-radius: 5px;
 }
 
 .category-cards::-webkit-scrollbar-thumb {
@@ -486,21 +480,38 @@ body{
 
 .category-card{
   box-shadow: 0 0 14px rgba(0, 0, 0, 0.162);
-  padding: 10px;
+  padding: 15px;
   display: flex;
   background-color: white;
   flex-direction: column;
   align-items: center;
-  gap: 7px;
-  flex: 1;
+  gap: 15px;
   border-radius: 10px;
+  min-width: 180px;
+  width: 180px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 160px;
 }
+
+.category-card.selected {
+  background-color: rgba(1, 103, 251, 0.1);
+  border: 2px solid #0167FB;
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}
+
 .category-card img {
-  width: 70px;
-  height: 70px;
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
 }
 .category-card p {
   color: #4c4c4c;
+  font-size: 16px;
+  margin: 0;
+  flex: 1;
 }
 
 
@@ -522,6 +533,15 @@ body{
   padding: 20px 20px;
   box-shadow: 0 0 14px rgba(0, 0, 0, 0.162);
   flex: 2;
+}
+
+.placeType-container > div.selected {
+  background-color: rgba(1, 103, 251, 0.1);
+  border: 2px solid #0167FB;
+  border-radius: 13px;
+  padding: 10px;
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
 }
 
 .placeType-container img {
@@ -558,15 +578,12 @@ body{
 }
 
 .State-container select {
-  border-radius: 5px;
-  margin: 10px 0px;
-  color: #4c4c4c;
-  padding: 15px 10px;
   width: 100%;
-  height: 100%;
-  font-size: medium;
-  border: none;
-  background-color: #E2E6F0;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: white;
 }
 
 .advice-container{
@@ -594,6 +611,11 @@ body{
   font-size: x-large;
   font-weight: bold;
   width: 45%;
+}
+
+.search-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 
@@ -783,8 +805,6 @@ body{
 
 
 
-
-
 /* ===================================== Result =========================================*/
 
 .result-table{
@@ -837,9 +857,6 @@ body{
 
 
 
-
-
-
 /* ===================================== labo =========================================*/
 
 
@@ -874,7 +891,6 @@ body{
   padding: 0px;
   margin: 0px;
 }
-
 
 
 
@@ -959,9 +975,6 @@ body{
 
 
 
-
-
-
 /* ===================================== online ticket =========================================*/
 
 
@@ -1005,8 +1018,6 @@ body{
   padding: 5% 0;
   margin:  auto;
 }
-
-
 
 
 
@@ -1348,6 +1359,7 @@ h8 {
   border-color: #005a86;
   box-shadow: 0px 0px 8px rgba(0, 115, 168, 0.5);
 }
+
 
 
 
