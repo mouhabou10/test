@@ -1,20 +1,30 @@
 import React, { useState } from 'react';
-import api from '../api/axios'; // Make sure this file exists
+import { useNavigate } from 'react-router-dom'; // 🔁 import navigate
+import axios from 'axios';
 import './component.css';
 
 const SignInForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate(); // ✅ Initialize navigation
 
   const handleLogin = async () => {
     try {
-      const response = await api.post('/auth/signin', { email, password });
+      const response = await axios.post('http://localhost:3000/api/v1/auth/signin', {
+        email,
+        password,
+      });
+
       console.log('Login success:', response.data);
-      alert('Logged in successfully');
-      // Save token if needed: localStorage.setItem('token', response.data.data.token);
-    } catch (err) {
-      console.error('Login error:', err.response?.data || err.message);
-      alert(err.response?.data?.error || 'Login failed');
+
+      // Optionally store token
+      localStorage.setItem('token', response.data.data.token);
+
+      // ✅ Redirect to main/dashboard page
+      navigate('/prescription'); // Change this to your actual route
+
+    } catch (error) {
+      console.error('Login error:', error.response?.data || error.message);
     }
   };
 
@@ -27,7 +37,7 @@ const SignInForm = () => {
           <button className="btn-sig">F</button>
           <button className="btn-sig">in</button>
         </div>
-        <p>or use your email for registration</p>
+        <h8>or use your email for registration</h8>
       </div>
       <input
         type="email"

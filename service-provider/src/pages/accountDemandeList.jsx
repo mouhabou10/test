@@ -9,7 +9,6 @@ const AccountDemandeList = () => {
     <div>
     <Header/>
     <ServiceProviderList/>
-    <Sidebar/>
     </div>
   )
 }

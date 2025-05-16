@@ -3,16 +3,16 @@ import {
   createServiceProvider,
   getAllServiceProviders,
   getServiceProviderById,
-  updateServiceProvider,
+ 
   deleteServiceProvider
 } from '../controllers/ServiceProviderController.js';
 
 const serviceProviderRouter = Router();
 
-serviceProviderRouter.post('/', createServiceProvider);
+serviceProviderRouter.post('/service-signup', createServiceProvider);
 serviceProviderRouter.get('/', getAllServiceProviders);
 serviceProviderRouter.get('/:id', getServiceProviderById);
-serviceProviderRouter.put('/:id', updateServiceProvider);
+
 serviceProviderRouter.delete('/:id', deleteServiceProvider);
 
 export default serviceProviderRouter;
