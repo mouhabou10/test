@@ -15,14 +15,19 @@ export const createDocument = async (req, res, next) => {
       type,
       client,
       createdBy,
-      path: file.path // save file path in DB
+      path: file.path // Save file path in DB
     });
 
-    res.status(201).json({ success: true, message: 'Document uploaded successfully', data: newDocument });
+    res.status(201).json({
+      success: true,
+      message: 'Document uploaded successfully',
+      data: newDocument
+    });
   } catch (error) {
     next(error);
   }
 };
+
 
 // ─── GET ALL DOCUMENTS ────────────────────────────────────────────────────
 export const getAllDocuments = async (req, res, next) => {
