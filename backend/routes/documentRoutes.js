@@ -5,7 +5,7 @@ import {
   getDocumentById,
  
   deleteDocument
-} from '../controllers/DocumentController.js';
+} from '../controllers/documentController.js';
 
 const documentRouter = Router();
 

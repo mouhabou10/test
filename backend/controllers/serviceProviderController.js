@@ -1,6 +1,9 @@
 import ServiceProvider from '../models/serviceProvider.model.js';
 
 // ─── CREATE SERVICE PROVIDER ──────────────────────────────────────────────
+import ServiceProvider from '../models/serviceProvider.model.js';
+
+// ─── CREATE SERVICE PROVIDER ──────────────────────────────────────────────
 export const createServiceProvider = async (req, res, next) => {
   try {
     const {
@@ -10,8 +13,17 @@ export const createServiceProvider = async (req, res, next) => {
       confirmPassword,
       wilaya,
       directorId,
+      type,
       speciality
     } = req.body;
+
+    // Validate: speciality is required only if type is 'cabine'
+    if (type === 'cabine' && !speciality) {
+      return res.status(400).json({
+        success: false,
+        message: 'Speciality is required for service providers of type "cabine"'
+      });
+    }
 
     const provider = await ServiceProvider.create({
       name,
@@ -20,7 +32,8 @@ export const createServiceProvider = async (req, res, next) => {
       confirmPassword,
       wilaya,
       directorId,
-      speciality
+      type,
+      speciality: type === 'cabine' ? speciality : undefined // optional cleanup
     });
 
     res.status(201).json({
@@ -32,6 +45,7 @@ export const createServiceProvider = async (req, res, next) => {
     next(error);
   }
 };
+
 
 // ─── GET ALL SERVICE PROVIDERS ────────────────────────────────────────────
 export const getAllServiceProviders = async (req, res, next) => {
