@@ -1,44 +1,45 @@
 .formrectangle2 {
-    height: 98%; /* Reduced height */
-    width: 50vw; /* Reduced width */
+    height: 98%;
+    width: 50vw;
     margin: auto;
-    margin-top: 0.5%;
+    margin-top: 0.5px;
     justify-content: center;
     align-items: center;
     transition: transform 1s ease-in-out;
 }
 
+
 .signuprectangle {
     flex-direction: column;
     align-items: center;
-    width: 100%; /* Changed background to white */
+    width: 100%;
     border-radius: 15px;
-    color: #0073A8; /* Text color adjusted for contrast */
+    color: #0073A8;
 }
 
 .div-but- {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 10px; /* Reduced margin */
+    margin-bottom: 5px;
 }
 
 h2 {
-    font-size: 2em; /* Reduced font size */
+    font-size: 2em;
     text-align: center;
     color: #0073A8;
-    margin-bottom: 5px; /* Reduced margin */
+    margin-bottom: 5px;
 }
 
 h8 {
-    font-size: 0.8em; /* Reduced font size */
+    font-size: 0.8em;
     color: grey;
-    margin-top: 2px; /* Reduced margin */
+    margin-top: 2px;
 }
 
 .social-buttons- {
     display: flex;
-    gap: 10px; /* Reduced gap */
+    gap: 10px;
     margin-bottom: 10px;
 }
 
@@ -46,45 +47,44 @@ h8 {
     background-color: grey;
     border: none;
     color: white;
-    width: 40px; /* Reduced width */
-    height: 40px; /* Reduced height */
- 
+    width: 40px;
+    height: 40px;
+    display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 16px; /* Reduced font size */
+    font-size: 16px;
     border-radius: 50%;
     cursor: pointer;
     transition: background 0.3s ease-in-out, transform 0.2s;
 }
 
-.btn-sig- :hover {
+.btn-sig-:hover {
     background-color: white;
     color: grey;
     border: 2px solid grey;
 }
 
-.btn-sig- :active {
+.btn-sig-:active {
     transform: scale(0.9);
 }
 
 .selectord {
     width: 100%;
-    height: 40px; /* Reduced height */
-    margin-left: 1px ; /* Reduced margin */
-    * Reduced padding */
+    height: 40px;
+    margin-left: 1px;
     border-radius: 8px;
     border: 1px solid #0073A8;
-    font-size: 14px; /* Reduced font size */
+    font-size: 14px;
     background-color: lightgrey;
 }
 
 .input-fielde {
     width: 100%;
-    padding: 8px; /* Reduced padding */
-    margin: 6px 0; /* Reduced margin */
+    padding: 8px;
+    margin: 6px 0;
     border: 1px solid #0073A8;
     border-radius: 8px;
-    font-size: 14px; /* Reduced font size */
+    font-size: 14px;
     outline: none;
     background-color: lightgrey;
 }
@@ -96,15 +96,15 @@ h8 {
 
 .btn-sign-up {
     width: 85%;
-    padding: 10px; /* Reduced padding */
+    padding: 10px;
     background-color: #0073A8;
     color: white;
     border: none;
     border-radius: 25px;
-    font-size: 16px; /* Reduced font size */
+    font-size: 16px;
     cursor: pointer;
     transition: 0.3s;
-    margin-top: 12px; /* Reduced margin */
+    margin-top: 12px;
 }
 
 .btn-sign-up:hover {

@@ -1,28 +1,42 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // 🔁 import navigate
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './component.css';
 
 const SignInForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // ✅ Initialize navigation
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
+    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
+    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
+    const adminId = import.meta.env.VITE_ADMIN_ID;
+
+    // 🔐 Check if it's admin
+    if (email === adminEmail && password === adminPassword) {
+      localStorage.setItem('token', 'admin-token');
+      localStorage.setItem('userId', adminId);
+      localStorage.setItem('role', 'admin');
+
+      navigate('/account-demande-list'); // admin dashboard
+      return;
+    }
+
+    // 👥 Else: Try normal user login
     try {
       const response = await axios.post('http://localhost:3000/api/v1/auth/signin', {
         email,
         password,
       });
 
-      console.log('Login success:', response.data);
+      const user = response.data.data.user;
 
-      // Optionally store token
       localStorage.setItem('token', response.data.data.token);
+      localStorage.setItem('userId', user._id);
+      localStorage.setItem('role', user.role || 'user'); // fallback role
 
-      // ✅ Redirect to main/dashboard page
-      navigate('/prescription'); // Change this to your actual route
-
+      navigate('/prescription'); // Or dynamic route by role
     } catch (error) {
       console.error('Login error:', error.response?.data || error.message);
     }
