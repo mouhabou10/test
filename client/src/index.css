@@ -18,6 +18,24 @@ body{
   height: 60px;
   z-index: 100;
 }
+
+@media (max-width: 800px) {
+  .nav-client {
+    width: calc(100% - 60px);
+    right: 0;
+    height: 50px;
+    padding: 0.3rem;
+    margin-left: 60px;
+  }
+  
+  .header-container {
+    padding: 0 10px;
+  }
+  
+  .icons {
+    gap: 3px;
+  }
+}
 .header-container{
   display: flex;
   justify-content: space-between;
@@ -54,6 +72,44 @@ body{
   top: 0%;
   width: 15%;
   height: 100vh;
+  z-index: 1000;
+}
+
+@media (max-width: 800px) {
+  .sidebar {
+    width: 60px;
+    height: 100vh;
+    bottom: auto;
+    top: 0;
+  }
+  
+  .ul-deisgn {
+    flex-direction: column;
+    margin: 60px 0 0 0;
+    gap: 15px;
+    padding: 5px;
+  }
+  
+  .li-deign {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .li-deign a {
+    padding: 8px 0;
+    height: auto;
+    width: 100%;
+  }
+  
+  .li-deign a svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .li-deign a span {
+    display: none;
+  }
 }
 .ul-deisgn {
   list-style: none;
@@ -1564,13 +1620,27 @@ select.input-field:focus {
 .consultation-ticket {
   background: white;
   border-radius: 12px;
-  padding: 30px;
+  padding: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  margin: 80px 2% 20px 10%;
+  margin: 6rem 4% 2rem 18%;
   border: 2px solid #0052E0;
   position: relative;
   overflow: hidden;
-  width: 80%;
+  width: auto;
+  max-width: 800px;
+}
+
+@media (max-width: 800px) {
+  .consultation-ticket {
+    margin: 5rem 2% 1rem calc(60px + 2%);
+  }
+}
+
+@media (max-width: 768px) {
+  .consultation-ticket {
+    margin: 5rem 5% 1rem 5%;
+    padding: 15px;
+  }
 }
 
 .consultation-ticket::before {
@@ -1589,81 +1659,148 @@ select.input-field:focus {
 }
 
 .header-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .header-subtitle {
-  font-size: 16px;
+  font-size: 14px;
   color: #666;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .hospital-name {
-  font-size: 20px;
+  font-size: 18px;
   color: #0052E0;
   font-weight: bold;
-  margin-top: 10px;
+  margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+  .header-title {
+    font-size: 14px;
+  }
+  
+  .header-subtitle {
+    font-size: 12px;
+  }
+  
+  .hospital-name {
+    font-size: 16px;
+  }
 }
 
 .ticket-number-section {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 30px;
-  margin: 30px 0;
-  padding: 20px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin: 15px 0;
+  padding: 15px;
   background: #f8f9fa;
   border-radius: 10px;
 }
 
+@media (max-width: 768px) {
+  .ticket-number-section {
+    flex-direction: column;
+    padding: 10px;
+    gap: 10px;
+  }
+}
+
 .number-circle {
-  width: 120px;
-  height: 120px;
+  width: 90px;
+  height: 90px;
   background: #0052E0;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 15px rgba(0, 82, 224, 0.3);
+  margin: 0 auto;
 }
 
 .number {
-  font-size: 48px;
+  font-size: 36px;
   color: white;
   font-weight: bold;
 }
 
+@media (max-width: 768px) {
+  .number-circle {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .number {
+    font-size: 28px;
+  }
+}
+
 .waiting-info {
-  font-size: 16px;
+  font-size: 13px;
+  text-align: center;
+  flex: 1;
+  min-width: 120px;
 }
 
 .highlight {
   color: #0052E0;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 15px;
+  display: block;
+  margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+  .waiting-info {
+    font-size: 12px;
+    min-width: 100%;
+  }
+  
+  .highlight {
+    font-size: 14px;
+    margin-top: 2px;
+  }
 }
 
 .ticket-details {
   background: white;
-  padding: 20px;
+  padding: 15px;
   border-radius: 8px;
-  margin: 20px 0;
+  margin: 15px 0;
   border: 1px solid #e0e0e0;
 }
 
 .detail-row {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
-  padding-bottom: 15px;
+  flex-direction: column;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
   border-bottom: 1px solid #eee;
 }
 
 .detail-row p {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .ticket-details {
+    padding: 10px;
+  }
+  
+  .detail-row {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+  }
+  
+  .detail-row p {
+    font-size: 12px;
+  }
 }
 
 .detail-row strong {
@@ -1672,16 +1809,25 @@ select.input-field:focus {
 
 .validity-info {
   text-align: center;
-  margin-top: 20px;
-  padding: 10px;
+  margin-top: 15px;
+  padding: 8px;
   background: #fff8e1;
   border-radius: 6px;
   color: #b7860b;
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .validity-info {
+    margin-top: 10px;
+    padding: 6px;
+    font-size: 11px;
+  }
 }
 
 .ticket-footer {
-  margin-top: 30px;
-  padding: 20px;
+  margin-top: 20px;
+  padding: 15px;
   background: #f8f9fa;
   border-radius: 8px;
 }
@@ -1689,7 +1835,8 @@ select.input-field:focus {
 .important-note {
   color: #dc3545;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  font-size: 14px;
 }
 
 .instructions {
@@ -1699,9 +1846,26 @@ select.input-field:focus {
 }
 
 .instructions li {
-  margin: 8px 0;
-  padding-left: 20px;
+  margin: 6px 0;
+  padding-left: 15px;
   position: relative;
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .ticket-footer {
+    margin-top: 15px;
+    padding: 10px;
+  }
+  
+  .important-note {
+    font-size: 12px;
+  }
+  
+  .instructions li {
+    font-size: 11px;
+    margin: 4px 0;
+  }
 }
 
 .instructions li::before {
@@ -1710,4 +1874,66 @@ select.input-field:focus {
   position: absolute;
   left: 0;
   font-size: 20px;
+}
+
+/* ConsultationTicket Loading and Error States */
+.consultation-ticket.loading,
+.consultation-ticket.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: 2rem;
+  text-align: center;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin: 6rem 4% 2rem 18%;
+  width: auto;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #0167FB;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  color: #dc3545;
+  text-align: center;
+}
+
+.error-message h3 {
+  margin-bottom: 1rem;
+  color: #dc3545;
+}
+
+.error-message p {
+  margin-bottom: 1.5rem;
+  color: #666;
+}
+
+.login-button {
+  background-color: #0167FB;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+
+.login-button:hover {
+  background-color: #0052E0;
 }

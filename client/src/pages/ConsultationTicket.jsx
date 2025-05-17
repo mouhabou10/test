@@ -1,75 +1,170 @@
-import React from "react";
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const ConsultationTicket = () => {
-  // Sample data - replace with actual data from your backend
-  const ticketData = {
-    ticketNumber: "23",
-    waitingList: "12",
-    fullName: "Mohamed Amine",
-    specialty: "Cardiologie",
-    createDate: new Date().toLocaleString('fr-DZ', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    }),
-    estimatedTime: "10:30",
-    hospitalName: "CHU Mustapha Pacha",
-    departmentName: "Service de Cardiologie",
-    validUntil: new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('fr-DZ') // 24 hours from now
-  };
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [ticketData, setTicketData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  return (
-    <section style={{ marginLeft: "20%", marginRight: "5%", marginBottom: "5%" }}>
-      <div className="ticket-container">
-        <h1 style={{ color: "#0052E0" }}>Ticket de Consultation</h1>
-        <div className="consultation-ticket">
-          <div className="ticket-header">
-            <div className="ticket-header-text">
-              <p className="header-title">REPUBLIQUE ALGERIENNE DEMOCRATIQUE ET POPULAIRE</p>
-              <p className="header-subtitle">Ministère de la Santé</p>
-              <p className="hospital-name">{ticketData.hospitalName}</p>
-            </div>
-          </div>
+  useEffect(() => {
+    const createOrGetTicket = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const existingTicket = localStorage.getItem(`ticket_${id}`);
 
-          <div className="ticket-body">
-            <div className="ticket-number-section">
-              <div className="number-circle">
-                <span className="number">{ticketData.ticketNumber}</span>
-              </div>
-              <div className="waiting-info">
-                <p>Personnes en attente: <span className="highlight">{ticketData.waitingList}</span></p>
-                <p>Heure estimée: <span className="highlight">{ticketData.estimatedTime}</span></p>
-              </div>
-            </div>
+        if (!token || !user?._id) {
+          setError('Please log in to create a ticket.');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setTimeout(() => {
+            navigate('/login', { state: { from: `/consultation/ticket/${id}` } });
+          }, 2000);
+          return;
+        }
 
-            <div className="ticket-details">
-              <div className="detail-row">
-                <p><strong>Nom et Prénom:</strong> {ticketData.fullName}</p>
-                <p><strong>Spécialité:</strong> {ticketData.specialty}</p>
-              </div>
-              <div className="detail-row">
-                <p><strong>Service:</strong> {ticketData.departmentName}</p>
-                <p><strong>Date de création:</strong> {ticketData.createDate}</p>
-              </div>
-              <div className="validity-info">
-                <p><strong>Valable jusqu'au:</strong> {ticketData.validUntil}</p>
-              </div>
-            </div>
+        if (existingTicket) {
+          // Use existing ticket if found
+          setTicketData(JSON.parse(existingTicket));
+          setLoading(false);
+          return;
+        }
 
-            <div className="ticket-footer">
-              <p className="important-note">Important:</p>
-              <ul className="instructions">
-                <li>Veuillez vous présenter 15 minutes avant l'heure estimée</li>
-                <li>Ce ticket est personnel et non transférable</li>
-                <li>En cas de retard, un nouveau ticket peut être nécessaire</li>
-              </ul>
-            </div>
-          </div>
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/v1/tickets/create`,
+          {
+            serviceProvider: id,
+            client: user._id
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.data.success) {
+          const newTicketData = response.data.data;
+          setTicketData(newTicketData);
+          // Store the ticket in localStorage
+          localStorage.setItem(`ticket_${id}`, JSON.stringify(newTicketData));
+          setError(null);
+        } else {
+          throw new Error(response.data.message || 'Failed to create ticket');
+        }
+      } catch (err) {
+        console.error('Error creating ticket:', err);
+        
+        if (err.response?.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setError('Your session has expired. Please log in again.');
+          setTimeout(() => {
+            navigate('/login', { state: { from: `/consultation/ticket/${id}` } });
+          }, 2000);
+        } else if (err.response?.status === 404) {
+          setError('Provider or user not found. Please try again.');
+        } else if (err.response?.status === 500) {
+          setError('A server error occurred. Please try again later.');
+        } else {
+          setError(err.response?.data?.message || err.message || 'Failed to create ticket');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    createOrGetTicket();
+  }, [id, navigate]);
+
+  if (loading) {
+    return (
+      <div className="consultation-ticket loading">
+        <div className="loading-spinner"></div>
+        <p>Creating your ticket...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="consultation-ticket error">
+        <div className="error-message">
+          <h3>Error</h3>
+          <p>{error}</p>
+          {error.includes('log in') && (
+            <button 
+              onClick={() => navigate('/login', { state: { from: `/consultation/ticket/${id}` } })}
+              className="login-button"
+            >
+              Go to Login
+            </button>
+          )}
         </div>
       </div>
-    </section>
+    );
+  }
+
+  if (!ticketData) {
+    return <div className="consultation-ticket">No ticket data available</div>;
+  }
+
+  const estimatedWaitingTime = ticketData.waitingCount * 15; // 15 minutes per person
+
+  return (
+    <div className="consultation-ticket">
+      <div className="ticket-header-text">
+        <div className="header-title">RÉPUBLIQUE ALGÉRIENNE DÉMOCRATIQUE ET POPULAIRE</div>
+        <div className="header-subtitle">Ministère de la Santé</div>
+        <div className="hospital-name">{ticketData.serviceProvider?.name}</div>
+      </div>
+
+      <div className="ticket-number-section">
+        <div className="waiting-info">
+          People Waiting: <span className="highlight">{ticketData.waitingCount}</span>
+        </div>
+        <div className="number-circle">
+          <div className="number">{ticketData.number}</div>
+        </div>
+        <div className="waiting-info">
+          Estimated Time: <span className="highlight">{Math.floor(estimatedWaitingTime / 60)}h {estimatedWaitingTime % 60}min</span>
+        </div>
+      </div>
+
+      <div className="ticket-details">
+        <div className="detail-row">
+          <p><strong>Nom et Prénom:</strong> {JSON.parse(localStorage.getItem('user') || '{}').fullName}</p>
+        </div>
+        <div className="detail-row">
+          <p><strong>Spécialité:</strong> {ticketData.serviceProvider?.speciality}</p>
+        </div>
+        <div className="detail-row">
+          <p><strong>Date de création:</strong> {new Date(ticketData.createdAt).toLocaleString('fr-DZ')}</p>
+        </div>
+        <div className="detail-row">
+          <p><strong>Status:</strong> {ticketData.status}</p>
+        </div>
+      </div>
+
+      <div className="validity-info">
+        Ce ticket n'est valable que pour aujourd'hui. Veuillez arriver au moins 10 minutes avant votre tour.
+      </div>
+
+      <div className="ticket-footer">
+        <div className="important-note">Instructions Importantes:</div>
+        <ul className="instructions">
+          <li>Gardez ce ticket avec vous jusqu'à votre tour</li>
+          <li>Restez dans la salle d'attente</li>
+          <li>Écoutez l'appel de votre numéro</li>
+          <li>Votre ticket sera annulé si vous manquez votre tour</li>
+          <li>En cas d'urgence, veuillez vous adresser à l'accueil</li>
+        </ul>
+      </div>
+    </div>
   );
 };
 
