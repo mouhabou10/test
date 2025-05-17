@@ -39,7 +39,7 @@ const serviceProviderSchema = new mongoose.Schema(
       required: true,
       minlength: 4,
       maxlength: 18,
-      trim: true,
+      trim: true
     },
 
     type: {
@@ -48,6 +48,7 @@ const serviceProviderSchema = new mongoose.Schema(
       enum: ['hospital', 'cabine', 'clinic']
     },
 
+    // When type is 'cabine', use a single string value
     speciality: {
       type: String,
       required: function () {
@@ -55,18 +56,29 @@ const serviceProviderSchema = new mongoose.Schema(
       }
     },
 
+    // When type is 'hospital' or 'clinic', use multiple references
+    specialities: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Speciality',
+        required: function () {
+          return this.type !== 'cabine';
+        }
+      }
+    ],
+
     workers: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Worker'
       }
     ],
+
     status: {
       type: String,
       enum: ['approved'],
       default: 'approved'
     }
-    
   },
   {
     timestamps: true
