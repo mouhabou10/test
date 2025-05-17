@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose';
 
 const documentSchema = new mongoose.Schema(
@@ -6,6 +7,10 @@ const documentSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Document title is required'],
       trim: true
+    },
+    path: {
+      type: String,
+      required: [true, 'File path is required'],
     },
     type: {
       type: String,

@@ -65,6 +65,9 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/services', serviceRoutes);
 app.use('/api/v1/service-provider',serviceProviderRouter);
+// Serve files from the uploads folder
+app.use('/uploads', express.static('uploads'));
+
 
 // Global error handler
 app.use(errorMiddleware);

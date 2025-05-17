@@ -41,9 +41,20 @@ const serviceProviderSchema = new mongoose.Schema(
       maxlength: 18,
       trim: true,
     },
-    
-    
-    speciality: { type:String, required: true },
+
+    type: {
+      type: String,
+      required: [true, 'Type is required'],
+      enum: ['hospital', 'cabine', 'clinic']
+    },
+
+    speciality: {
+      type: String,
+      required: function () {
+        return this.type === 'cabine';
+      }
+    },
+
     workers: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -60,7 +71,7 @@ const serviceProviderSchema = new mongoose.Schema(
 serviceProviderSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
-  this.confirmPassword = undefined; // Remove from DB
+  this.confirmPassword = undefined;
   next();
 });
 
