@@ -3,7 +3,7 @@ import {
   createServiceProvider,
   getAllServiceProviders,
   getServiceProviderById,
- 
+  searchServiceProviders,
   deleteServiceProvider
 } from '../controllers/ServiceProviderController.js';
 
@@ -11,8 +11,12 @@ const serviceProviderRouter = Router();
 
 serviceProviderRouter.post('/service-signup', createServiceProvider);
 serviceProviderRouter.get('/', getAllServiceProviders);
-serviceProviderRouter.get('/:id', getServiceProviderById);
 
+// Place the search route BEFORE the :id route
+serviceProviderRouter.get('/search', searchServiceProviders);
+
+// ID-specific routes should come after specific routes
+serviceProviderRouter.get('/:id', getServiceProviderById);
 serviceProviderRouter.delete('/:id', deleteServiceProvider);
 
 export default serviceProviderRouter;

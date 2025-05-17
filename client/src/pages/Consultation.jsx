@@ -1,27 +1,63 @@
-import React, { useState } from "react";
-import { Categores } from "../components/data";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Photo1 from "../images/clinic.png";
 import Photo2 from "../images/hospital.png";
 import Photo3 from "../images/medical-doctor.png";
 import { Link } from "react-router-dom";
 import Header from "../components/Header.jsx";
 import SideBare from "../components/SideBareClient.jsx";
+import { FaHeart, FaEye, FaTooth, FaFlask, FaStethoscope, FaBone, FaBaby, FaBrain, FaHospital, FaUserMd } from "react-icons/fa";
+import { MdLocalHospital } from "react-icons/md";
 
 const Consultation = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [selectedState, setSelectedState] = useState("");
+  const [specialities, setSpecialities] = useState([]);
+  const [loadingSpecialities, setLoadingSpecialities] = useState(true);
+  const [specialitiesError, setSpecialitiesError] = useState(null);
 
   const states = [
     "Adrar", "Chlef", "Laghouat", "Oum El Bouaghi", "Batna", "Béjaïa", "Biskra", 
     "Béchar", "Blida", "Bouïra", "Tamanrasset", "Tébessa", "Tlemcen", "Tiaret", 
-    "Tizi Ouzou", "Algiers", "Djelfa", "Jijel", "Sétif", "Saïda", "Skikda", 
+    "Tizi Ouzou", "Alger", "Djelfa", "Jijel", "Sétif", "Saïda", "Skikda", 
     "Sidi Bel Abbès", "Annaba", "Guelma", "Constantine", "Médéa", "Mostaganem", 
     "M'Sila", "Mascara", "Ouargla", "Oran", "El Bayadh", "Illizi", 
     "Bordj Bou Arréridj", "Boumerdès", "El Tarf", "Tindouf", "Tissemsilt", 
     "El Oued", "Khenchela", "Souk Ahras", "Tipaza", "Mila", "Aïn Defla", 
     "Naâma", "Aïn Témouchent", "Ghardaïa", "Relizane"
   ];
+
+  // Map specialty names to specific icons
+  const specialtyIconMap = {
+    'Cardiology': FaHeart,
+    'Ophthalmology': FaEye,
+    'Dentistry': FaTooth,
+    'Endocrinology': FaFlask,
+    'Urology': FaStethoscope,
+    'Rheumatology': FaBone,
+    'Pediatrics': FaBaby,
+    'Neurology': FaBrain,
+  };
+
+  // Default icon if specialty doesn't have a specific icon
+  const DefaultIcon = MdLocalHospital;
+
+  useEffect(() => {
+    const fetchSpecialities = async () => {
+      try {
+        setLoadingSpecialities(true);        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/services`);
+        console.log('Specialties response:', response.data); // Debug log
+        setSpecialities(response.data.data || []);
+        setSpecialitiesError(null);
+      } catch (err) {
+        setSpecialitiesError("Failed to load specialities.");
+      } finally {
+        setLoadingSpecialities(false);
+      }
+    };
+    fetchSpecialities();
+  }, []);
 
   const handleSearch = () => {
     // We'll use the search query parameters to pass the selected values
@@ -39,21 +75,30 @@ const Consultation = () => {
       <SideBare/>
       <div className="category-container">
         <div className="category-title">
-          <h1>Choose a category</h1>
+          <h1>Choose a speciality</h1>
           <h3>See all</h3>
         </div>
         <div className="category-cards">
-          {Categores.map(({ name, icon, id }) => (
-            <div 
-              key={id} 
-              className={`category-card ${selectedCategory === name ? 'selected' : ''}`}
-              onClick={() => setSelectedCategory(name)}
-              style={{ cursor: 'pointer' }}
-            >
-              <img src={icon} alt={name} />
-              <p>{name}</p>
-            </div>
-          ))}
+          {loadingSpecialities ? (
+            <div>Loading specialities...</div>
+          ) : specialitiesError ? (
+            <div className="text-red-500">{specialitiesError}</div>
+          ) : (
+            specialities.map(({ _id, name }) => {
+              const SpecialtyIcon = specialtyIconMap[name] || DefaultIcon;
+              return (
+                <div
+                  key={_id}
+                  className={`category-card ${selectedCategory === name ? 'selected' : ''}`}
+                  onClick={() => setSelectedCategory(name)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <SpecialtyIcon size={48} style={{ marginBottom: 8, color: '#0167FB' }} />
+                  <p>{name}</p>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
       <div className="second-part">
