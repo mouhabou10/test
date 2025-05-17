@@ -11,7 +11,50 @@ select {
     background-color: #eeeeee; /* lighter than lightgrey */
    margin-right:2px
 }
-  
+.add-worker-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  margin-left: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow: auto; /* allow scrolling if content is taller than viewport */
+}
+
+.modal-content {
+  background: white;
+  max-height: 80vh;  /* limit max height */
+  overflow-y: auto;  /* enable vertical scrolling */
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-sizing: border-box;
+}
+
+.table-container {
+  max-height: 500px; /* Adjust height as you want */
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
   select:focus {
     outline: none;
     box-shadow: none; /* remove blue glow */
@@ -105,5 +148,79 @@ select {
     max-width: 1200px;
     margin-top: 150px ;
     margin-left:120px; /* Center the card */
+  }
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 24px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modal-content h2 {
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  
+  .modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .modal-form label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+  }
+  
+  .modal-form input,
+  .modal-form select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  
+  .modal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+  }
+  
+  .submit-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    flex: 1;
+    margin-right: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .cancel-btn {
+    background-color: #f44336;
+    color: white;
+    padding: 10px;
+    flex: 1;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
   }
   

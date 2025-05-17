@@ -5,7 +5,7 @@ import {
   getWorkerById,
   updateWorker,
   deleteWorker
-} from '../controllers/WorkerController.js';
+} from '../controllers/workerController.js';
 
 const workerRouter = Router();
 

@@ -1,27 +1,52 @@
-// controllers/WorkerController.js
-
 import Worker from '../models/worker.model.js';
+import User from '../models/user.model.js';
 import mongoose from 'mongoose';
 
-// ─── CREATE WORKER ──────────────────────────────────────────────────────
+// CREATE WORKER
 export const createWorker = async (req, res, next) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const { id, name, job, service } = req.body;
+    const {
+      jobId,
+      fullName,
+      email,
+      phoneNumber,
+      password,
+      role,
+      speciality,       // Expecting a string (name)
+      serviceProvider   // Expecting a valid ObjectId string
+    } = req.body;
 
-    const [newWorker] = await Worker.create([
-      { id, name, job, service }
-    ], { session });
+    // Create User
+    const newUser = await User.create([{
+      userId: Math.floor(Math.random() * 1000000),
+      fullName,
+      email,
+      phoneNumber,
+      password,
+      role
+    }], { session });
+
+    // Create Worker
+    const newWorker = await Worker.create([{
+      user: newUser[0]._id,
+      jobId,
+      speciality,       // This should match your schema type (see below)
+      serviceProvider
+    }], { session });
 
     await session.commitTransaction();
     session.endSession();
 
     res.status(201).json({
       success: true,
-      message: 'Worker created successfully',
-      data: newWorker,
+      message: 'Worker and user created successfully',
+      data: {
+        user: newUser[0],
+        worker: newWorker[0]
+      }
     });
   } catch (error) {
     await session.abortTransaction();
@@ -30,24 +55,24 @@ export const createWorker = async (req, res, next) => {
   }
 };
 
-// ─── GET ALL WORKERS ────────────────────────────────────────────────────
+// GET ALL WORKERS
 export const getAllWorkers = async (req, res, next) => {
   try {
-    const workers = await Worker.find();
-    res.status(200).json({
-      success: true,
-      data: workers,
-    });
+    const workers = await Worker.find()
+      .populate('serviceProvider', 'name')
+      .populate('speciality', 'name');
+
+    res.status(200).json({ success: true, data: workers });
   } catch (error) {
     next(error);
   }
 };
 
-// ─── GET SINGLE WORKER ──────────────────────────────────────────────────
+// GET WORKER BY ID
 export const getWorkerById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const worker = await Worker.findOne({ id });
+    const worker = await Worker.findById(id); // Use findById for ObjectId
 
     if (!worker) {
       const error = new Error('Worker not found');
@@ -55,20 +80,17 @@ export const getWorkerById = async (req, res, next) => {
       throw error;
     }
 
-    res.status(200).json({
-      success: true,
-      data: worker,
-    });
+    res.status(200).json({ success: true, data: worker });
   } catch (error) {
     next(error);
   }
 };
 
-// ─── DELETE WORKER ──────────────────────────────────────────────────────
+// DELETE WORKER
 export const deleteWorker = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const deleted = await Worker.findOneAndDelete({ id });
+    const deleted = await Worker.findByIdAndDelete(id);
 
     if (!deleted) {
       const error = new Error('Worker not found');
@@ -76,26 +98,19 @@ export const deleteWorker = async (req, res, next) => {
       throw error;
     }
 
-    res.status(200).json({
-      success: true,
-      message: 'Worker deleted successfully',
-    });
+    res.status(200).json({ success: true, message: 'Worker deleted successfully' });
   } catch (error) {
     next(error);
   }
 };
 
-// ─── UPDATE WORKER ──────────────────────────────────────────────────────
+// UPDATE WORKER
 export const updateWorker = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updatedData = req.body;
 
-    const updatedWorker = await Worker.findOneAndUpdate(
-      { id },
-      updatedData,
-      { new: true }
-    );
+    const updatedWorker = await Worker.findByIdAndUpdate(id, updatedData, { new: true });
 
     if (!updatedWorker) {
       const error = new Error('Worker not found');
@@ -103,11 +118,7 @@ export const updateWorker = async (req, res, next) => {
       throw error;
     }
 
-    res.status(200).json({
-      success: true,
-      message: 'Worker updated successfully',
-      data: updatedWorker,
-    });
+    res.status(200).json({ success: true, message: 'Worker updated successfully', data: updatedWorker });
   } catch (error) {
     next(error);
   }

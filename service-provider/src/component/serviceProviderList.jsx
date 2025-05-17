@@ -14,9 +14,10 @@ const ServiceProviderList = () => {
   useEffect(() => {
     const fetchDemands = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/account-demands/all-demands');
-        setDemands(res.data.data);
-        setFiltered(res.data.data);
+        const res = await axios.get('http://localhost:3000/api/v1/account-demands');
+        const pending = res.data.data.filter(d => d.status === 'pending');
+        setDemands(pending);
+        setFiltered(pending);
       } catch (err) {
         console.error('Failed to fetch account demands:', err);
       }
