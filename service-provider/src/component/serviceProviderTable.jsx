@@ -9,9 +9,10 @@ const ServiceProviderTable = ({ data }) => {
           <tr>
             <th>ID</th>
             <th>Account Type</th>
-            <th>Service Provider Name</th>
+            <th>Full Name</th>
             <th>Email</th>
-            <th>Director Job ID</th>
+            <th>Wilaya</th>
+            <th>Speciality</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -19,19 +20,21 @@ const ServiceProviderTable = ({ data }) => {
           {data && data.length > 0 ? (
             data.map((item, index) => (
               <tr key={index}>
-                <td>{item.id}</td>
-                <td>{item.accountType}</td>
-                <td>{item.serviceProviderName}</td>
+                <td>{item._id}</td>
+                <td>{item.type}</td>
+                <td>{item.fullName}</td>
                 <td>{item.email}</td>
-                <td>{item.directorJobId}</td>
+                <td>{item.wilaya}</td>
+                <td>{item.speciality || '-'}</td>
                 <td>
-                  <button className="action-btn">View</button>
+                  <button className="action-btn approve">✅ Approve</button>
+                  <button className="action-btn reject">❌ Reject</button>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="6" className="no-data">No data available</td>
+              <td colSpan="7" className="no-data">No pending account demands</td>
             </tr>
           )}
         </tbody>

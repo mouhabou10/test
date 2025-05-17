@@ -60,7 +60,13 @@ const serviceProviderSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Worker'
       }
-    ]
+    ],
+    status: {
+      type: String,
+      enum: ['approved'],
+      default: 'approved'
+    }
+    
   },
   {
     timestamps: true

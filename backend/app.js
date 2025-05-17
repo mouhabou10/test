@@ -22,6 +22,7 @@ import workerRoutes from './routes/workerRoutes.js';
 import userRoutes from './routes/user.Routes.js';
 import authRoutes from './routes/auth.Routes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import accountDemandRoutes from './routes/accountDemandRoutes.js';
 
 import errorMiddleware from './Middlewares/error.Middleware.js';
 import cookieParser from 'cookie-parser';
@@ -45,6 +46,8 @@ app.use(cookieParser());
 app.get('/', (req, res) => {
   res.send('✅ Server is working!');
 });
+
+app.use('/api/v1/account-demands', accountDemandRoutes);
 
 // Routes setup
 app.use('/api/v1/agents', agentRoutes);
