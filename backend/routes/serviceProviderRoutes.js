@@ -5,7 +5,7 @@ import {
   getServiceProviderById,
   searchServiceProviders,
   deleteServiceProvider
-} from '../controllers/ServiceProviderController.js';
+} from '../controllers/serviceProviderController.js';
 
 const serviceProviderRouter = Router();
 
