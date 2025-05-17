@@ -1,21 +1,48 @@
 import mongoose from 'mongoose';
 
 const accountDemandSchema = new mongoose.Schema({
-  fullName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  wilaya: { type: String, required: true },
+  fullName: {
+    type: String,
+    required: true
+  },
+
+  email: {
+    type: String,
+    required: true,
+    unique: true
+  },
+
+  wilaya: {
+    type: String,
+    required: true
+  },
+
   type: {
     type: String,
     required: true,
     enum: ['hospital', 'cabine', 'clinic']
   },
+
   speciality: {
     type: String,
     required: function () {
       return this.type === 'cabine';
     }
   },
-  password: { type: String, required: true },
+
+  directorId: {
+    type: String,
+    required: true,
+    minlength: 4,
+    maxlength: 18,
+    trim: true
+  },
+
+  password: {
+    type: String,
+    required: true
+  },
+
   confirmPassword: {
     type: String,
     required: true,
@@ -26,6 +53,7 @@ const accountDemandSchema = new mongoose.Schema({
       message: 'Passwords do not match'
     }
   },
+
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],

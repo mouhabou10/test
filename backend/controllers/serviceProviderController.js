@@ -1,6 +1,5 @@
 import ServiceProvider from '../models/serviceProvider.model.js';
 
-
 // ─── CREATE SERVICE PROVIDER ──────────────────────────────────────────────
 export const createServiceProvider = async (req, res, next) => {
   try {
@@ -12,10 +11,11 @@ export const createServiceProvider = async (req, res, next) => {
       wilaya,
       directorId,
       type,
-      speciality
+      speciality,        // For 'cabine'
+      specialities       // For 'hospital' or 'clinic'
     } = req.body;
 
-    // Validate: speciality is required only if type is 'cabine'
+    // Validate required fields based on type
     if (type === 'cabine' && !speciality) {
       return res.status(400).json({
         success: false,
@@ -23,16 +23,30 @@ export const createServiceProvider = async (req, res, next) => {
       });
     }
 
-    const provider = await ServiceProvider.create({
+    if ((type === 'hospital' || type === 'clinic') && (!specialities || !specialities.length)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Specialities are required for service providers of type "hospital" or "clinic"'
+      });
+    }
+
+    const providerData = {
       name,
       email,
       password,
       confirmPassword,
       wilaya,
       directorId,
-      type,
-      speciality: type === 'cabine' ? speciality : undefined // optional cleanup
-    });
+      type
+    };
+
+    if (type === 'cabine') {
+      providerData.speciality = speciality;
+    } else {
+      providerData.specialities = specialities;
+    }
+
+    const provider = await ServiceProvider.create(providerData);
 
     res.status(201).json({
       success: true,
@@ -44,11 +58,10 @@ export const createServiceProvider = async (req, res, next) => {
   }
 };
 
-
 // ─── GET ALL SERVICE PROVIDERS ────────────────────────────────────────────
 export const getAllServiceProviders = async (req, res, next) => {
   try {
-    const providers = await ServiceProvider.find().populate('speciality directorId workers');
+    const providers = await ServiceProvider.find().populate('specialities workers');
     res.status(200).json({ success: true, data: providers });
   } catch (error) {
     next(error);
@@ -58,7 +71,7 @@ export const getAllServiceProviders = async (req, res, next) => {
 // ─── GET SERVICE PROVIDER BY ID ───────────────────────────────────────────
 export const getServiceProviderById = async (req, res, next) => {
   try {
-    const provider = await ServiceProvider.findById(req.params.id).populate('speciality directorId workers');
+    const provider = await ServiceProvider.findById(req.params.id).populate('specialities workers');
     if (!provider) throw new Error('Service provider not found');
     res.status(200).json({ success: true, data: provider });
   } catch (error) {
