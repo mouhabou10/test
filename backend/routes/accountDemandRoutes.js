@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import express from 'express';
 import {
   createAccountDemand,
   getAllAccountDemands,
@@ -6,24 +6,18 @@ import {
   rejectAccountDemand
 } from '../controllers/accountDemandController.js';
 
-const router = Router();
-// routes/accountDemand.js or wherever your routes are
-router.get('/all-demands', async (req, res) => {
-  try {
-    const demands = await AccountDemand.find();
-    res.status(200).json({ success: true, data: demands });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Server Error' });
-  }
-});
+const router = express.Router();
 
-
-router.post('/service-signup', createAccountDemand);
-
-
+// Route to submit a new demand
 router.post('/', createAccountDemand);
+
+// Route to get all demands (admin use)
 router.get('/', getAllAccountDemands);
-router.post('/:id/approve', approveAccountDemand);
-router.post('/:id/reject', rejectAccountDemand);
+
+// Route to approve a demand by ID
+router.post('/approve/:id', approveAccountDemand);
+
+// Route to reject a demand by ID
+router.delete('/:id', rejectAccountDemand);
 
 export default router;
