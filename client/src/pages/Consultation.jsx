@@ -6,8 +6,16 @@ import Photo3 from "../images/medical-doctor.png";
 import { Link } from "react-router-dom";
 import Header from "../components/Header.jsx";
 import SideBare from "../components/SideBareClient.jsx";
-import { FaHeart, FaEye, FaTooth, FaFlask, FaStethoscope, FaBone, FaBaby, FaBrain, FaHospital, FaUserMd } from "react-icons/fa";
-import { MdLocalHospital } from "react-icons/md";
+
+// Import specialty images
+import DentistryIcon from "../images/spicialites/dentistry.png";
+import EmergencyMedicineIcon from "../images/spicialites/Emergency Medicine.png";
+import EndocrinologyIcon from "../images/spicialites/endocrinology.png";
+import KidneyIcon from "../images/spicialites/kidney.png";
+import NeurologyIcon from "../images/spicialites/neurology.png";
+import OphthalmologyIcon from "../images/spicialites/ophthalmology.png";
+import PediatricsIcon from "../images/spicialites/pediatrics.png";
+import RheumatologyIcon from "../images/spicialites/rheumatology.png";
 
 const Consultation = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -28,30 +36,39 @@ const Consultation = () => {
     "Naâma", "Aïn Témouchent", "Ghardaïa", "Relizane"
   ];
 
-  // Map specialty names to specific icons
-  const specialtyIconMap = {
-    'Cardiology': FaHeart,
-    'Ophthalmology': FaEye,
-    'Dentistry': FaTooth,
-    'Endocrinology': FaFlask,
-    'Urology': FaStethoscope,
-    'Rheumatology': FaBone,
-    'Pediatrics': FaBaby,
-    'Neurology': FaBrain,
+  // Map specialty names to their respective images
+  const specialtyImageMap = {
+    'Dentistry': DentistryIcon,
+    'Emergency Medicine': EmergencyMedicineIcon,
+    'Endocrinology': EndocrinologyIcon,
+    'Urology': KidneyIcon,
+    'Neurology': NeurologyIcon,
+    'Ophthalmology': OphthalmologyIcon,
+    'Pediatrics': PediatricsIcon,
+    'Rheumatology': RheumatologyIcon,
   };
-
-  // Default icon if specialty doesn't have a specific icon
-  const DefaultIcon = MdLocalHospital;
-
   useEffect(() => {
     const fetchSpecialities = async () => {
       try {
-        setLoadingSpecialities(true);        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/services`);
-        console.log('Specialties response:', response.data); // Debug log
-        setSpecialities(response.data.data || []);
-        setSpecialitiesError(null);
+        setLoadingSpecialities(true);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/services`);
+        
+        if (response.data?.success) {
+          const validSpecialties = response.data.data.filter(specialty => 
+            specialtyImageMap.hasOwnProperty(specialty.name)
+          );
+          setSpecialities(validSpecialties);
+          setSpecialitiesError(null);
+        } else {
+          console.error('Invalid response format:', response.data);
+          setSpecialitiesError("Error loading specialties");
+        }
       } catch (err) {
-        setSpecialitiesError("Failed to load specialities.");
+        console.error('Error fetching specialities:', err);
+        setSpecialitiesError(
+          err.response?.status === 404 ? "No specialties found" :
+          "Failed to load specialties. Please try again later."
+        );
       } finally {
         setLoadingSpecialities(false);
       }
@@ -85,7 +102,7 @@ const Consultation = () => {
             <div className="text-red-500">{specialitiesError}</div>
           ) : (
             specialities.map(({ _id, name }) => {
-              const SpecialtyIcon = specialtyIconMap[name] || DefaultIcon;
+              const specialtyImage = specialtyImageMap[name];
               return (
                 <div
                   key={_id}
@@ -93,7 +110,30 @@ const Consultation = () => {
                   onClick={() => setSelectedCategory(name)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <SpecialtyIcon size={48} style={{ marginBottom: 8, color: '#0167FB' }} />
+                  {specialtyImage ? (
+                    <img 
+                      src={specialtyImage} 
+                      alt={name}
+                      style={{ width: '48px', height: '48px', marginBottom: 8 }}
+                    />
+                  ) : (
+                    <div 
+                      style={{ 
+                        width: '48px', 
+                        height: '48px', 
+                        marginBottom: 8,
+                        background: '#0167FB',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontSize: '24px'
+                      }}
+                    >
+                      {name.charAt(0)}
+                    </div>
+                  )}
                   <p>{name}</p>
                 </div>
               );
@@ -111,12 +151,12 @@ const Consultation = () => {
               className={selectedPlace === 'clinic' ? 'selected' : ''}
             >
               <img src={Photo1} alt="clinic" style={{ borderRadius: "13px" }} />
-              <p>
+              <div className="place-info">
                 <h3 style={{ color: "#0167FB", paddingBottom: "3px" }}>
                   Clinic
                 </h3>
-                A private clinic for routine check-ups, diagnoses, and treatments
-              </p>
+                <span>A private clinic for routine check-ups, diagnoses, and treatments</span>
+              </div>
             </div>
             <div 
               onClick={() => setSelectedPlace('hospital')}
@@ -124,12 +164,12 @@ const Consultation = () => {
               className={selectedPlace === 'hospital' ? 'selected' : ''}
             >
               <img src={Photo2} alt="hospital" style={{ borderRadius: "13px" }} />
-              <p>
+              <div className="place-info">
                 <h3 style={{ color: "#0167FB", paddingBottom: "3px" }}>
                   Hospital
                 </h3>
-                A large medical facility offering specialized care, surgeries.
-              </p>
+                <span>A large medical facility offering specialized care, surgeries.</span>
+              </div>
             </div>
             <div 
               onClick={() => setSelectedPlace('cabine')}
@@ -137,12 +177,12 @@ const Consultation = () => {
               className={selectedPlace === 'cabine' ? 'selected' : ''}
             >
               <img src={Photo3} alt="medical doctor" />
-              <p>
+              <div className="place-info">
                 <h3 style={{ color: "#0167FB", paddingBottom: "3px" }}>
                   Cabinet
                 </h3>
-                A healthcare facility providing outpatient medical care, and treatments.
-              </p>
+                <span>A healthcare facility providing outpatient medical care, and treatments.</span>
+              </div>
             </div>
           </div>
         </div>
