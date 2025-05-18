@@ -6,10 +6,13 @@ import {
   incrementPassedTickets,
   pauseTicketDemand,
   resetDay,
+  getTicketStats
 } from '../controllers/ticketController.js';
 import { isAuthenticated } from '../Middlewares/auth.js';
 
 const ticketRouter = Router();
+
+ticketRouter.get('/stats', isAuthenticated, getTicketStats);
 
 ticketRouter.post('/create', isAuthenticated, createTicket);
 ticketRouter.get('/status/:id', isAuthenticated, getTicketStatus);

@@ -22,7 +22,7 @@ const Sidebar = () => {
       <div className={`sidebar ${isOpen ? "sidebar-open" : ""}`}>
         <Logo className="logo" />
         <ul>
-          <li><Link to='/'><span>🎟️ Tiket</span></Link></li>
+          <li><Link to='/Tiket'><span>🎟️ Tiket</span></Link></li>
           <li><Link to="/result"><span>📃 Results</span></Link></li>
           <li><Link to='/'><span>📨 Refferal Letters</span></Link></li>
           <li><Link to='/prescription'><span>💊 Prescriptions</span></Link></li>

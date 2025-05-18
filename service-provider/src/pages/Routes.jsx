@@ -7,6 +7,7 @@ import Prescription from "./prescription.jsx";
 import Result from "./result.jsx";
 import StaffManagement from "./staffManagement.jsx";
 import AccountDemandeList from "./accountDemandeList.jsx";
+import Tiket from "./Tiket.jsx";
 
 
 function AppRoutes() {
@@ -21,6 +22,7 @@ function AppRoutes() {
         <Route path="/result" element={<Result/>} />  
         <Route path="/staff-manager" element={<StaffManagement/>} />   
         <Route path="/account-demande-list" element={<AccountDemandeList/>} />   
+        <Route path="/Tiket" element={<Tiket/>} />   
            
         
 
