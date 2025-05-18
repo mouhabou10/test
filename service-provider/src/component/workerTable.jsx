@@ -1,27 +1,39 @@
 import React, { useState } from 'react';
 import './ResultTable.css';
+import WorkerModal from './WorkerModal';
 import axios from 'axios';
-import WorkerModal from './WorkerModal.jsx';
 
 const WorkerTable = ({ data, fetchWorkers }) => {
   const [selectedWorker, setSelectedWorker] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const handleView = (worker) => {
     setSelectedWorker(worker);
+    setShowModal(true);
   };
 
   const handleClose = () => {
+    setShowModal(false);
     setSelectedWorker(null);
   };
 
-  const handleDelete = async (workerId) => {
+  const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/v1/workers/${workerId}`);
-      fetchWorkers(); // Refresh data
-      handleClose(); // Close modal
+      await axios.delete(`http://localhost:3000/api/v1/workers/${id}`);
+      fetchWorkers();
+      handleClose();
     } catch (err) {
       console.error('Failed to delete worker:', err);
-      alert('Error deleting worker');
+    }
+  };
+
+  const handleUpdate = async (id, updatedData) => {
+    try {
+      await axios.put(`http://localhost:3000/api/v1/workers/${id}`, updatedData);
+      fetchWorkers();
+      handleClose();
+    } catch (err) {
+      console.error('Failed to update worker:', err);
     }
   };
 
@@ -43,10 +55,10 @@ const WorkerTable = ({ data, fetchWorkers }) => {
             {data && data.length > 0 ? (
               data.map((item, index) => (
                 <tr key={index}>
-                  <td>{item.jobId}</td>
-                  <td>{item.fullName}</td>
-                  <td>{item.phoneNumber}</td>
-                  <td>{item.speciality}</td>
+                  <td>{item.id}</td>
+                  <td>{item.worker}</td>
+                  <td>{item.phone}</td>
+                  <td>{item.title}</td>
                   <td>{item.email}</td>
                   <td>
                     <button className="action-btn" onClick={() => handleView(item)}>
@@ -64,11 +76,12 @@ const WorkerTable = ({ data, fetchWorkers }) => {
         </table>
       </div>
 
-      {selectedWorker && (
+      {showModal && (
         <WorkerModal
           worker={selectedWorker}
           onClose={handleClose}
           onDelete={handleDelete}
+          onUpdate={handleUpdate}
         />
       )}
     </div>
