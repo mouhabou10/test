@@ -12,6 +12,10 @@ const ticketSchema = new mongoose.Schema(
       ref: 'ServiceProvider',
       required: true
     },
+    number: {
+      type: Number,
+      required: true
+    },
     status: {
       type: String,
       enum: ['pending', 'confirmed', 'cancelled'],

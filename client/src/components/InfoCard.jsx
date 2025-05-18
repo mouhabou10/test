@@ -5,10 +5,10 @@ import Scope from '../images/stethoscope.png'
 const InfoCard = () => {
   return (
     <div className='card-container'>
-        <img src={Doctor} alt='doctor' />
-            <p> welcome back mr mohamed <br/>
-                 <p style={{ fontSize: "15px" }}>upgrade your experience</p>
-            </p>
+        <img src={Doctor} alt='doctor' />            <div className="welcome-text">
+                <p>welcome back mr mohamed</p>
+                <span style={{ fontSize: "15px" }}>upgrade your experience</span>
+            </div>
         <img src={Scope} alt='Scope' />
     </div>
   )

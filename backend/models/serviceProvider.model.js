@@ -22,10 +22,14 @@ const serviceProviderSchema = new mongoose.Schema(
     },
     confirmPassword: {
       type: String,
-      required: [true, 'Please confirm your password'],
+      // Only required during document creation
+      required: function () {
+        return this.isNew;
+      },
       validate: {
         validator: function (el) {
-          return el === this.password;
+          // Only validate if confirmPassword is provided
+          return !el || el === this.password;
         },
         message: 'Passwords do not match'
       }
@@ -78,6 +82,15 @@ const serviceProviderSchema = new mongoose.Schema(
       type: String,
       enum: ['approved'],
       default: 'approved'
+    },
+
+    ticketCounter: {
+      type: Number,
+      default: 0
+    },
+    waitingCount: {
+      type: Number,
+      default: 0
     }
   },
   {

@@ -1,46 +1,108 @@
 // TicketController.js
 import Ticket from '../models/ticket.model.js';
+import ServiceProvider from '../models/serviceProvider.model.js';
+import Client from '../models/client.model.js';
+import User from '../models/user.model.js';
 import Worker from '../models/worker.model.js';
-import Speciality from '../models/specialty.model.js';
 
 // Create a ticket for a client
 export const createTicket = async (req, res) => {
   try {
-    const { specialityId } = req.body;
+    const { serviceProvider: serviceProviderId, client: clientId } = req.body;
 
-    // Ensure the speciality exists
-    const speciality = await Speciality.findById(specialityId);
-    if (!speciality) return res.status(404).json({ message: 'Speciality not found' });
+    // Check for existing active ticket
+    const existingTicket = await Ticket.findOne({
+      client: clientId,
+      serviceProvider: serviceProviderId,
+      status: { $in: ['pending', 'confirmed'] },
+      createdAt: {
+        $gte: new Date(new Date().setHours(0, 0, 0, 0)) // Today's tickets only
+      }
+    });
 
-    // Find the worker (agent) handling this speciality
-    const worker = await Worker.findOne({ speciality: specialityId });
-    if (!worker) return res.status(404).json({ message: 'No agent for this speciality' });
-
-    if (worker.ticketDemandPaused) {
-      return res.status(403).json({ message: 'Ticket demand is paused for this speciality' });
+    if (existingTicket) {
+      // Return the existing ticket instead of creating a new one
+      await existingTicket.populate('serviceProvider');
+      const provider = await ServiceProvider.findById(serviceProviderId);
+      return res.status(200).json({
+        success: true,
+        message: 'Retrieved existing ticket',
+        data: {
+          ...existingTicket.toObject(),
+          waitingCount: provider.waitingCount
+        }
+      });
     }
 
-    // Increment waiting list
-    worker.waitingList += 1;
-    await worker.save();
+    // Check if service provider exists
+    const serviceProvider = await ServiceProvider.findById(serviceProviderId);
+    if (!serviceProvider) {
+      return res.status(404).json({
+        success: false,
+        message: 'Service provider not found'
+      });
+    }
 
-    const ticketNumber = worker.waitingList + worker.passedList;
+    // Check if user exists
+    const user = await User.findById(clientId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
 
-    // Create and save ticket
+    // Get or create client record
+    let client = await Client.findOne({ user: clientId });
+    if (!client) {
+      client = await Client.create({
+        user: clientId,
+        clientNumber: `CLT${Date.now()}`, // Simple unique number generation
+        fullName: user.fullName,
+        email: user.email,
+        phoneNumber: user.phoneNumber
+      });
+    }
+
+    // Initialize counters if needed
+    if (typeof serviceProvider.ticketCounter !== 'number') {
+      serviceProvider.ticketCounter = 0;
+    }
+    if (typeof serviceProvider.waitingCount !== 'number') {
+      serviceProvider.waitingCount = 0;
+    }
+
+    // Increment counters
+    serviceProvider.ticketCounter++;
+    serviceProvider.waitingCount++;
+    await serviceProvider.save();
+
+    // Create the ticket
     const ticket = new Ticket({
-      speciality: specialityId,
-      number: ticketNumber,
-      date: new Date(),
+      client: client._id,
+      serviceProvider: serviceProviderId,
+      number: serviceProvider.ticketCounter,
+      status: 'pending'
     });
+
     await ticket.save();
+    await ticket.populate('serviceProvider');
 
     res.status(201).json({
+      success: true,
       message: 'Ticket created successfully',
-      ticketNumber: ticket.number,
-      peopleBeforeYou: worker.waitingList - 1,
+      data: {
+        ...ticket.toObject(),
+        waitingCount: serviceProvider.waitingCount
+      }
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Error creating ticket:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Error creating ticket',
+      error: err.message
+    });
   }
 };
 

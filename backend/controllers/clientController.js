@@ -102,3 +102,39 @@ export const getMyTickets = async (req, res, next) => {
     next(error);
   }
 };
+
+// Get client statistics
+export const getClientStats = async (req, res) => {
+  try {
+    const clientId = req.params.id;
+    const user = await User.findById(clientId);
+    
+    if (!user || user.role !== 'client') {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Client not found' 
+      });
+    }
+
+    // For now return mock data until we implement the appointment system
+    const stats = {
+      upcomingAppointments: 2,
+      pastAppointments: 3,
+      consultations: 3,
+      radioTests: 1,
+      laboTests: 1,
+      operations: 0
+    };
+
+    res.status(200).json({
+      success: true,
+      data: stats
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching client statistics',
+      error: error.message
+    });
+  }
+};
