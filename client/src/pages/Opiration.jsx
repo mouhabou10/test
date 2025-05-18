@@ -8,6 +8,7 @@ import Photo3 from "../images/medical-doctor.png";
 import { Link } from "react-router-dom";
 import Header from "../components/Header.jsx"
 import SideBareClient from "../components/SideBareClient.jsx"
+
 const Opiration = () => {
   const [category] = useState(Categores);
   const [files, setFiles] = useState([]);
@@ -50,14 +51,14 @@ const Opiration = () => {
       <SideBareClient/>
       <Header/>
       {/* Categories Section */}
-      <div className="category-container">
-        <div className="category-title">
+      <div className="op-category-container">
+        <div className="op-category-title">
           <h1>Choose a category</h1>
           <h3>See all</h3>
         </div>
-        <div className="category-cards">
+        <div className="op-category-cards">
           {category.map(({ name, icon, id }) => (
-            <div key={id} className="category-card">
+            <div key={id} className="op-category-card">
               <img src={icon} alt={name} />
               <p>{name}</p>
             </div>
@@ -66,10 +67,10 @@ const Opiration = () => {
       </div>
 
       {/* State Selection */}
-      <div className="opiration-state-select">
-        <div className="State">
+      <div className="op-operation-state-select">
+        <div className="op-State">
           <h1 style={{ color: "#0052E0" }}>Choose a State</h1>
-          <div className="State-container">
+          <div className="op-State-container">
             <select>
               <option value="state1">State 1</option>
               <option value="state2">State 2</option>
@@ -81,37 +82,37 @@ const Opiration = () => {
       </div>
       {/* Upload Section */}
       <h1 style={{marginLeft:"20%" , color:"#0052E0" }}>upload file</h1>
-      <div className="upload-div">
-        <div className="upload-section">
+      <div className="op-upload-div">
+        <div className="op-upload-section">
           <input type="file" id="file" hidden onChange={handleFileUpload} />
-          <label htmlFor="file" className="upload-label">
+          <label htmlFor="file" className="op-upload-label">
             <IoCloudUploadOutline size={150} />
           </label>
         </div>
 
         {/* File List */}
-        <div className="upload-info">
+        <div className="op-upload-info">
           <h3 style={{ color: "#0052E0" }}>Uploaded files</h3>
-            <div className="uploaded-files-container">
+            <div className="op-uploaded-files-container">
             {files.map((file) => (
-            <div className="uploaded-file" key={file.name}>
-              <FaFilePdf className="file-icon" />
-              <div className="file-info">
+            <div className="op-uploaded-file" key={file.name}>
+              <FaFilePdf className="op-file-icon" />
+              <div className="op-file-info">
                 <p>{file.name}</p>
-                <div className="progress-bar">
-                  <div className="progress" style={{ width: `${file.progress}%` }}></div>
+                <div className="op-progress-bar">
+                  <div className="op-progress" style={{ width: `${file.progress}%` }}></div>
                 </div>
               </div>
               {file.progress === 100 ? (
                 <button
-                  className="view-btn"
+                  className="op-view-btn"
                   onClick={() => handleViewClick(file)}
                 >
                   View
                 </button>
               ) : (
                 <button
-                  className="cancel-btn"
+                  className="op-cancel-btn"
                   onClick={() => handleCancel(file.name)}
                 >
                   Cancel
@@ -122,16 +123,16 @@ const Opiration = () => {
             </div>
         </div>
       </div>
-      <h1 style={{marginLeft:"20%" , color:"#0052E0" }}>shoose type</h1>
+      <h1 style={{marginLeft:"20%" , color:"#0052E0" }}>choose type</h1>
       {/* Place Type */}
-      <div className="place-type">
-          <div className="hospital"> <img src={Photo1} alt="error"/><p>clinic</p> </div>
-          <div className="cabine"><img src={Photo2} alt="error"/><p>hospital</p></div>
-          <div className="clinic"><img src={Photo3} alt="error"/><p>cabine</p></div>
+      <div className="op-place-type">
+          <div className="op-hospital"> <img src={Photo1} alt="error"/><p>clinic</p> </div>
+          <div className="op-cabine"><img src={Photo2} alt="error"/><p>hospital</p></div>
+          <div className="op-clinic"><img src={Photo3} alt="error"/><p>cabine</p></div>
       </div>
       <div className="">
         <Link>
-          <button className="search-btn">Search</button>
+          <button className="op-search-btn">Search</button>
         </Link>
       </div>
     </section>
