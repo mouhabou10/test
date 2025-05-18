@@ -15,7 +15,7 @@ export const createDocument = async (req, res, next) => {
       type,
       client,
       createdBy,
-      path: file.path // Save file path in DB
+      path: file.path // Ensure this path is relative to your static folder
     });
 
     res.status(201).json({
@@ -28,11 +28,12 @@ export const createDocument = async (req, res, next) => {
   }
 };
 
-
 // ─── GET ALL DOCUMENTS ────────────────────────────────────────────────────
 export const getAllDocuments = async (req, res, next) => {
   try {
-    const documents = await Document.find();
+    const documents = await Document.find()
+      .populate('client', 'name')
+      .populate('createdBy', 'name');
     res.status(200).json({ success: true, data: documents });
   } catch (error) {
     next(error);
@@ -42,7 +43,9 @@ export const getAllDocuments = async (req, res, next) => {
 // ─── GET DOCUMENT BY ID ───────────────────────────────────────────────────
 export const getDocumentById = async (req, res, next) => {
   try {
-    const document = await Document.findById(req.params.id);
+    const document = await Document.findById(req.params.id)
+      .populate('client', 'name')
+      .populate('createdBy', 'name');
     if (!document) throw new Error('Document not found');
     res.status(200).json({ success: true, data: document });
   } catch (error) {

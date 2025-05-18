@@ -1,7 +1,36 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import './ResultTable.css';
 
-const ResultTable = ({ data }) => {
+const PrescriptionTable = () => {
+  const [prescriptions, setPrescriptions] = useState([]);
+  const [selectedPrescription, setSelectedPrescription] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    const fetchPrescriptions = async () => {
+      try {
+        const res = await axios.get('http://localhost:3000/api/v1/documents');
+        const ordonnancePrescriptions = res.data.data.filter(doc => doc.type === 'Ordonnance');
+        setPrescriptions(ordonnancePrescriptions);
+      } catch (error) {
+        console.error('Failed to fetch prescriptions:', error);
+      }
+    };
+
+    fetchPrescriptions();
+  }, []);
+
+  const handleView = (prescription) => {
+    setSelectedPrescription(prescription);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedPrescription(null);
+  };
+
   return (
     <div className="card-container">
       <div className="table-container">
@@ -9,22 +38,30 @@ const ResultTable = ({ data }) => {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Patient</th>
-              <th>File</th>
-              <th>Status</th>
+              <th>Doctor</th>
+              <th>Client</th>
+              <th>Content</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {data && data.length > 0 ? (
-              data.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.id}</td>
-                  <td>{item.patient}</td>
-                  <td>{item.file}</td>
-                  <td>{item.status}</td>
+            {prescriptions.length > 0 ? (
+              prescriptions.map((item) => (
+                <tr key={item._id}>
+                  <td>{item._id}</td>
+                  <td>{item.createdBy}</td>
+                  <td>{item.client}</td>
                   <td>
-                    <button className="action-btn">View</button>
+                    <a
+                      href={`http://localhost:3000/${item.path}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View Content
+                    </a>
+                  </td>
+                  <td>
+                    <button className="action-btn" onClick={() => handleView(item)}>View</button>
                   </td>
                 </tr>
               ))
@@ -36,8 +73,30 @@ const ResultTable = ({ data }) => {
           </tbody>
         </table>
       </div>
+
+      {/* Modal */}
+      {showModal && selectedPrescription && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Prescription Details</h2>
+            <p><strong>ID:</strong> {selectedPrescription._id}</p>
+            <p><strong>Title:</strong> {selectedPrescription.title}</p>
+            <p><strong>Type:</strong> {selectedPrescription.type}</p>
+            <p><strong>Doctor (createdBy):</strong> {selectedPrescription.createdBy}</p>
+            <p><strong>Client:</strong> {selectedPrescription.client}</p>
+            <a
+              href={`http://localhost:3000/${selectedPrescription.path}`}
+              download
+              className="download-btn"
+            >
+              Download File
+            </a>
+            <button onClick={handleCloseModal} className="close-btn">Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default ResultTable;
+export default PrescriptionTable;

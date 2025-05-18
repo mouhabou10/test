@@ -1,9 +1,10 @@
 import express from 'express';
 import { PORT, NODE_ENV } from './config/env.js';
 import connectToDatabase from './database/mongodb.js';
-
 import cors from 'cors';
-
+import cookieParser from 'cookie-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import agentRoutes from './routes/agentRoutes.js';
 import clientRoutes from './routes/clientRoutes.js';
@@ -23,32 +24,29 @@ import userRoutes from './routes/user.Routes.js';
 import authRoutes from './routes/auth.Routes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import accountDemandRoutes from './routes/accountDemandRoutes.js';
-
-import errorMiddleware from './Middlewares/error.Middleware.js';
-import cookieParser from 'cookie-parser';
 import serviceProviderRouter from './routes/serviceProviderRoutes.js';
+import errorMiddleware from './Middlewares/error.Middleware.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// CORS configuration
 app.use(cors({
   origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
   credentials: true
 }));
 
-// Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// Test route (homepage)
 app.get('/', (req, res) => {
   res.send('✅ Server is working!');
 });
 
+// Routes
 app.use('/api/v1/account-demands', accountDemandRoutes);
-
-// Routes setup
 app.use('/api/v1/agents', agentRoutes);
 app.use('/api/v1/clients', clientRoutes);
 app.use('/api/v1/consultation-agents', consultationAgentRoutes);
@@ -66,15 +64,13 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/services', serviceRoutes);
-app.use('/api/v1/service-provider',serviceProviderRouter);
-// Serve files from the uploads folder
-app.use('/uploads', express.static('uploads'));
+app.use('/api/v1/service-provider', serviceProviderRouter);
 
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Global error handler
 app.use(errorMiddleware);
 
-// Connect to DB then start server
 connectToDatabase()
   .then(() => {
     app.listen(PORT, () => {

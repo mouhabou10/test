@@ -3,8 +3,8 @@ import Prescription from '../models/prescription.model.js';
 // ─── CREATE PRESCRIPTION ──────────────────────────────────────────────────
 export const createPrescription = async (req, res, next) => {
   try {
-    const { id, doctorId, patientId, date, medications } = req.body;
-    const prescription = await Prescription.create({ id, doctorId, patientId, date, medications });
+    const { doctor, client, content } = req.body;
+    const prescription = await Prescription.create({ doctor, client, content });
     res.status(201).json({ success: true, message: 'Prescription created', data: prescription });
   } catch (error) {
     next(error);
@@ -14,7 +14,9 @@ export const createPrescription = async (req, res, next) => {
 // ─── GET ALL PRESCRIPTIONS ────────────────────────────────────────────────
 export const getAllPrescriptions = async (req, res, next) => {
   try {
-    const prescriptions = await Prescription.find();
+    const prescriptions = await Prescription.find()
+      .populate('doctor', 'name')
+      .populate('client', 'name');
     res.status(200).json({ success: true, data: prescriptions });
   } catch (error) {
     next(error);
@@ -24,7 +26,9 @@ export const getAllPrescriptions = async (req, res, next) => {
 // ─── GET PRESCRIPTION BY ID ───────────────────────────────────────────────
 export const getPrescriptionById = async (req, res, next) => {
   try {
-    const prescription = await Prescription.findById(req.params.id);
+    const prescription = await Prescription.findById(req.params.id)
+      .populate('doctor', 'name')
+      .populate('client', 'name');
     if (!prescription) throw new Error('Prescription not found');
     res.status(200).json({ success: true, data: prescription });
   } catch (error) {

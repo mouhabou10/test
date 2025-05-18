@@ -105,6 +105,26 @@ export const createTicket = async (req, res) => {
     });
   }
 };
+export const getTicketStats = async (req, res) => {
+  try {
+    const workers = await Worker.find();
+
+    const stats = workers.map(worker => ({
+      speciality: worker.speciality,
+      passedTickets: worker.passedList,
+      waitingList: worker.waitingList,
+      dailyTickets: worker.waitingList + worker.passedList
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: 'Ticket stats retrieved successfully',
+      data: stats
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 // Get ticket status by ID
 export const getTicketStatus = async (req, res) => {
