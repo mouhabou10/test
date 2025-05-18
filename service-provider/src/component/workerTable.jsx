@@ -1,7 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './ResultTable.css';
+import WorkerModal from './WorkerModal';
+import axios from 'axios';
 
-const WorkerTable = ({ data }) => {
+const WorkerTable = ({ data, fetchWorkers }) => {
+  const [selectedWorker, setSelectedWorker] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
+  const handleView = (worker) => {
+    setSelectedWorker(worker);
+    setShowModal(true);
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
+    setSelectedWorker(null);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/v1/workers/${id}`);
+      fetchWorkers();
+      handleClose();
+    } catch (err) {
+      console.error('Failed to delete worker:', err);
+    }
+  };
+
+  const handleUpdate = async (id, updatedData) => {
+    try {
+      await axios.put(`http://localhost:3000/api/v1/workers/${id}`, updatedData);
+      fetchWorkers();
+      handleClose();
+    } catch (err) {
+      console.error('Failed to update worker:', err);
+    }
+  };
+
   return (
     <div className="card-container">
       <div className="table-container">
@@ -26,7 +61,9 @@ const WorkerTable = ({ data }) => {
                   <td>{item.title}</td>
                   <td>{item.email}</td>
                   <td>
-                    <button className="action-btn">View</button>
+                    <button className="action-btn" onClick={() => handleView(item)}>
+                      View
+                    </button>
                   </td>
                 </tr>
               ))
@@ -38,6 +75,15 @@ const WorkerTable = ({ data }) => {
           </tbody>
         </table>
       </div>
+
+      {showModal && (
+        <WorkerModal
+          worker={selectedWorker}
+          onClose={handleClose}
+          onDelete={handleDelete}
+          onUpdate={handleUpdate}
+        />
+      )}
     </div>
   );
 };

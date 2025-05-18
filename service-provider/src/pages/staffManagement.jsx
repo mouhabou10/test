@@ -10,7 +10,7 @@ const StaffManagement = () => {
     <Header/>
     <p className='perton'>staff  dashbord</p>
      <WorkerList/>
-    <Sidebar/>
+ 
     </div>
   )
 }
