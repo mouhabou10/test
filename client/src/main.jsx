@@ -21,6 +21,7 @@ import OnlineTicket from './pages/OnlineTicket';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ProtectedRoute from './components/ProtectedRoute';
+import RadioSearchResults from './pages/RadioSearchResults';
 
 // Create router for navigation
 const router = createBrowserRouter([
@@ -41,6 +42,7 @@ const router = createBrowserRouter([
       { path: 'labo/priscription-labo', element: <PriscriptionLabo /> },
       { path: 'labo/labo-ticket/:id', element: <LaboTicket /> },
       { path: 'radio/priscriotion-radio', element: <PriscriotionRadio /> },
+      { path: 'radio/radio-search-results', element: <RadioSearchResults /> },
       { path: 'radio/radio-ticket/:id', element: <RadioTicket /> },
       { path: 'radio/radio-ticket/:id/online-ticket', element: <OnlineTicket /> },
       { path: 'labo/labo-ticket/:id/online-ticket', element: <OnlineTicket /> },
