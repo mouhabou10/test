@@ -22,6 +22,9 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ProtectedRoute from './components/ProtectedRoute';
 import RadioSearchResults from './pages/RadioSearchResults';
+import LaboSearchResults from './pages/LaboSearchResults';
+import OperationSearchResults from './pages/OperationSearchResults';
+import OperationTicket from './pages/OperationTicket';
 
 // Create router for navigation
 const router = createBrowserRouter([
@@ -36,10 +39,13 @@ const router = createBrowserRouter([
       { path: 'consultation/ticket/:id', element: <ConsultationTicket /> },
       { path: 'labo', element: <Labo /> },
       { path: 'opiration', element: <Opiration /> },
+      { path: 'opiration/opiration-search-results', element: <OperationSearchResults /> },
+      { path: 'opiration/opiration-ticket/:id', element: <OperationTicket /> },
       { path: 'requestes/:id', element: <Requestes /> },
       { path: 'radio', element: <Radio /> },
       { path: 'result', element: <Result /> },
       { path: 'labo/priscription-labo', element: <PriscriptionLabo /> },
+      { path: 'labo/labo-search-results', element: <LaboSearchResults /> },
       { path: 'labo/labo-ticket/:id', element: <LaboTicket /> },
       { path: 'radio/priscriotion-radio', element: <PriscriotionRadio /> },
       { path: 'radio/radio-search-results', element: <RadioSearchResults /> },

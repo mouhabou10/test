@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const LaboTicket = () => {
+const OperationTicket = () => {
   const [appointmentData, setAppointmentData] = useState(null);
   const [userName, setUserName] = useState("Patient");
   const [ticket, setTicket] = useState(false);
@@ -21,7 +21,7 @@ const LaboTicket = () => {
     }
 
     // Get appointment data if available
-    const appointmentStr = localStorage.getItem('laboAppointment');
+    const appointmentStr = localStorage.getItem('operationAppointment');
     if (appointmentStr) {
       try {
         const appointment = JSON.parse(appointmentStr);
@@ -38,12 +38,12 @@ const LaboTicket = () => {
     >
       {ticket ? (
         <div className="allowed">
-          <h1 style={{ color: "#0052E0" }}>Lab Test Ticket</h1>
+          <h1 style={{ color: "#0052E0" }}>Operation Ticket</h1>
           <div className="book-div">
             <p>
               Your request has been accepted! You can now book a ticket for today if you are ready.
             </p>
-            <Link to={"/labo/labo-ticket/:123/online-ticket"}>Book Now</Link>
+            <Link to={"/opiration/opiration-ticket/:123/online-ticket"}>Book Now</Link>
           </div>
           <div className="note">
             <h3 style={{ color: "#0052E0" }}>Note:</h3>
@@ -58,13 +58,23 @@ const LaboTicket = () => {
           <div className="success-icon" style={{ margin: "0 auto 20px", width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "#4CAF50", display: "flex", justifyContent: "center", alignItems: "center" }}>
             <span style={{ color: "white", fontSize: "40px", fontWeight: "bold" }}>✓</span>
           </div>
-          <h2 style={{ color: "#0052E0", marginBottom: "20px" }}>Request Successfully Submitted!</h2>
+          <h2 style={{ color: "#0052E0", marginBottom: "20px" }}>Operation Request Successfully Submitted!</h2>
           <h3 style={{ color: "#0052E0", marginBottom: "15px" }}>Hello {userName}</h3>
           <p style={{ margin: "auto", fontSize: "18px", lineHeight: "1.6", maxWidth: "600px" }}>
-            Your lab prescription has been successfully uploaded. Our team will review your prescription as soon as possible.
+            Your operation prescription has been successfully uploaded. Our team will review your prescription as soon as possible.
           </p>
+          {appointmentData && appointmentData.category && (
+            <p style={{ margin: "15px auto", fontSize: "18px", lineHeight: "1.6", maxWidth: "600px" }}>
+              <strong>Operation Category:</strong> {appointmentData.category}
+            </p>
+          )}
+          {appointmentData && appointmentData.provider && (
+            <p style={{ margin: "15px auto", fontSize: "18px", lineHeight: "1.6", maxWidth: "600px" }}>
+              <strong>Selected Provider:</strong> {appointmentData.provider.name}
+            </p>
+          )}
           <p style={{ margin: "20px auto", fontSize: "18px", lineHeight: "1.6", maxWidth: "600px" }}>
-            <strong>You will receive a notification</strong> when your request has been processed.
+            <strong>You will receive a notification</strong> when your request has been processed and your operation has been scheduled.
           </p>
           <div style={{ marginTop: "30px" }}>
             <Link to="/" style={{ display: "inline-block", padding: "10px 20px", backgroundColor: "#0052E0", color: "white", textDecoration: "none", borderRadius: "5px", fontWeight: "bold" }}>Return to Dashboard</Link>
@@ -73,6 +83,6 @@ const LaboTicket = () => {
       )}
     </section>
   );
-}
+};
 
-export default LaboTicket
+export default OperationTicket;
