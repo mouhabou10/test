@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { FaFilePdf } from "react-icons/fa";
 import Photo1 from "../images/clinic.png";
@@ -19,6 +19,19 @@ const PriscriotionRadio = () => {
   const [error, setError] = useState("");
   const [results, setResults] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (files.length > 0 && files.every(file => file.progress === 100)) {
+      const fileInfos = files.map(file => ({
+        name: file.name,
+        type: file.file.type,
+        size: file.file.size,
+        progress: file.progress,
+      }));
+      localStorage.setItem("uploadedRadioFileInfos", JSON.stringify(fileInfos));
+      window.uploadedRadioFiles = files;
+    }
+  }, [files]);
 
   const handleFileUpload = (event) => {
     const uploadedFile = event.target.files[0];
@@ -42,7 +55,25 @@ const PriscriotionRadio = () => {
   };
 
   const handleCancel = (fileName) => {
-    setFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileName));
+    setFiles((prevFiles) => {
+      const updatedFiles = prevFiles.filter((file) => file.name !== fileName);
+      if (updatedFiles.length === 0) {
+        localStorage.removeItem("uploadedRadioFileInfos");
+        if (window.uploadedRadioFiles) {
+          delete window.uploadedRadioFiles;
+        }
+      } else if (updatedFiles.every(file => file.progress === 100)) {
+        const fileInfos = updatedFiles.map(file => ({
+          name: file.name,
+          type: file.file.type,
+          size: file.file.size,
+          progress: file.progress,
+        }));
+        localStorage.setItem("uploadedRadioFileInfos", JSON.stringify(fileInfos));
+        window.uploadedRadioFiles = updatedFiles;
+      }
+      return updatedFiles;
+    });
   };
 
   const handleViewClick = (file) => {
@@ -59,6 +90,14 @@ const PriscriotionRadio = () => {
     setResults([]);
     if (!selectedState || !selectedType) {
       setError("Please select a state and choose a type.");
+      return;
+    }
+    if (files.length === 0) {
+      setError("Please upload your prescription before searching.");
+      return;
+    }
+    if (!files.every(file => file.progress === 100)) {
+      setError("Please wait for all files to finish uploading.");
       return;
     }
     setLoading(true);

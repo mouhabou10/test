@@ -104,30 +104,30 @@ const Dashboard = () => {
               <div className="line"></div>
               <div className="info-rightSide">
                 <div className="info-row">
-                  <p>
-                    Gender : {userData.gender ? userData.gender.charAt(0).toUpperCase() + userData.gender.slice(1) : 'Not specified'}
+                  <div>
+                    <p>Gender : {userData.gender ? userData.gender.charAt(0).toUpperCase() + userData.gender.slice(1) : 'Not specified'}</p>
                     <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
-                  </p>
-                  <p>
-                    Age : {userData.age || 'Not specified'}
+                  </div>
+                  <div>
+                    <p>Age : {userData.age || 'Not specified'}</p>
                     <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
-                  </p>
+                  </div>
                 </div>
                 <div className="info-row">
-                  <p>
-                    Phone : {userData.phoneNumber}
+                  <div>
+                    <p>Phone : {userData.phoneNumber}</p>
                     <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
-                  </p>
-                  <p>
-                    User ID : {userData.userId}
+                  </div>
+                  <div>
+                    <p>User ID : {userData.userId}</p>
                     <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
-                  </p>
+                  </div>
                 </div>
                 <div className="info-row">
-                  <p>
-                    Email : {userData.email}
+                  <div>
+                    <p>Email : {userData.email}</p>
                     <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>

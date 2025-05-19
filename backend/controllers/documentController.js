@@ -1,4 +1,5 @@
 import Document from '../models/document.model.js';
+import User from '../models/user.model.js';
 
 // ─── CREATE DOCUMENT ──────────────────────────────────────────────────────
 export const createDocument = async (req, res, next) => {
@@ -58,6 +59,20 @@ export const deleteDocument = async (req, res, next) => {
   try {
     await Document.findByIdAndDelete(req.params.id);
     res.status(200).json({ success: true, message: 'Document deleted' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─── GET CLIENT DOCUMENTS ────────────────────────────────────────────────────
+export const getClientDocuments = async (req, res, next) => {
+  try {
+    const clientId = req.params.clientId;
+    
+    const documents = await Document.find({ client: clientId })
+      .populate('createdBy', 'name');
+    
+    res.status(200).json({ success: true, data: documents });
   } catch (error) {
     next(error);
   }

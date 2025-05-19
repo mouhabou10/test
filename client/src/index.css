@@ -2223,6 +2223,13 @@ upload-div
   box-shadow: 0 8px 25px rgba(0, 82, 224, 0.15);
 }
 
+.place-card.selected {
+  transform: translateY(-5px);
+  border-color: #0052E0;
+  box-shadow: 0 8px 25px rgba(0, 82, 224, 0.15);
+  background: rgba(0, 82, 224, 0.05);
+}
+
 .place-image {
   width: 100px;
   height: 100px;
