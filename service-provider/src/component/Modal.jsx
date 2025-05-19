@@ -1,43 +1,29 @@
 import React from 'react';
 import './Modal.css';
-import axios from 'axios';
 
-const Modal = ({ data, onClose }) => {
+const WorkerModal = ({ worker, onClose, onDelete, onUpdate }) => {
+  if (!worker) return null;
 
-  const handleApprove = async () => {
-    try {
-      await axios.post(`http://localhost:3000/api/v1/account-demands/approve/${data._id}`);
-      onClose();
-      window.location.reload();
-    } catch (err) {
-      console.error('Failed to approve:', err);
-    }
-  };
-
-  const handleReject = async () => {
-    try {
-      await axios.delete(`http://localhost:3000/api/v1/account-demands/${data._id}`);
-      onClose();
-      window.location.reload();
-    } catch (err) {
-      console.error('Failed to reject:', err);
-    }
-  };
+  // Worker has user info nested inside `worker.user`
+  const { user, jobId, speciality, serviceProvider, _id } = worker;
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2>Account Demand Details</h2>
-        <p><strong>ID:</strong> {data._id}</p>
-        <p><strong>Account Type:</strong> {data.type}</p>
-        <p><strong>Full Name:</strong> {data.fullName}</p>
-        <p><strong>Email:</strong> {data.email}</p>
-        <p><strong>Wilaya:</strong> {data.wilaya}</p>
-        <p><strong>Speciality:</strong> {data.speciality || '-'}</p>
+        <h2>Worker Details</h2>
+
+        <p><strong>Full Name:</strong> {user?.fullName || '-'}</p>
+        <p><strong>Email:</strong> {user?.email || '-'}</p>
+        <p><strong>Phone Number:</strong> {user?.phoneNumber || '-'}</p>
+        <p><strong>Role:</strong> {user?.role || '-'}</p>
+
+        <p><strong>Job ID:</strong> {jobId}</p>
+        <p><strong>Speciality:</strong> {speciality}</p>
+        <p><strong>Service Provider:</strong> {serviceProvider?.name || '-'}</p>
 
         <div className="modal-actions">
-          <button className="approve-btn" onClick={handleApprove}>✅ Approve</button>
-          <button className="reject-btn" onClick={handleReject}>❌ Reject</button>
+          <button className="delete-btn" onClick={() => onDelete(_id)}>Delete</button>
+          {/* Add update button if needed */}
           <button className="close-btn" onClick={onClose}>Close</button>
         </div>
       </div>
@@ -45,4 +31,4 @@ const Modal = ({ data, onClose }) => {
   );
 };
 
-export default Modal;
+export default WorkerModal;

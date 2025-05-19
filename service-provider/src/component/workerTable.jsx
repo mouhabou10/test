@@ -77,13 +77,14 @@ const WorkerTable = ({ data, fetchWorkers }) => {
       </div>
 
       {showModal && (
-        <WorkerModal
-          worker={selectedWorker}
-          onClose={handleClose}
-          onDelete={handleDelete}
-          onUpdate={handleUpdate}
-        />
-      )}
+  <WorkerModal
+    worker={selectedWorker}
+    onClose={handleClose}
+    onDelete={handleDelete}
+    onUpdate={handleUpdate}
+  />
+)}
+
     </div>
   );
 };

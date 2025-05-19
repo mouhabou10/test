@@ -3,13 +3,36 @@ import './Modal.css';
 
 const WorkerModal = ({ worker, onClose, onDelete, onUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({ ...worker });
+  const [formData, setFormData] = useState({
+    jobId: worker.jobId || '',
+    speciality: worker.speciality || '',
+    user: {
+      fullName: worker.user?.fullName || '',
+      phoneNumber: worker.user?.phoneNumber || '',
+      role: worker.user?.role || '',
+      email: worker.user?.email || '',
+    }
+  });
 
   if (!worker) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (['fullName', 'phoneNumber', 'role', 'email'].includes(name)) {
+      setFormData((prev) => ({
+        ...prev,
+        user: {
+          ...prev.user,
+          [name]: value
+        }
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleDelete = () => {
@@ -24,7 +47,16 @@ const WorkerModal = ({ worker, onClose, onDelete, onUpdate }) => {
   };
 
   const handleCancelEdit = () => {
-    setFormData({ ...worker });
+    setFormData({
+      jobId: worker.jobId || '',
+      speciality: worker.speciality || '',
+      user: {
+        fullName: worker.user?.fullName || '',
+        phoneNumber: worker.user?.phoneNumber || '',
+        role: worker.user?.role || '',
+        email: worker.user?.email || '',
+      }
+    });
     setIsEditing(false);
   };
 
@@ -38,18 +70,36 @@ const WorkerModal = ({ worker, onClose, onDelete, onUpdate }) => {
       <div className="modal-content">
         <h2>Worker {isEditing ? 'Edit' : 'Details'}</h2>
         <div className="worker-details">
-          {["jobId", "fullName", "phoneNumber", "role", "email", "speciality"].map((name) => (
-            <p key={name}>
-              <strong>{name.charAt(0).toUpperCase() + name.slice(1)}:</strong>{' '}
+          {/* User fields */}
+          {["fullName", "phoneNumber", "role", "email"].map((field) => (
+            <p key={field}>
+              <strong>{field.charAt(0).toUpperCase() + field.slice(1)}:</strong>{' '}
               {isEditing ? (
                 <input
                   type="text"
-                  name={name}
-                  value={formData[name] || ''}
+                  name={field}
+                  value={formData.user[field]}
                   onChange={handleChange}
                 />
               ) : (
-                worker[name]
+                worker.user?.[field] || '-'
+              )}
+            </p>
+          ))}
+
+          {/* Worker fields */}
+          {["jobId", "speciality"].map((field) => (
+            <p key={field}>
+              <strong>{field.charAt(0).toUpperCase() + field.slice(1)}:</strong>{' '}
+              {isEditing ? (
+                <input
+                  type="text"
+                  name={field}
+                  value={formData[field]}
+                  onChange={handleChange}
+                />
+              ) : (
+                worker[field] || '-'
               )}
             </p>
           ))}
@@ -75,4 +125,3 @@ const WorkerModal = ({ worker, onClose, onDelete, onUpdate }) => {
 };
 
 export default WorkerModal;
-
