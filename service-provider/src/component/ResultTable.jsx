@@ -1,27 +1,53 @@
 import React, { useState } from 'react';
 import './ResultTable.css';
+import WorkerModal from './WorkerModal';
+import axios from 'axios';
 
-const ResultTable = ({ data }) => {
-  const [selectedDoc, setSelectedDoc] = useState(null);
+const WorkerTable = ({ data, fetchWorkers }) => {
+  const [selectedWorker, setSelectedWorker] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
-  const handleView = (doc) => {
-    setSelectedDoc(doc);
+  const handleView = (worker) => {
+    setSelectedWorker(worker);
+    setShowModal(true);
   };
 
-  const closeModal = () => {
-    setSelectedDoc(null);
+  const handleClose = () => {
+    setShowModal(false);
+    setSelectedWorker(null);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/v1/workers/${id}`);
+      fetchWorkers();
+      handleClose();
+    } catch (err) {
+      console.error('Failed to delete worker:', err);
+    }
+  };
+
+  const handleUpdate = async (id, updatedData) => {
+    try {
+      await axios.put(`http://localhost:3000/api/v1/workers/${id}`, updatedData);
+      fetchWorkers();
+      handleClose();
+    } catch (err) {
+      console.error('Failed to update worker:', err);
+    }
   };
 
   return (
     <div className="card-container">
       <div className="table-container">
-        <table className="patient-table">
+        <table className="worker-table">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Title</th>
-              <th>Type</th>
-              <th>Uploaded By</th>
+              <th>Full Name</th>
+              <th>Phone Number</th>
+              <th>Role</th>
+              <th>Email</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -30,9 +56,10 @@ const ResultTable = ({ data }) => {
               data.map((item) => (
                 <tr key={item._id}>
                   <td>{item._id}</td>
-                  <td>{item.title}</td>
-                  <td>{item.type}</td>
-                  <td>{item.createdBy?.name || 'N/A'}</td>
+                  <td>{item.fullName}</td>
+                  <td>{item.phoneNumber}</td>
+                  <td>{item.role}</td>
+                  <td>{item.email}</td>
                   <td>
                     <button className="action-btn" onClick={() => handleView(item)}>
                       View
@@ -42,34 +69,23 @@ const ResultTable = ({ data }) => {
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="no-data">No data available</td>
+                <td colSpan="6" className="no-data">No data available</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {selectedDoc && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>{selectedDoc.title}</h2>
-            <p><strong>Type:</strong> {selectedDoc.type}</p>
-            <p><strong>Uploaded By:</strong> {selectedDoc.createdBy?.name || 'N/A'}</p>
-            <p><strong>Client:</strong> {selectedDoc.client?.name || 'N/A'}</p>
-            <a
-              href={`http://localhost:3000/${selectedDoc.path}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="download-link"
-            >
-              📥 Download File
-            </a>
-            <button className="close-btn" onClick={closeModal}>Close</button>
-          </div>
-        </div>
+      {showModal && (
+        <WorkerModal
+          worker={selectedWorker}
+          onClose={handleClose}
+          onDelete={handleDelete}
+          onUpdate={handleUpdate}
+        />
       )}
     </div>
   );
 };
 
-export default ResultTable;
+export default WorkerTable;

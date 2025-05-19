@@ -104,13 +104,18 @@ export const deleteWorker = async (req, res, next) => {
   }
 };
 
-// UPDATE WORKER
+
+
 export const updateWorker = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const { id } = req.params;
     const updatedData = req.body;
 
-    const updatedWorker = await Worker.findByIdAndUpdate(id, updatedData, { new: true });
+    // Update Worker fields (jobId, speciality, serviceProvider)
+    const updatedWorker = await Worker.findByIdAndUpdate(id, updatedData, { new: true, session });
 
     if (!updatedWorker) {
       const error = new Error('Worker not found');
@@ -118,8 +123,31 @@ export const updateWorker = async (req, res, next) => {
       throw error;
     }
 
-    res.status(200).json({ success: true, message: 'Worker updated successfully', data: updatedWorker });
+    // Prepare fields to update in User model
+    const userFields = {};
+    ['fullName', 'email', 'phoneNumber', 'role'].forEach(field => {
+      if (updatedData[field] !== undefined) {
+        userFields[field] = updatedData[field];
+      }
+    });
+
+    // Update User if there are user fields
+    if (Object.keys(userFields).length > 0) {
+      await User.findByIdAndUpdate(updatedWorker.user, userFields, { session });
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(200).json({
+      success: true,
+      message: 'Worker updated successfully',
+      data: updatedWorker
+    });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     next(error);
   }
 };
+

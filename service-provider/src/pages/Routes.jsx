@@ -8,7 +8,10 @@ import Result from "./result.jsx";
 import StaffManagement from "./staffManagement.jsx";
 import AccountDemandeList from "./accountDemandeList.jsx";
 import Tiket from "./Tiket.jsx";
-
+import RefferalLetter from "./refferalLetters.jsx";
+import AboutUs from "./AboutUs.jsx";
+import SettingsPage from "./Settings.jsx";
+import ContactUs from "./ContactUs.jsx";
 
 function AppRoutes() {
   return (
@@ -23,8 +26,10 @@ function AppRoutes() {
         <Route path="/staff-manager" element={<StaffManagement/>} />   
         <Route path="/account-demande-list" element={<AccountDemandeList/>} />   
         <Route path="/Tiket" element={<Tiket/>} />   
-           
-        
+        <Route path="/aboutus" element={<AboutUs/>} />   
+        <Route path="/refferalletters" element={<RefferalLetter/>} />   
+        <Route path="setting" element={<SettingsPage/>} />   
+        <Route path="/contactus" element={<ContactUs/>} />   
 
       </Routes>
   );

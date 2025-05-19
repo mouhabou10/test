@@ -28,6 +28,19 @@ export const createDocument = async (req, res, next) => {
     next(error);
   }
 };
+// GET all documents
+export const getDocuments = async (req, res) => {
+  try {
+    const documents = await Document.find()
+      .populate('client', 'name')       // populate client with name only
+      .populate('createdBy', 'name');   // populate creator with name only
+
+    res.status(200).json(documents);
+  } catch (error) {
+    console.error('Error fetching documents:', error);
+    res.status(500).json({ error: 'Server Error' });
+  }
+};
 
 // ─── GET ALL DOCUMENTS ────────────────────────────────────────────────────
 export const getAllDocuments = async (req, res, next) => {
