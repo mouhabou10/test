@@ -1,10 +1,17 @@
 import Document from '../models/document.model.js';
 
-// ─── CREATE DOCUMENT ──────────────────────────────────────────────────────
 export const createDocument = async (req, res, next) => {
   try {
     const { title, type, client, createdBy } = req.body;
     const file = req.file;
+
+    if (!title || !type || !client || !createdBy) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields',
+        data: { title, type, client, createdBy }
+      });
+    }
 
     if (!file) {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
@@ -15,7 +22,7 @@ export const createDocument = async (req, res, next) => {
       type,
       client,
       createdBy,
-      path: file.path // Ensure this path is relative to your static folder
+      path: file.path
     });
 
     res.status(201).json({
@@ -27,6 +34,7 @@ export const createDocument = async (req, res, next) => {
     next(error);
   }
 };
+
 
 // ─── GET ALL DOCUMENTS ────────────────────────────────────────────────────
 export const getAllDocuments = async (req, res, next) => {

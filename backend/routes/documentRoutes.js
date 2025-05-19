@@ -1,4 +1,3 @@
-// routes/documentRoutes.js
 import { Router } from 'express';
 import {
   createDocument,
@@ -7,13 +6,12 @@ import {
   deleteDocument
 } from '../controllers/documentController.js';
 
-import upload from '../middlewares/upload.js'; // 👈 Import multer middleware
+import upload from '../Middlewares/upload.js';
 
 const documentRouter = Router();
 
-// 👇 Use upload.single('file') to accept one file
+// Accept file upload with "file" key
 documentRouter.post('/', upload.single('file'), createDocument);
-
 documentRouter.get('/', getAllDocuments);
 documentRouter.get('/:id', getDocumentById);
 documentRouter.delete('/:id', deleteDocument);

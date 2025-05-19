@@ -45,6 +45,31 @@
   text-decoration: none;
   border-radius: 5px;
 }
+.scrollable-modal {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Vertical stacked form */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.action-btn-add{
+  margin-left:50px;
+}
+.modal-form input[type="text"],
+.modal-form input[type="file"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.modal-form label {
+  font-weight: bold;
+  margin-top: 10px;
+}
 
 .close-btn {
   margin-top: 1rem;
@@ -83,6 +108,7 @@
 .action-btn {
   padding: 6px 12px;
   border: none;
+ 
   background-color: #4ba9d8;
   color: white;
   border-radius: 5px;
@@ -90,6 +116,19 @@
 }
 
 .action-btn:hover {
+  background-color: #3799cc;
+}
+.action-btn-add {
+  padding: 6px 12px;
+  border: none;
+  margin-left:1200px;
+  background-color: #4ba9d8;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.action-btn-add:hover {
   background-color: #3799cc;
 }
 /* Table Container */
