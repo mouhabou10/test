@@ -1940,7 +1940,7 @@ select.input-field:focus {
 
 .prescription-container {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0 2% 0 18%;
   background-color: white;
   border-radius: 15px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -1954,7 +1954,148 @@ select.input-field:focus {
   margin-bottom: 3rem;
   font-weight: 700;
   position: relative;
-  padding-bottom: 1rem;
+}
+
+/* ====================================== Search Results ===========================*/
+
+.search-results-container {
+  max-width: 1200px;
+  margin: 60px 2% 0 18%;
+  padding: 2rem;
+}
+
+.search-results-container h1 {
+  color: #0052E0;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+.search-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #0052E0;
+}
+
+.search-filters p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.search-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.provider-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.provider-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.provider-type {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: #e6f0ff;
+  color: #0052E0;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.provider-name {
+  color: #0052E0;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  padding-right: 80px; /* Make room for the provider type badge */
+}
+
+.provider-details {
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.provider-details p {
+  margin: 0.5rem 0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.book-appointment-btn {
+  background-color: #0052E0;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.8rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+  margin-top: auto;
+}
+
+.book-appointment-btn:hover {
+  background-color: #0043c7;
+}
+
+.book-appointment-btn:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}
+
+.back-button {
+  background-color: #0052E0;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.8rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1.5rem;
+}
+
+.back-button:hover {
+  background-color: #0043c7;
+}
+
+.booking-progress {
+  text-align: center;
+  margin-top: auto;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 10px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #0052E0;
+  border-radius: 5px;
+  transition: width 0.3s ease-in-out;
 }
 
 .main-title:after {
@@ -1968,7 +2109,7 @@ select.input-field:focus {
   background: linear-gradient(90deg, #0052E0, #00a6ff);
   border-radius: 2px;
 }
-upload-div
+
 .section-title {
   color: #0052E0;
   font-size: 1.5rem;
@@ -2272,7 +2413,6 @@ upload-div
   box-shadow: 0 6px 20px rgba(0, 82, 224, 0.4);
   background: linear-gradient(45deg, #0043b8, #0052E0);
 }
-
 
 
 

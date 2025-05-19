@@ -25,7 +25,6 @@ const wilayas = [
 ];
 
 const Opiration = () => {
-  const [categories, setCategories] = useState(Categores);
   const [files, setFiles] = useState([]);
   const [selectedState, setSelectedState] = useState("");
   const [selectedType, setSelectedType] = useState("");
@@ -33,16 +32,51 @@ const Opiration = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [results, setResults] = useState([]);
+  const [specialities, setSpecialities] = useState([]);
+  const [loadingSpecialities, setLoadingSpecialities] = useState(true);
+  const [specialitiesError, setSpecialitiesError] = useState(null);
   const navigate = useNavigate();
   
-  // Map specialty names to their respective images
+  // Map specialty names to their respective images - same as Consultation
   const specialtyImageMap = {
-    'Cardiology': DentistryIcon,
-    'psychiatrist': EmergencyMedicineIcon,
-    'Neurology': EndocrinologyIcon,
-    'Ophthalmology': KidneyIcon,
-    'Orthopedics': NeurologyIcon,
+    'Dentistry': DentistryIcon,
+    'Emergency Medicine': EmergencyMedicineIcon,
+    'Endocrinology': EndocrinologyIcon,
+    'Urology': KidneyIcon,
+    'Neurology': NeurologyIcon,
+    'Ophthalmology': OphthalmologyIcon,
+    'Pediatrics': PediatricsIcon,
+    'Rheumatology': RheumatologyIcon,
   };
+
+  useEffect(() => {
+    const fetchSpecialities = async () => {
+      try {
+        setLoadingSpecialities(true);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/services`);
+        
+        if (response.data?.success) {
+          const validSpecialties = response.data.data.filter(specialty => 
+            specialtyImageMap.hasOwnProperty(specialty.name)
+          );
+          setSpecialities(validSpecialties);
+          setSpecialitiesError(null);
+        } else {
+          console.error('Invalid response format:', response.data);
+          setSpecialitiesError("Error loading specialties");
+        }
+      } catch (err) {
+        console.error('Error fetching specialities:', err);
+        setSpecialitiesError(
+          err.response?.status === 404 ? "No specialties found" :
+          "Failed to load specialties. Please try again later."
+        );
+      } finally {
+        setLoadingSpecialities(false);
+      }
+    };
+    fetchSpecialities();
+  }, []);
 
   useEffect(() => {
     if (files.length > 0 && files.every(file => file.progress === 100)) {
@@ -53,6 +87,12 @@ const Opiration = () => {
         progress: file.progress
       }));
       localStorage.setItem('operationFiles', JSON.stringify(fileInfos));
+      window.uploadedOperationFiles = files;
+    } else if (files.length === 0) {
+      localStorage.removeItem('operationFiles');
+      if (window.uploadedOperationFiles) {
+        delete window.uploadedOperationFiles;
+      }
     }
   }, [files]);
 
@@ -166,47 +206,56 @@ const Opiration = () => {
     <section>
       <SideBareClient/>
       <Header/>
-      {/* Categories Section - Keep as is */}
+      {/* Categories Section - Like Consultation */}
       <div className="category-container">
         <div className="category-title">
           <h1>Choose a speciality for operation</h1>
           <h3>See all</h3>
         </div>
         <div className="category-cards">
-          {categories.map(({ name, icon, id }) => (
-            <div 
-              key={id} 
-              className={`category-card ${selectedCategory === name ? 'selected' : ''}`}
-              onClick={() => handleCategorySelect(name)}
-              style={{
-                border: selectedCategory === name ? '2px solid #0052E0' : 'none',
-                cursor: 'pointer',
-                backgroundColor: selectedCategory === name ? '#f0f7ff' : 'white'
-              }}
-            >
-              {icon ? (
-                <img src={icon} alt={name} style={{ width: '48px', height: '48px', marginBottom: '8px' }} />
-              ) : (
+          {loadingSpecialities ? (
+            <div className="loading-spinner">Loading specialties...</div>
+          ) : specialitiesError ? (
+            <div className="error-message">{specialitiesError}</div>
+          ) : (
+            specialities.map(({ name, _id }) => {
+              const icon = specialtyImageMap[name];
+              return (
                 <div 
-                  style={{ 
-                    width: '48px', 
-                    height: '48px', 
-                    marginBottom: 8,
-                    background: '#0167FB',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontSize: '24px'
+                  key={_id} 
+                  className={`category-card ${selectedCategory === name ? 'selected' : ''}`}
+                  onClick={() => handleCategorySelect(name)}
+                  style={{
+                    border: selectedCategory === name ? '2px solid #0052E0' : 'none',
+                    cursor: 'pointer',
+                    backgroundColor: selectedCategory === name ? '#f0f7ff' : 'white'
                   }}
                 >
-                  {name.charAt(0)}
+                  {icon ? (
+                    <img src={icon} alt={name} style={{ width: '48px', height: '48px', marginBottom: '8px' }} />
+                  ) : (
+                    <div 
+                      style={{ 
+                        width: '48px', 
+                        height: '48px', 
+                        marginBottom: 8,
+                        background: '#0167FB',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontSize: '24px'
+                      }}
+                    >
+                      {name.charAt(0)}
+                    </div>
+                  )}
+                  <p>{name}</p>
                 </div>
-              )}
-              <p>{name}</p>
-            </div>
-          ))}
+              );
+            })
+          )}
         </div>
       </div>
 
