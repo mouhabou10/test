@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './AboutUs.css';
 import Sidebar from '../component/sidebar.jsx';
+import LogoutButton from '../component/LogoutButton.jsx';
 
 const SettingsPage = () => {
   const [email, setEmail] = useState('');
@@ -58,7 +59,7 @@ const SettingsPage = () => {
           onChange={() => setNotifications(!notifications)}
         />
       </div>
-
+      <LogoutButton />
       <button className="danger-btn" onClick={handleDeleteAccount}>
         Delete My Account
       </button>

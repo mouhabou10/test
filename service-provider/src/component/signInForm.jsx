@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './component.css';
+import useAuth from '../hooks/useAuth';
 
 const SignInForm = () => {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -13,32 +15,22 @@ const SignInForm = () => {
     const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
     const adminId = import.meta.env.VITE_ADMIN_ID;
 
-    // 🔐 Check if it's admin
     if (email === adminEmail && password === adminPassword) {
-      localStorage.setItem('token', 'admin-token');
-      localStorage.setItem('userId', adminId);
-      localStorage.setItem('role', 'admin');
-
-      navigate('/account-demande-list'); // admin dashboard
-      return;
+      login({ token: 'admin-token', userId: adminId, role: 'admin' });
+      return navigate('/account-demande-list');
     }
 
-    // 👥 Else: Try normal user login
     try {
-      const response = await axios.post('http://localhost:3000/api/v1/auth/signin', {
+      const res = await axios.post('http://localhost:3000/api/v1/auth/signin', {
         email,
         password,
       });
 
-      const user = response.data.data.user;
-
-      localStorage.setItem('token', response.data.data.token);
-      localStorage.setItem('userId', user._id);
-      localStorage.setItem('role', user.role || 'user'); // fallback role
-
-      navigate('/prescription'); // Or dynamic route by role
-    } catch (error) {
-      console.error('Login error:', error.response?.data || error.message);
+      const user = res.data.data.user;
+      login({ token: res.data.data.token, userId: user._id, role: user.role });
+      navigate('/prescription');
+    } catch (err) {
+      console.error('Login failed:', err.response?.data || err.message);
     }
   };
 

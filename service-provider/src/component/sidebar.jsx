@@ -32,6 +32,7 @@ const Sidebar = () => {
           <li><Link to="/contactus"><span>📞 Support</span></Link></li>
           <li><Link to="/aboutus"><span>📁 About</span></Link></li>
           <li><Link to="/setting"><span>⚙️ Settings</span></Link></li>
+          <li><Link to="/setting"><span>logout</span></Link></li>
         </ul>
       </div>
 
