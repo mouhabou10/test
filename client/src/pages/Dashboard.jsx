@@ -27,6 +27,7 @@ const Dashboard = () => {
     laboTests: 0,
     operations: 0
   });
+  const [pendingAppointments, setPendingAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -41,7 +42,7 @@ const Dashboard = () => {
         }
 
         // Fetch user data
-        const response = await fetch(`http://localhost:3000/api/v1/users/${user._id}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/users/${user._id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -55,7 +56,7 @@ const Dashboard = () => {
         setUserData(data.data);
         
         // Fetch appointments stats
-        const statsResponse = await fetch(`http://localhost:3000/api/v1/clients/${user._id}/stats`, {
+        const statsResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/clients/${user._id}/stats`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -64,6 +65,47 @@ const Dashboard = () => {
         if (statsResponse.ok) {
           const statsData = await statsResponse.json();
           setStats(statsData.data);
+        }
+        
+        // Fetch pending appointments
+        // Get the client ID - ensure we're always using the current client's ID
+        // First check user.client, then _id, then fallback to user ID if available
+        let clientId;
+        if (user.client) {
+          clientId = user.client; // If client reference exists, use it
+        } else if (user._id) {
+          clientId = user._id; // Otherwise use the user's ID directly
+        } else if (user.userId) {
+          clientId = user.userId; // Last resort: use userId if available
+        } else {
+          // If no ID is found, show an error
+          setError('No client ID found for the current user');
+          setLoading(false);
+          return;
+        }
+        
+        try {
+          const pendingAppointmentsResponse = await fetch(
+            `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/appointments/client/${clientId}/pending`, 
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            }
+          );
+          
+          if (pendingAppointmentsResponse.ok) {
+            const pendingData = await pendingAppointmentsResponse.json();
+            
+            // Process the pending appointments data
+            
+            setPendingAppointments(pendingData.data || []);
+          } else {
+            // Handle error silently
+            const errorText = await pendingAppointmentsResponse.text();
+          }
+        } catch (fetchError) {
+          // Silent error handling for pending appointments
         }
         
       } catch (err) {
@@ -192,14 +234,17 @@ const Dashboard = () => {
             </div>
             
             <div className="Requests-container">
-              <h1>Requestes status</h1>
+              <h1>Requests Status</h1>
               <div className="Requests-content">
-                <RequestInfo />
-                <RequestInfo />
-                <RequestInfo />
-                <RequestInfo />
-                <RequestInfo />
-                <RequestInfo />
+                {pendingAppointments.length === 0 ? (
+                  <div className="no-requests-message">
+                    <p>No pending requests found</p>
+                  </div>
+                ) : (
+                  pendingAppointments.map((appointment) => (
+                    <RequestInfo key={appointment._id} appointment={appointment} />
+                  ))
+                )}
               </div>
             </div>
           </div>

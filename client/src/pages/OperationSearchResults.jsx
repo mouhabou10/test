@@ -205,7 +205,7 @@ const OperationSearchResults = () => {
       console.log('Creating appointment with data:', {
         serviceProviderId: provider.id,
         clientId: user._id,
-        appointmentType: 'consultation', // Using 'consultation' as it's in the allowed enum values
+        appointmentType: 'operation', // Using 'operation' as the correct appointment type
         notes: `Operation type: ${parsedParams.category}, Provider type: ${provider.type}`,
         documentId: documentId
       });
@@ -215,7 +215,7 @@ const OperationSearchResults = () => {
         {
           serviceProviderId: provider.id,
           clientId: user._id,
-          appointmentType: 'consultation', // Using 'consultation' as it's in the allowed enum values
+          appointmentType: 'operation', // Using 'operation' as the correct appointment type
           notes: `Operation type: ${parsedParams.category}, Provider type: ${provider.type}`,
           documentId: documentId
         },

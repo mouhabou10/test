@@ -18,7 +18,7 @@ const appointmentSchema = new mongoose.Schema(
     appointmentType: {
       type: String,
       required: [true, 'Appointment type is required'],
-      enum: ['consultation', 'radio', 'lab']
+      enum: ['consultation', 'radio', 'labo', 'operation']
     },
     status: {
       type: String,
@@ -97,6 +97,127 @@ export const getAllAppointments = async (req, res, next) => {
       data: appointments
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+// Get all pending appointments (for testing)
+export const getAllPendingAppointments = async (req, res, next) => {
+  try {
+    const pendingAppointments = await Appointment.find({ status: 'pending' })
+      .populate('serviceProviderId', 'name type email');
+    
+    res.status(200).json({
+      success: true,
+      count: pendingAppointments.length,
+      data: pendingAppointments
+    });
+  } catch (error) {
+    console.error('Error fetching all pending appointments:', error);
+    next(error);
+  }
+};
+
+// Create a test appointment with the specified client ID (for testing)
+export const createTestAppointment = async (req, res, next) => {
+  try {
+    const { clientId, appointmentType, serviceProviderId } = req.body;
+    
+    if (!clientId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Client ID is required'
+      });
+    }
+    
+    // Create a test appointment with pending status
+    const appointmentData = {
+      clientId,
+      serviceProviderId: serviceProviderId || '68287dd360af7babbb0f06ac', // Default provider ID
+      appointmentType: appointmentType || 'consultation',
+      status: 'pending',
+      notes: 'Test appointment created for debugging',
+      appointmentDate: new Date()
+    };
+    
+    // Test appointment created successfully
+    
+    res.status(201).json({
+      success: true,
+      message: 'Test appointment created successfully',
+      data: newAppointment
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get pending appointments for a client (only operation, labo, radio types)
+export const getPendingAppointmentsForClient = async (req, res, next) => {
+  try {
+    // Get client ID from request parameters
+    const { clientId } = req.params;
+    
+    // Validate client ID
+    if (!clientId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Client ID is required'
+      });
+    }
+    
+    // Check if the client ID belongs to the authenticated user
+    // This ensures we only return appointments for the current client
+    let clientIdToUse;
+    
+    // If user is authenticated and has a client ID
+    if (req.user && req.user.client) {
+      // If the requested clientId doesn't match the authenticated user's client ID
+      // and the user is not an admin, return an error
+      if (clientId !== req.user.client.toString() && req.user.role !== 'admin') {
+        return res.status(403).json({
+          success: false,
+          message: 'You are not authorized to view appointments for this client'
+        });
+      }
+      clientIdToUse = req.user.client;
+    } else {
+      // If no user authentication, just use the provided client ID
+      clientIdToUse = clientId;
+    }
+    
+    // Try to convert clientId to ObjectId if it's a valid ObjectId string
+    let clientIdQuery;
+    try {
+      if (mongoose.Types.ObjectId.isValid(clientIdToUse)) {
+        clientIdQuery = clientIdToUse; // MongoDB will handle the conversion
+      } else {
+        // If it's not a valid ObjectId, use the string as is
+        clientIdQuery = clientIdToUse;
+      }
+    } catch (err) {
+      clientIdQuery = clientIdToUse; // Fallback to using the string
+    }
+    
+    // No debug code needed
+    
+    // Find appointments with pending status for the specified client
+    // Only include operation, labo, and radio appointments (exclude consultation)
+    const pendingAppointments = await Appointment.find({
+      clientId: clientIdQuery,
+      status: 'pending',
+      appointmentType: { $in: ['operation', 'labo', 'radio'] }
+    }).populate('serviceProviderId', 'name type email');
+    
+    // Appointments filtered successfully
+    
+    res.status(200).json({
+      success: true,
+      count: pendingAppointments.length,
+      data: pendingAppointments
+    });
+  } catch (error) {
+    console.error('Error fetching pending appointments:', error);
     next(error);
   }
 };

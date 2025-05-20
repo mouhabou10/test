@@ -102,7 +102,7 @@ const LaboSearchResults = () => {
       // Create an appointment with the service provider
       const appointmentRequest = {
         serviceProviderId: provider._id,
-        appointmentType: 'lab',
+        appointmentType: 'labo',
         notes: 'Lab prescription appointment'
       };
       

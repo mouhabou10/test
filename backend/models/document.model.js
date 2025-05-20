@@ -15,7 +15,7 @@ const documentSchema = new mongoose.Schema(
     type: {
       type: String,
       required: [true, 'Document type is required'],
-      enum: ['Ordonnance', 'Lettre d\'orientation', 'Résultat', 'radio prescription', 'referral letter', 'operation prescription']
+      enum: ['Ordonnance', 'Lettre d\'orientation', 'Résultat', 'radio prescription', 'labo prescription', 'referral letter', 'operation prescription']
     },
     client: {
       type: mongoose.Schema.Types.ObjectId,
