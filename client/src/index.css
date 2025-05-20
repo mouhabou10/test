@@ -4,6 +4,10 @@
 }
 body{
   background-color: #80808021;
+  
+    height: 100%;
+  
+  
 }
 /* ====================================== header ===========================*/  
 .nav-client {
@@ -2833,5 +2837,18 @@ select.input-field:focus {
 
 
 
-
-
+.main-container{
+max-width: 1200px;
+margin: 0 2% 0 18%;
+background-color: white;
+border-radius: 15px;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+padding: 2.5rem;
+}
+/* max-width: 1200px;
+margin: 0 2% 0 18%;
+background-color: white;
+border-radius: 15px;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+padding: 2.5rem;
+prescription-container */

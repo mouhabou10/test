@@ -3,7 +3,7 @@ import axios from "axios";
 import Photo1 from "../images/clinic.png";
 import Photo2 from "../images/hospital.png";
 import Photo3 from "../images/medical-doctor.png";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
 import SideBare from "../components/SideBareClient.jsx";
 
@@ -24,6 +24,9 @@ const Consultation = () => {
   const [specialities, setSpecialities] = useState([]);
   const [loadingSpecialities, setLoadingSpecialities] = useState(true);
   const [specialitiesError, setSpecialitiesError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const states = [
     "Adrar", "Chlef", "Laghouat", "Oum El Bouaghi", "Batna", "Béjaïa", "Biskra", 
@@ -76,151 +79,167 @@ const Consultation = () => {
     fetchSpecialities();
   }, []);
 
+  const handleCategorySelect = (categoryName) => {
+    setSelectedCategory(categoryName);
+  };
+
+  const handlePlaceSelect = (place) => {
+    setSelectedPlace(place);
+  };
+
   const handleSearch = () => {
-    // We'll use the search query parameters to pass the selected values
-    const searchParams = new URLSearchParams();
-    if (selectedCategory) searchParams.append("category", selectedCategory);
-    if (selectedPlace) searchParams.append("place", selectedPlace);
-    if (selectedState) searchParams.append("state", selectedState);
+    setLoading(true);
+    setError("");
+
+    // Validate required fields
+    if (!selectedCategory) {
+      setError("Please select a specialty");
+      setLoading(false);
+      return;
+    }
+
+    if (!selectedPlace) {
+      setError("Please select a place type");
+      setLoading(false);
+      return;
+    }
+
+    if (!selectedState) {
+      setError("Please select a state");
+      setLoading(false);
+      return;
+    }
+
+    // Store search parameters in localStorage
+    const searchParams = {
+      category: selectedCategory,
+      place: selectedPlace,
+      state: selectedState
+    };
+
+    localStorage.setItem('consultationSearchParams', JSON.stringify(searchParams));
     
-    return `/consultation/search?${searchParams.toString()}`;
+    // Navigate to search results page
+    navigate('/consultation/search');
   };
 
   return (
     <section>
-      <Header/>
       <SideBare/>
-      <div className="category-container">
-        <div className="category-title">
-          <h1>Choose a speciality</h1>
-          <h3>See all</h3>
+      <Header/>
+      <div className="main-container">
+        {/* Specialty Selection */}
+        <div className="specialty-section">
+          <h2 className="section-title">Choose a Specialty</h2>
+          <div className="category-container" style={{ margin: 0 }}>
+          <div className="category-title">
+            <h1>Choose a speciality for operation</h1>
+            <h3>See all</h3>
+          </div>
+          <div className="category-cards">
+            {loadingSpecialities ? (
+              <div className="loading-spinner"></div>
+            ) : specialitiesError ? (
+              <div className="error-message">{specialitiesError}</div>
+            ) : (
+              specialities.map(({ name, _id }) => {
+                const icon = specialtyImageMap[name];
+                return (
+                  <div 
+                    key={_id} 
+                    className={`category-card ${selectedCategory === name ? 'selected' : ''}`}
+                    onClick={() => handleCategorySelect(name)}
+                    style={{
+                      border: selectedCategory === name ? '2px solid #0052E0' : 'none',
+                      cursor: 'pointer',
+                      backgroundColor: selectedCategory === name ? '#f0f7ff' : 'white'
+                    }}
+                  >
+                    {icon ? (
+                      <img src={icon} alt={name} style={{ width: '48px', height: '48px', marginBottom: '8px' }} />
+                    ) : (
+                      <div 
+                        style={{ 
+                          width: '48px', 
+                          height: '48px', 
+                          marginBottom: 8,
+                          background: '#0167FB',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontSize: '24px'
+                        }}
+                      >
+                        {name.charAt(0)}
+                      </div>
+                    )}
+                    <p>{name}</p>
+                  </div>
+                );
+              })
+            )}
+          </div>
         </div>
-        <div className="category-cards">
-          {loadingSpecialities ? (
-            <div>Loading specialities...</div>
-          ) : specialitiesError ? (
-            <div className="text-red-500">{specialitiesError}</div>
-          ) : (
-            specialities.map(({ _id, name }) => {
-              const specialtyImage = specialtyImageMap[name];
-              return (
-                <div
-                  key={_id}
-                  className={`category-card ${selectedCategory === name ? 'selected' : ''}`}
-                  onClick={() => setSelectedCategory(name)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {specialtyImage ? (
-                    <img 
-                      src={specialtyImage} 
-                      alt={name}
-                      style={{ width: '48px', height: '48px', marginBottom: 8 }}
-                    />
-                  ) : (
-                    <div 
-                      style={{ 
-                        width: '48px', 
-                        height: '48px', 
-                        marginBottom: 8,
-                        background: '#0167FB',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontSize: '24px'
-                      }}
-                    >
-                      {name.charAt(0)}
-                    </div>
-                  )}
-                  <p>{name}</p>
-                </div>
-              );
-            })
-          )}
         </div>
-      </div>
-      <div className="second-part">
-        <div className="placeType">
-          <h1 style={{ color: "#0052E0" }}>Choose place</h1>
-          <div className="placeType-container">
-            <div 
-              onClick={() => setSelectedPlace('clinic')}
-              style={{ cursor: 'pointer' }}
-              className={selectedPlace === 'clinic' ? 'selected' : ''}
+
+        {/* State Selection */}
+        <div className="state-section">
+          <h2 className="section-title">Choose a State</h2>
+          <div className="state-container">
+            <select
+              className="state-select"
+              value={selectedState}
+              onChange={(e) => setSelectedState(e.target.value)}
             >
-              <img src={Photo1} alt="clinic" style={{ borderRadius: "13px" }} />
-              <div className="place-info">
-                <h3 style={{ color: "#0167FB", paddingBottom: "3px" }}>
-                  Clinic
-                </h3>
-                <span>A private clinic for routine check-ups, diagnoses, and treatments</span>
-              </div>
+              <option value="">Select a state</option>
+              {states.map((state) => (
+                <option key={state} value={state}>{state}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Place Type */}
+        <div className="place-section">
+          <h2 className="section-title">Choose Type</h2>
+          <div className="place-type">
+            <div
+              className={`place-card${selectedPlace === 'clinic' ? ' selected' : ''}`}
+              onClick={() => handlePlaceSelect('clinic')}
+            >
+              <img src={Photo1} alt="Clinic" className="place-image" />
+              <p className="place-name">Clinic</p>
             </div>
-            <div 
-              onClick={() => setSelectedPlace('hospital')}
-              style={{ cursor: 'pointer' }}
-              className={selectedPlace === 'hospital' ? 'selected' : ''}
+            <div
+              className={`place-card${selectedPlace === 'hospital' ? ' selected' : ''}`}
+              onClick={() => handlePlaceSelect('hospital')}
             >
-              <img src={Photo2} alt="hospital" style={{ borderRadius: "13px" }} />
-              <div className="place-info">
-                <h3 style={{ color: "#0167FB", paddingBottom: "3px" }}>
-                  Hospital
-                </h3>
-                <span>A large medical facility offering specialized care, surgeries.</span>
-              </div>
+              <img src={Photo2} alt="Hospital" className="place-image" />
+              <p className="place-name">Hospital</p>
             </div>
-            <div 
-              onClick={() => setSelectedPlace('cabine')}
-              style={{ cursor: 'pointer' }}
-              className={selectedPlace === 'cabine' ? 'selected' : ''}
+            <div
+              className={`place-card${selectedPlace === 'cabine' ? ' selected' : ''}`}
+              onClick={() => handlePlaceSelect('cabine')}
             >
-              <img src={Photo3} alt="medical doctor" />
-              <div className="place-info">
-                <h3 style={{ color: "#0167FB", paddingBottom: "3px" }}>
-                  Cabinet
-                </h3>
-                <span>A healthcare facility providing outpatient medical care, and treatments.</span>
-              </div>
+              <img src={Photo3} alt="Cabinet" className="place-image" />
+              <p className="place-name">Cabinet</p>
             </div>
           </div>
         </div>
-        <div className="rightSide">
-          <div className="State">
-            <h1 style={{ color: "#0052E0" }}>Choose a State</h1>
-            <div className="State-container">
-              <select 
-                value={selectedState} 
-                onChange={(e) => setSelectedState(e.target.value)}
-              >
-                <option value="">Select a state</option>
-                {states.map((state) => (
-                  <option key={state} value={state}>{state}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className="advises">
-            <div className="advice-container">
-              <h1 style={{ color: "#0052E0" }}>Health advice:</h1>
-              <p>
-                Stay hydrated, exercise daily, and get enough rest.
-                Good sleep and a balanced diet keep you healthy! 
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="">
-        <Link to={handleSearch()}>
+
+        {/* Search Container */}
+        <div className="search-container">
           <button 
-            className="search-btn"
-            disabled={!selectedCategory || !selectedPlace || !selectedState}
+            className="search-btn" 
+            onClick={handleSearch} 
+            disabled={loading || !selectedCategory || !selectedPlace || !selectedState}
           >
-            Search
+            {loading ? 'Searching...' : 'Search'}
           </button>
-        </Link>
+          {error && <div className="error-message">{error}</div>}
+        </div>
       </div>
     </section>
   );
