@@ -263,7 +263,7 @@ const Opiration = () => {
         
         {/* Upload Section - Exactly like PriscriptionLabo */}
         <div className="upload-section">
-          <h2 className="section-title">Upload Prescription</h2>
+          <h2 className="section-title">Upload referral letter</h2>
           <div className="upload-container">
             <div className="upload-area">
               <input type="file" id="file" hidden accept=".pdf" onChange={handleFileUpload} />
