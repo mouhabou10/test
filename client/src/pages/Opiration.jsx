@@ -206,60 +206,61 @@ const Opiration = () => {
     <section>
       <SideBareClient/>
       <Header/>
-      {/* Categories Section - Like Consultation */}
-      <div className="category-container">
-        <div className="category-title">
-          <h1>Choose a speciality for operation</h1>
-          <h3>See all</h3>
-        </div>
-        <div className="category-cards">
-          {loadingSpecialities ? (
-            <div className="loading-spinner">Loading specialties...</div>
-          ) : specialitiesError ? (
-            <div className="error-message">{specialitiesError}</div>
-          ) : (
-            specialities.map(({ name, _id }) => {
-              const icon = specialtyImageMap[name];
-              return (
-                <div 
-                  key={_id} 
-                  className={`category-card ${selectedCategory === name ? 'selected' : ''}`}
-                  onClick={() => handleCategorySelect(name)}
-                  style={{
-                    border: selectedCategory === name ? '2px solid #0052E0' : 'none',
-                    cursor: 'pointer',
-                    backgroundColor: selectedCategory === name ? '#f0f7ff' : 'white'
-                  }}
-                >
-                  {icon ? (
-                    <img src={icon} alt={name} style={{ width: '48px', height: '48px', marginBottom: '8px' }} />
-                  ) : (
-                    <div 
-                      style={{ 
-                        width: '48px', 
-                        height: '48px', 
-                        marginBottom: 8,
-                        background: '#0167FB',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontSize: '24px'
-                      }}
-                    >
-                      {name.charAt(0)}
-                    </div>
-                  )}
-                  <p>{name}</p>
-                </div>
-              );
-            })
-          )}
-        </div>
-      </div>
-
+      
       <div className="prescription-container">
+        {/* Categories Section - Like Consultation */}
+        <div className="category-container" style={{ margin: 0 }}>
+          <div className="category-title">
+            <h1>Choose a speciality for operation</h1>
+            <h3>See all</h3>
+          </div>
+          <div className="category-cards">
+            {loadingSpecialities ? (
+              <div className="loading-spinner"></div>
+            ) : specialitiesError ? (
+              <div className="error-message">{specialitiesError}</div>
+            ) : (
+              specialities.map(({ name, _id }) => {
+                const icon = specialtyImageMap[name];
+                return (
+                  <div 
+                    key={_id} 
+                    className={`category-card ${selectedCategory === name ? 'selected' : ''}`}
+                    onClick={() => handleCategorySelect(name)}
+                    style={{
+                      border: selectedCategory === name ? '2px solid #0052E0' : 'none',
+                      cursor: 'pointer',
+                      backgroundColor: selectedCategory === name ? '#f0f7ff' : 'white'
+                    }}
+                  >
+                    {icon ? (
+                      <img src={icon} alt={name} style={{ width: '48px', height: '48px', marginBottom: '8px' }} />
+                    ) : (
+                      <div 
+                        style={{ 
+                          width: '48px', 
+                          height: '48px', 
+                          marginBottom: 8,
+                          background: '#0167FB',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontSize: '24px'
+                        }}
+                      >
+                        {name.charAt(0)}
+                      </div>
+                    )}
+                    <p>{name}</p>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+        
         {/* Upload Section - Exactly like PriscriptionLabo */}
         <div className="upload-section">
           <h2 className="section-title">Upload Prescription</h2>

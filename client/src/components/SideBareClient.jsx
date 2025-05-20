@@ -2,20 +2,46 @@ import React from 'react'
 import { AiOutlineDashboard } from "react-icons/ai";
 import { IoSettingsOutline } from "react-icons/io5";
 import { IoIosRadio } from "react-icons/io";
-import { Link } from 'react-router-dom';
-const SideBare = () => {
+import { GiMicroscope } from "react-icons/gi";
+import { FaHospitalUser } from "react-icons/fa";
+import { MdOutlineFileDownload } from "react-icons/md";
+import { Link, useLocation } from 'react-router-dom';
 
+const SideBare = () => {
+  // Get current location to determine active page
+  const location = useLocation();
+  const currentPath = location.pathname;
+  
+  // Function to check if a path is active
+  const isActive = (path) => {
+    if (path === '/' && currentPath === '/') {
+      return true;
+    }
+    return path !== '/' && currentPath.startsWith(path);
+  };
+  
+  // Navigation items configuration
+  const navItems = [
+    { path: '/', label: 'Dashboard', icon: <AiOutlineDashboard size={22} /> },
+    { path: '/consultation', label: 'Consultation', icon: <FaHospitalUser size={22} /> },
+    { path: '/radio', label: 'Radiology', icon: <IoIosRadio size={22} /> },
+    { path: '/labo', label: 'Laboratory', icon: <GiMicroscope size={22} /> },
+    { path: '/opiration', label: 'Operation', icon: <FaHospitalUser size={22} /> },
+    { path: '/result', label: 'Results', icon: <MdOutlineFileDownload size={22} /> },
+    { path: '/settings/:id', label: 'Settings', icon: <IoSettingsOutline size={22} /> }
+  ];
   
   return (
     <div className='sidebar'>
-      <ul className='ul-deisgn'> 
-        <li className='li-deign'> <Link to="/"><AiOutlineDashboard size={30}/> Home</Link></li>
-        <li className='li-deign'> <Link to="/consultation"><IoSettingsOutline size={30}/> consultation</Link></li>
-        <li className='li-deign'> <Link to="/radio"><IoIosRadio size={30}/> Radio</Link></li>
-        <li className='li-deign'> <Link to="/labo"><AiOutlineDashboard size={30}/> Lab</Link></li>
-        <li className='li-deign'> <Link to="/opiration"><IoIosRadio size={30}/> Operation</Link></li>
-        <li className='li-deign'> <Link to="/result" ><IoSettingsOutline size={30}/> Result</Link></li>
-        <li className='li-deign'> <Link to="/settings/:id"><IoSettingsOutline size={30}/> setting</Link></li>
+      <ul className='ul-deisgn'>
+        {navItems.map((item, index) => (
+          <li key={index} className={`li-deign ${isActive(item.path) ? 'active' : ''}`}>
+            <Link to={item.path}>
+              {item.icon}
+              <span>{item.label}</span>
+            </Link>
+          </li>
+        ))}
       </ul>
     </div>
   )
