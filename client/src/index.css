@@ -2351,13 +2351,11 @@ select.input-field:focus {
 
 /* ====================================== Prescription Radio ===========================*/
 
-.prescription-page {
+/* .prescription-page {
   min-height: 100vh;
   padding: 2rem;
-  background-color: #f5f7fa;
-  margin-left: 15%;
   margin-top: 60px;
-}
+} */
 
 .prescription-container {
   max-width: 1200px;
