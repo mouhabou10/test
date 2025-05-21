@@ -8,33 +8,9 @@ import Worker from '../models/worker.model.js';
 // Create a ticket for a client
 export const createTicket = async (req, res) => {
   try {
-    const { serviceProvider: serviceProviderId, client: clientId } = req.body;
+    const { serviceProvider: serviceProviderId, client: clientId, clientName } = req.body;
 
-    // Check for existing active ticket
-    const existingTicket = await Ticket.findOne({
-      client: clientId,
-      serviceProvider: serviceProviderId,
-      status: { $in: ['pending', 'confirmed'] },
-      createdAt: {
-        $gte: new Date(new Date().setHours(0, 0, 0, 0)) // Today's tickets only
-      }
-    });
-
-    if (existingTicket) {
-      // Return the existing ticket instead of creating a new one
-      await existingTicket.populate('serviceProvider');
-      const provider = await ServiceProvider.findById(serviceProviderId);
-      return res.status(200).json({
-        success: true,
-        message: 'Retrieved existing ticket',
-        data: {
-          ...existingTicket.toObject(),
-          waitingCount: provider.waitingCount
-        }
-      });
-    }
-
-    // Check if service provider exists
+    // Check if service provider exists first
     const serviceProvider = await ServiceProvider.findById(serviceProviderId);
     if (!serviceProvider) {
       return res.status(404).json({
@@ -43,24 +19,62 @@ export const createTicket = async (req, res) => {
       });
     }
 
-    // Check if user exists
-    const user = await User.findById(clientId);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
     // Get or create client record
-    let client = await Client.findOne({ user: clientId });
-    if (!client) {
+    let client;
+    if (clientId) {
+      const user = await User.findById(clientId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+      
+      // Check for existing active ticket for authenticated users
+      const existingTicket = await Ticket.findOne({
+        client: clientId,
+        serviceProvider: serviceProviderId,
+        status: { $in: ['pending', 'confirmed'] },
+        createdAt: {
+          $gte: new Date(new Date().setHours(0, 0, 0, 0)) // Today's tickets only
+        }
+      });
+
+      if (existingTicket) {
+        await existingTicket.populate('serviceProvider');
+        return res.status(200).json({
+          success: true,
+          message: 'Retrieved existing ticket',
+          data: {
+            ...existingTicket.toObject(),
+            waitingCount: serviceProvider.waitingCount
+          }
+        });
+      }
+      
+      client = await Client.findOne({ user: clientId });
+      if (!client) {
+        client = await Client.create({
+          user: clientId,
+          clientNumber: `CLT${Date.now()}`,
+          fullName: user.fullName,
+          email: user.email,
+          phoneNumber: user.phoneNumber
+        });
+      }
+    } else {
+      // Handle unauthenticated users
+      if (!clientName) {
+        return res.status(400).json({
+          success: false,
+          message: 'Client name is required for unauthenticated users'
+        });
+      }
+      
+      // Create a temporary client for unauthenticated users
       client = await Client.create({
-        user: clientId,
-        clientNumber: `CLT${Date.now()}`, // Simple unique number generation
-        fullName: user.fullName,
-        email: user.email,
-        phoneNumber: user.phoneNumber
+        clientNumber: `TEMP${Date.now()}`,
+        fullName: clientName,
       });
     }
 
