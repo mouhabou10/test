@@ -45,7 +45,7 @@ const Header = () => {
     <nav className='nav-client'>
       <div className='header-container'>
         <div className='header-left'>
-          <div className='page-title'>
+          <div className='page-titl'>
             <h1>{pageTitle}</h1>
           </div>
           <div className='greeting'>
