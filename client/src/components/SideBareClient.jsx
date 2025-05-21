@@ -5,6 +5,8 @@ import { IoIosRadio } from "react-icons/io";
 import { GiMicroscope } from "react-icons/gi";
 import { FaHospitalUser } from "react-icons/fa";
 import { MdOutlineFileDownload } from "react-icons/md";
+import { MdPendingActions } from "react-icons/md";
+import { FaCalendarAlt } from "react-icons/fa";
 import { Link, useLocation } from 'react-router-dom';
 
 const SideBare = () => {
@@ -27,6 +29,8 @@ const SideBare = () => {
     { path: '/radio', label: 'Radiology', icon: <IoIosRadio size={22} /> },
     { path: '/labo', label: 'Laboratory', icon: <GiMicroscope size={22} /> },
     { path: '/opiration', label: 'Operation', icon: <FaHospitalUser size={22} /> },
+    { path: '/appointments', label: 'Appointments', icon: <FaCalendarAlt size={22} /> },
+    { path: '/requests', label: 'Requests', icon: <MdPendingActions size={22} /> },
     { path: '/result', label: 'Results', icon: <MdOutlineFileDownload size={22} /> },
     { path: '/settings/:id', label: 'Settings', icon: <IoSettingsOutline size={22} /> }
   ];

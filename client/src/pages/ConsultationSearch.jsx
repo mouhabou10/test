@@ -7,35 +7,39 @@ import SideBare from "../components/SideBareClient.jsx";
 const ConsultationSearch = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const searchParams = new URLSearchParams(location.search);
-  const category = searchParams.get('category');
-  const place = searchParams.get('place');
-  const state = searchParams.get('state');
   
+  const [searchParams, setSearchParams] = useState(null);
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchServiceProviders = async () => {
+    // Get search parameters from localStorage
+    const params = localStorage.getItem('consultationSearchParams');
+    if (params) {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setError('Please log in to continue');
-          navigate('/login', { state: { from: location.pathname + location.search } });
-          return;
-        }
+        const parsedParams = JSON.parse(params);
+        setSearchParams(parsedParams);
+        
+        const fetchServiceProviders = async () => {
+          try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+              setError('Please log in to continue');
+              navigate('/login', { state: { from: location.pathname } });
+              return;
+            }
 
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/service-provider/search`, {
-          params: {
-            speciality: category,
-            type: place,
-            wilaya: state
-          },
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/service-provider/search`, {
+              params: {
+                speciality: parsedParams.category,
+                type: parsedParams.place,
+                wilaya: parsedParams.state
+              },
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
         
         if (response.data?.success) {
           setProviders(response.data.data);
@@ -62,8 +66,17 @@ const ConsultationSearch = () => {
       }
     };
 
-    fetchServiceProviders();
-  }, [category, place, state, navigate, location]);
+        fetchServiceProviders();
+      } catch (e) {
+        console.error('Error parsing search parameters:', e);
+        setError('Invalid search parameters. Please try again.');
+        setLoading(false);
+      }
+    } else {
+      setError('No search parameters found. Please go back and search again.');
+      setLoading(false);
+    }
+  }, [navigate, location]);
 
   const handleBookAppointment = (providerId) => {
     const token = localStorage.getItem('token');
@@ -84,11 +97,13 @@ const ConsultationSearch = () => {
       <SideBare />
       <div className="search-results-container">
         <h1>Search Results</h1>
-        <div className="search-filters">
-          <p><strong>Specialty:</strong> {category}</p>
-          <p><strong>Place Type:</strong> {place}</p>
-          <p><strong>State:</strong> {state}</p>
-        </div>
+        {searchParams && (
+          <div className="search-filters">
+            <p><strong>Specialty:</strong> {searchParams.category}</p>
+            <p><strong>Place Type:</strong> {searchParams.place}</p>
+            <p><strong>State:</strong> {searchParams.state}</p>
+          </div>
+        )}
         <div className="search-results">
           {loading ? (
             <div style={{ gridColumn: '1/-1', textAlign: 'center', color: '#666' }}>
@@ -112,8 +127,10 @@ const ConsultationSearch = () => {
                   <p><strong>Location:</strong> {provider.wilaya}</p>
                   <p><strong>Specialty:</strong> {
                     provider.type === 'cabine' 
-                      ? provider.speciality 
-                      : provider.specialities?.join(', ')
+                      ? (provider.speciality?.name || provider.speciality)
+                      : (Array.isArray(provider.specialities) 
+                          ? provider.specialities.map(s => s.name || s).join(', ') 
+                          : provider.specialities?.name || provider.specialities || 'Not provided')
                   }</p>
                 </div>
                 <button 
