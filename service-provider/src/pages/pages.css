@@ -9,14 +9,12 @@
     background-color: rgba(255, 255, 255, 0.8); /* White with transparency */
     transition: transform 10s ease-in-out;
 }
-<<<<<<< HEAD
-=======
+
 .perton {
     margin-left:250px;
     margin-top:0px;
     font-size: 2rem;
-    font-weight: bold;
->>>>>>> e13dc73155d6d0071101729e537ea6c580b9c382
+    font-weight: bold;}
 
 .rectangle1 {
     height: 100vh;

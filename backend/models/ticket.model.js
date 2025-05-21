@@ -20,12 +20,17 @@ const ticketSchema = new mongoose.Schema(
       type: String,
       enum: ['pending', 'confirmed', 'cancelled'],
       default: 'pending'
+    },
+    speciality: {
+      type: String,
+      required: true
     }
   },
   {
     timestamps: true
   }
 );
+
 
 const Ticket = mongoose.model('Ticket', ticketSchema);
 export default Ticket;
