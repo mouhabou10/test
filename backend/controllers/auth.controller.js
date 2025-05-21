@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import User from '../models/user.model.js';
 import { JWT_EXPIRES_IN, JWT_SECRET } from '../config/env.js';
+import Worker from '../models/worker.model.js'; // import Worker model
 
 
 // ─── SIGN UP ─────────────────────────────────────────────────────────────
@@ -73,41 +74,61 @@ export const signUp = async (req, res, next) => {
     next(error);
   }
 };
-
-// ─── SIGN IN ─────────────────────────────────────────────────────────────
 export const signIn = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) {
-      const error = new Error('User not found');
-      error.statusCode = 404;
-      throw error;
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      const error = new Error('Incorrect password');
-      error.statusCode = 401;
-      throw error;
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign(
-      { userId: user._id },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
-    );
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1d',
+    });
+
+    // Prepare base response
+    let responseUser = {
+      _id: user._id,
+      email: user.email,
+      fullName: user.fullName,
+      role: user.role,
+      speciality: null,         // Default values
+      serviceProvider: null
+    };
+
+    // Roles that should have both speciality and serviceProvider
+    const rolesWithSpecAndProvider = [
+      'chefDepartment',
+      'laboAgent',
+      'radioAgent',
+      'consultation agent'
+    ];
+
+    // Get worker data if role is among those requiring additional info
+    if (rolesWithSpecAndProvider.includes(user.role) || user.role === 'manager') {
+      const worker = await Worker.findOne({ user: user._id }).populate('serviceProvider', 'name');
+      if (worker) {
+        responseUser.serviceProvider = worker.serviceProvider?._id || null;
+
+        if (rolesWithSpecAndProvider.includes(user.role)) {
+          responseUser.speciality = worker.speciality || null;
+        }
+      }
+    }
 
     res.status(200).json({
       success: true,
-      message: 'User signed in successfully',
       data: {
         token,
-        user,
-      },
+        user: responseUser,
+      }
     });
-
   } catch (error) {
     next(error);
   }

@@ -52,7 +52,7 @@ const AddWorkerModal = ({ isOpen, onClose, onSubmit, serviceProviderId }) => {
             <select name="role" value={formData.role} onChange={handleChange} required>
               <option value="">Select Role</option>
               <option value="manager">Manager</option>
-              <option value="chefDepartment">Chef Department</option>
+              <option value="chef Department">Chef Department</option>
               <option value="laboAgent">Labo Agent</option>
               <option value="radioAgent">Radio Agent</option>
               <option value="consultation agent">Consultation Agent</option>

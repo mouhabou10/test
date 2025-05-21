@@ -3,9 +3,10 @@ import {
   createWorker,
   getAllWorkers,
   getWorkerById,
-  updateWorker,
-  deleteWorker
+  deleteWorker,
+  updateWorker
 } from '../controllers/workerController.js';
+
 
 const workerRouter = Router();
 
