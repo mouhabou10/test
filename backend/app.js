@@ -25,6 +25,7 @@ import authRoutes from './routes/auth.Routes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import accountDemandRoutes from './routes/accountDemandRoutes.js';
 import serviceProviderRouter from './routes/serviceProviderRoutes.js';
+import appointmentRoutes from './routes/appointmentRoutes.js';
 import errorMiddleware from './Middlewares/error.Middleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -65,6 +66,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/services', serviceRoutes);
 app.use('/api/v1/service-provider', serviceProviderRouter);
+app.use('/api/v1/appointments', appointmentRoutes);
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
