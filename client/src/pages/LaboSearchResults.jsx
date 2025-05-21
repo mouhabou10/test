@@ -30,6 +30,19 @@ const LaboSearchResults = () => {
     setLoading(true);
     setSelectedProvider(provider);
     
+    // Get user info from localStorage
+    const userStr = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    
+    if (!userStr || !token) {
+      alert('User information not found. Please log in again.');
+      navigate('/login');
+      return;
+    }
+    
+    // Parse user data
+    const user = JSON.parse(userStr);
+    
     try {
       // Get the uploaded files from the global window variable
       if (!window.uploadedLaboFiles || window.uploadedLaboFiles.length === 0) {
@@ -47,6 +60,7 @@ const LaboSearchResults = () => {
       }
       
       let uploadSuccess = false;
+      let documentId = null;
       
       for (const fileData of window.uploadedLaboFiles) {
         if (!fileData.file) {
@@ -83,6 +97,13 @@ const LaboSearchResults = () => {
           
           console.log('Upload successful:', response.data);
           uploadSuccess = true;
+          
+          // Extract document ID from the response
+          if (response.data && response.data.data && response.data.data._id) {
+            documentId = response.data.data._id;
+          } else if (response.data && response.data.document && response.data.document._id) {
+            documentId = response.data.document._id;
+          }
         } catch (uploadError) {
           console.error('Error uploading file:', uploadError);
           console.error('Error details:', uploadError.response?.data || 'No response data');
@@ -99,16 +120,33 @@ const LaboSearchResults = () => {
         return;
       }
       
+      // Check if we have a document ID
+      if (!documentId) {
+        alert("Document ID not found in the response. Please try again.");
+        setLoading(false);
+        setSelectedProvider(null);
+        return;
+      }
+      
       // Create an appointment with the service provider
       const appointmentRequest = {
         serviceProviderId: provider._id,
+        clientId: user._id, // Add the client ID from the user object
         appointmentType: 'labo',
+        documentId: documentId, // Add the document ID
         notes: 'Lab prescription appointment'
       };
       
+      console.log('Creating appointment with data:', appointmentRequest);
+      
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/v1/appointments`, 
-        appointmentRequest
+        appointmentRequest,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
       );
       
       // Store appointment info and navigate to ticket page
