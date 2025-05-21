@@ -6,7 +6,7 @@ import  NotificationButton from './NotificationButton.jsx'
 const Header= () => {
   return (
     <div className="headers-container">
-     <h5 className='namek'>agent labo /scanner</h5>
+     <h5 className='namek'>manager</h5>
       <Logo />
       <Sidebar />
       <div style={{ position: "absolute", top: "20px", right: "110px" }}>
