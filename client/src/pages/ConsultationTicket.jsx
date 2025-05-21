@@ -15,6 +15,10 @@ const ConsultationTicket = () => {
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         const existingTicket = localStorage.getItem(`ticket_${id}`);
+        
+        // Get the search parameters to access the selected specialty
+        const searchParamsStr = localStorage.getItem('consultationSearchParams');
+        const searchParams = searchParamsStr ? JSON.parse(searchParamsStr) : null;
 
         if (!token || !user?._id) {
           setError('Please log in to create a ticket.');
@@ -28,7 +32,12 @@ const ConsultationTicket = () => {
 
         if (existingTicket) {
           // Use existing ticket if found
-          setTicketData(JSON.parse(existingTicket));
+          const ticketData = JSON.parse(existingTicket);
+          // Add the selected specialty from search params if available
+          if (searchParams && searchParams.category) {
+            ticketData.selectedSpecialty = searchParams.category;
+          }
+          setTicketData(ticketData);
           setLoading(false);
           return;
         }
@@ -49,6 +58,16 @@ const ConsultationTicket = () => {
 
         if (response.data.success) {
           const newTicketData = response.data.data;
+          
+          // Get the search parameters to access the selected specialty
+          const searchParamsStr = localStorage.getItem('consultationSearchParams');
+          const searchParams = searchParamsStr ? JSON.parse(searchParamsStr) : null;
+          
+          // Add the selected specialty from search params if available
+          if (searchParams && searchParams.category) {
+            newTicketData.selectedSpecialty = searchParams.category;
+          }
+          
           setTicketData(newTicketData);
           // Store the ticket in localStorage
           localStorage.setItem(`ticket_${id}`, JSON.stringify(newTicketData));
@@ -140,13 +159,10 @@ const ConsultationTicket = () => {
           <p><strong>Nom et Prénom:</strong> {JSON.parse(localStorage.getItem('user') || '{}').fullName}</p>
         </div>
         <div className="detail-row">
-          <p><strong>Spécialité:</strong> {ticketData.serviceProvider?.speciality}</p>
+          <p><strong>Spécialité:</strong> {ticketData.selectedSpecialty || ticketData.serviceProvider?.speciality || 'Consultation'}</p>
         </div>
         <div className="detail-row">
           <p><strong>Date de création:</strong> {new Date(ticketData.createdAt).toLocaleString('fr-DZ')}</p>
-        </div>
-        <div className="detail-row">
-          <p><strong>Status:</strong> {ticketData.status}</p>
         </div>
       </div>
 

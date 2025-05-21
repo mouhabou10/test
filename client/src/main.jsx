@@ -12,6 +12,7 @@ import Labo from './pages/Labo';
 import Opiration from './pages/Opiration';
 import RadioTicket from './pages/RadioTicket';
 import Requestes from './pages/Requestes';
+import Requests from './pages/Requests';
 import Result from './pages/Result';
 import Radio from './pages/Radio';
 import PriscriptionLabo from './pages/PriscriptionLabo';
@@ -25,6 +26,7 @@ import RadioSearchResults from './pages/RadioSearchResults';
 import LaboSearchResults from './pages/LaboSearchResults';
 import OperationSearchResults from './pages/OperationSearchResults';
 import OperationTicket from './pages/OperationTicket';
+import Appointments from './pages/Appointments';
 
 // Create router for navigation
 const router = createBrowserRouter([
@@ -42,6 +44,8 @@ const router = createBrowserRouter([
       { path: 'opiration/opiration-search-results', element: <OperationSearchResults /> },
       { path: 'opiration/opiration-ticket/:id', element: <OperationTicket /> },
       { path: 'requestes/:id', element: <Requestes /> },
+      { path: 'requests', element: <ProtectedRoute><Requests /></ProtectedRoute> },
+      { path: 'appointments', element: <ProtectedRoute><Appointments /></ProtectedRoute> },
       { path: 'radio', element: <Radio /> },
       { path: 'result', element: <Result /> },
       { path: 'labo/priscription-labo', element: <PriscriptionLabo /> },

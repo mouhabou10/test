@@ -1,257 +1,197 @@
-import React, { useState, useEffect } from "react";
-import { IoMdPerson } from "react-icons/io";
-import InfoRow from "../components/InfoRow";
+import React from "react";
+import { Link } from "react-router-dom";
+import { FaHospital, FaFlask, FaXRay, FaUserMd, FaCalendarAlt, FaArrowRight } from "react-icons/fa";
+import { MdHealthAndSafety, MdScience, MdMedicalServices, MdOutlineLocalHospital } from "react-icons/md";
 import Card1 from "../images/healthcare.png";
 import Card2 from "../images/mri.png";
 import Card3 from "../images/chemistry.png";
 import Card4 from "../images/patient.png";
-import AppointmentCards from "../components/AppointmentCards";
-import RequestInfo from "../components/RequestInfo"; 
-
-import { Link } from "react-router-dom";
+import Header from "../components/Header.jsx";
+import SideBareClient from "../components/SideBareClient.jsx";
 
 const Dashboard = () => {
-  const [userData, setUserData] = useState({
-    fullName: '',
-    gender: '',
-    age: '',
-    phoneNumber: '',
-    email: '',
-    userId: ''
-  });
-  const [stats, setStats] = useState({
-    upcomingAppointments: 0,
-    pastAppointments: 0,
-    consultations: 0,
-    radioTests: 0,
-    laboTests: 0,
-    operations: 0
-  });
-  const [pendingAppointments, setPendingAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // Services offered by the platform
+  const services = [
+    {
+      id: 1,
+      name: "Consultation",
+      description: "Book appointments with doctors and specialists for consultations and medical advice.",
+      icon: <FaUserMd size={40} color="#0052E0" />,
+      path: "/consultation"
+    },
+    {
+      id: 2,
+      name: "Radiology",
+      description: "Schedule radiology tests and upload prescriptions for X-rays, MRIs, and other imaging services.",
+      icon: <FaXRay size={40} color="#ff9900" />,
+      path: "/radio"
+    },
+    {
+      id: 3,
+      name: "Laboratory",
+      description: "Book laboratory tests and upload prescriptions for blood work, urine analysis, and other tests.",
+      icon: <FaFlask size={40} color="#3399ff" />,
+      path: "/labo"
+    },
+    {
+      id: 4,
+      name: "Operation",
+      description: "Schedule surgical procedures and upload operation prescriptions for various medical interventions.",
+      icon: <MdOutlineLocalHospital size={40} color="#ff3366" />,
+      path: "/opiration"
+    }
+  ];
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user'));
-        
-        if (!user || !user._id) {
-          throw new Error('No user data found');
-        }
-
-        // Fetch user data
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/users/${user._id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch user data');
-        }
-        
-        const data = await response.json();
-        setUserData(data.data);
-        
-        // Fetch appointments stats
-        const statsResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/clients/${user._id}/stats`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (statsResponse.ok) {
-          const statsData = await statsResponse.json();
-          setStats(statsData.data);
-        }
-        
-        // Fetch pending appointments
-        // Get the client ID - ensure we're always using the current client's ID
-        // First check user.client, then _id, then fallback to user ID if available
-        let clientId;
-        if (user.client) {
-          clientId = user.client; // If client reference exists, use it
-        } else if (user._id) {
-          clientId = user._id; // Otherwise use the user's ID directly
-        } else if (user.userId) {
-          clientId = user.userId; // Last resort: use userId if available
-        } else {
-          // If no ID is found, show an error
-          setError('No client ID found for the current user');
-          setLoading(false);
-          return;
-        }
-        
-        try {
-          const pendingAppointmentsResponse = await fetch(
-            `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/appointments/client/${clientId}/pending`, 
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            }
-          );
-          
-          if (pendingAppointmentsResponse.ok) {
-            const pendingData = await pendingAppointmentsResponse.json();
-            
-            // Process the pending appointments data
-            
-            setPendingAppointments(pendingData.data || []);
-          } else {
-            // Handle error silently
-            const errorText = await pendingAppointmentsResponse.text();
-          }
-        } catch (fetchError) {
-          // Silent error handling for pending appointments
-        }
-        
-      } catch (err) {
-        console.error('Dashboard error:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, []);
+  // Features of the platform
+  const features = [
+    {
+      id: 1,
+      title: "Easy Appointment Booking",
+      description: "Book medical appointments with just a few clicks. Choose from a wide network of healthcare providers.",
+      icon: <FaCalendarAlt size={32} color="#0052E0" />
+    },
+    {
+      id: 2,
+      title: "Prescription Upload",
+      description: "Upload your medical prescriptions securely and get them processed by healthcare providers.",
+      icon: <MdScience size={32} color="#0052E0" />
+    },
+    {
+      id: 3,
+      title: "Track Requests",
+      description: "Monitor the status of your medical requests and appointments in real-time.",
+      icon: <MdHealthAndSafety size={32} color="#0052E0" />
+    },
+    {
+      id: 4,
+      title: "View Results",
+      description: "Access your medical test results and reports securely through our platform.",
+      icon: <MdMedicalServices size={32} color="#0052E0" />
+    }
+  ];
 
   return (
     <section>
-      {loading ? (
-        <div>Loading...</div>
-      ) : error ? (
-        <div>Error: {error}</div>
-      ) : (
-        <>
-          <div className="first-cards">
-            <div className="info">
-              <div className="info-leftSide">
-                <IoMdPerson size={70} />
-                <h2 style={{ color: "#0052E0" }}>{userData.fullName}</h2>
-                <p style={{ color: "#808080" }}>Appointment</p>
-                <div className="appoint-info">
-                  <div className="appoint-text">
-                    {stats.upcomingAppointments} <br /> upcoming
-                  </div>
-                  <div className="line"></div>
-                  <div className="appoint-text">
-                    {stats.pastAppointments} <br /> past
-                  </div>
-                </div>
-              </div>
-              <div className="line"></div>
-              <div className="info-rightSide">
-                <div className="info-row">
-                  <div>
-                    <p>Gender : {userData.gender ? userData.gender.charAt(0).toUpperCase() + userData.gender.slice(1) : 'Not specified'}</p>
-                    <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
-                  </div>
-                  <div>
-                    <p>Age : {userData.age || 'Not specified'}</p>
-                    <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
-                  </div>
-                </div>
-                <div className="info-row">
-                  <div>
-                    <p>Phone : {userData.phoneNumber}</p>
-                    <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
-                  </div>
-                  <div>
-                    <p>User ID : {userData.userId}</p>
-                    <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
-                  </div>
-                </div>
-                <div className="info-row">
-                  <div>
-                    <p>Email : {userData.email}</p>
-                    <hr style={{ border: "0.1px solid rgba(0, 94, 255, 0.19)", marginTop: "2px" }} />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="medical">
-              <h3>Appointments</h3>
-              <InfoRow />
-              <InfoRow />
-              <InfoRow />
-              <InfoRow />
+      <Header />
+      <SideBareClient />
+      
+      <div className="home-container">
+        {/* Hero Section */}
+        <div className="hero-section">
+          <div className="hero-content">
+            <h1 className="hero-title">Your Health, Our Priority</h1>
+            <p className="hero-subtitle">
+              A comprehensive healthcare platform that connects you with medical services across Algeria.
+              Book appointments, upload prescriptions, and manage your healthcare needs in one place.
+            </p>
+            <div className="hero-cta">
+              <Link to="/consultation" className="primary-button">
+                Book an Appointment
+              </Link>
+              <Link to="/requests" className="secondary-button">
+                View My Requests
+              </Link>
             </div>
           </div>
-          <div className="analyse-container">
-            <div className="analyse-title">
-              <h1>Analyse</h1>
-              <select>
-                <option value="today">Today</option>
-                <option value="week">Week</option>
-                <option value="month">Month</option>
-              </select>
-            </div>
-            <div className="analyse-cards">
-              <div className="analyse-card">
-                <img src={Card1} alt="error" />
-                <b>{stats.consultations}</b>
-                <p>consultation</p>
-              </div>
-              <div className="analyse-card">
-                <img src={Card2} alt="error" />
-                <b>{stats.radioTests}</b>
-                <p>Radio</p>
-              </div>
-              <div className="analyse-card">
-                <img src={Card3} alt="error" />
-                <b>{stats.laboTests}</b>
-                <p>Labo</p>
-              </div>
-              <div className="analyse-card">
-                <img src={Card4} alt="error" />
-                <b>{stats.operations}</b>
-                <p>Operation</p>
-              </div>
+          <div className="hero-image-container">
+            <div className="hero-image-wrapper">
+              <FaHospital size={120} color="#0052E0" className="hero-icon" />
             </div>
           </div>
-          <div className="thourd-row">
-            <div className="appintment">
-              <h1>My appintment</h1>
-              <div className="appintment-container">
-                <div className="appointment-content">
-                  <div className="line" style={{ width: "4px" }}></div>
-                  <div className="appointment-cards">
-                    <AppointmentCards />
-                    <AppointmentCards />
-                    <AppointmentCards />
-                    <AppointmentCards />
-                    <AppointmentCards />
-                  </div>
+        </div>
+
+        {/* Services Section */}
+        <div className="home-section">
+          <h2 className="section-title">Our Services</h2>
+          <p className="section-subtitle">
+            Comprehensive healthcare services to meet all your medical needs
+          </p>
+          
+          <div className="services-grid">
+            {services.map(service => (
+              <div key={service.id} className="service-card">
+                <div className="service-icon-container">
+                  {service.icon}
                 </div>
-                <div>
-                  <Link to={'consultation'}>Add appointment</Link>
-                </div>
+                <h3 className="service-title">{service.name}</h3>
+                <p className="service-description">{service.description}</p>
+                <Link to={service.path} className="service-link">
+                  Get Started <FaArrowRight size={12} style={{ marginLeft: '5px' }} />
+                </Link>
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Features Section */}
+        <div className="home-section alt-bg">
+          <h2 className="section-title">Platform Features</h2>
+          <p className="section-subtitle">Designed to make healthcare management simple and efficient</p>
+          
+          <div className="features-grid">
+            {features.map(feature => (
+              <div key={feature.id} className="feature-card">
+                <div className="feature-icon-container">
+                  {feature.icon}
+                </div>
+                <h3 className="feature-title">{feature.title}</h3>
+                <p className="feature-description">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Statistics Section */}
+        <div className="home-section">
+          <h2 className="section-title">Why Choose Us</h2>
+          <p className="section-subtitle">Trusted by thousands of patients across Algeria</p>
+          
+          <div className="stats-grid">
+            <div className="stat-card">
+              <img src={Card1} alt="Consultations" className="stat-icon" />
+              <h3 className="stat-number">5000+</h3>
+              <p className="stat-label">Consultations</p>
             </div>
-            
-            <div className="Requests-container">
-              <h1>Requests Status</h1>
-              <div className="Requests-content">
-                {pendingAppointments.length === 0 ? (
-                  <div className="no-requests-message">
-                    <p>No pending requests found</p>
-                  </div>
-                ) : (
-                  pendingAppointments.map((appointment) => (
-                    <RequestInfo key={appointment._id} appointment={appointment} />
-                  ))
-                )}
-              </div>
+            <div className="stat-card">
+              <img src={Card2} alt="Radiology Tests" className="stat-icon" />
+              <h3 className="stat-number">2500+</h3>
+              <p className="stat-label">Radiology Tests</p>
+            </div>
+            <div className="stat-card">
+              <img src={Card3} alt="Laboratory Tests" className="stat-icon" />
+              <h3 className="stat-number">3000+</h3>
+              <p className="stat-label">Laboratory Tests</p>
+            </div>
+            <div className="stat-card">
+              <img src={Card4} alt="Operations" className="stat-icon" />
+              <h3 className="stat-number">1000+</h3>
+              <p className="stat-label">Operations</p>
             </div>
           </div>
-        </>
-      )}
+        </div>
+
+        {/* Call to Action Section */}
+        <div className="cta-section">
+          <div className="cta-content">
+            <h2 className="cta-title">Ready to take control of your health?</h2>
+            <p className="cta-text">
+              Join thousands of patients who are already managing their healthcare needs with our platform.
+            </p>
+            <div className="cta-buttons">
+              <Link to="/consultation" className="primary-button">
+                Book an Appointment
+              </Link>
+              <Link to="/radio" className="secondary-button">
+                Upload Prescription
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 };
+
+
 
 export default Dashboard;
