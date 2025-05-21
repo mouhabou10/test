@@ -1,4 +1,3 @@
-// TicketController.js
 import Ticket from '../models/ticket.model.js';
 import ServiceProvider from '../models/serviceProvider.model.js';
 import Client from '../models/client.model.js';
@@ -21,7 +20,6 @@ export const createTicket = async (req, res) => {
     });
 
     if (existingTicket) {
-      // Return the existing ticket instead of creating a new one
       await existingTicket.populate('serviceProvider');
       const provider = await ServiceProvider.findById(serviceProviderId);
       return res.status(200).json({
@@ -57,14 +55,14 @@ export const createTicket = async (req, res) => {
     if (!client) {
       client = await Client.create({
         user: clientId,
-        clientNumber: `CLT${Date.now()}`, // Simple unique number generation
+        clientNumber: `CLT${Date.now()}`,
         fullName: user.fullName,
         email: user.email,
         phoneNumber: user.phoneNumber
       });
     }
 
-    // Initialize counters if needed
+    // Initialize counters
     if (typeof serviceProvider.ticketCounter !== 'number') {
       serviceProvider.ticketCounter = 0;
     }
@@ -72,18 +70,20 @@ export const createTicket = async (req, res) => {
       serviceProvider.waitingCount = 0;
     }
 
-    // Increment counters
     serviceProvider.ticketCounter++;
     serviceProvider.waitingCount++;
     await serviceProvider.save();
 
-    // Create the ticket
-    const ticket = new Ticket({
-      client: client._id,
-      serviceProvider: serviceProviderId,
-      number: serviceProvider.ticketCounter,
-      status: 'pending'
-    });
+    // Create the ticket with speciality
+ // Create the ticket with speciality
+const ticket = new Ticket({
+  client: client._id,
+  serviceProvider: serviceProviderId,
+  number: serviceProvider.ticketCounter,
+  status: 'pending',
+  speciality: req.body.speciality || serviceProvider.speciality  // <-- ✅ allow manual override
+});
+
 
     await ticket.save();
     await ticket.populate('serviceProvider');
@@ -105,6 +105,8 @@ export const createTicket = async (req, res) => {
     });
   }
 };
+
+// Get ticket stats for all workers
 export const getTicketStats = async (req, res) => {
   try {
     const workers = await Worker.find();
@@ -113,7 +115,7 @@ export const getTicketStats = async (req, res) => {
       speciality: worker.speciality,
       passedTickets: worker.passedList,
       waitingList: worker.waitingList,
-      dailyTickets: worker.waitingList + worker.passedList
+      dailyTickets: worker.passedList + worker.waitingList
     }));
 
     res.status(200).json({
@@ -145,7 +147,7 @@ export const getTicketStatus = async (req, res) => {
   }
 };
 
-// Increment passed list (agent clicks "next")
+// Increment passed ticket count
 export const incrementPassedTickets = async (req, res) => {
   try {
     const { id } = req.params;
@@ -179,19 +181,19 @@ export const pauseTicketDemand = async (req, res) => {
   }
 };
 
-// Reset day (delete today's tickets and reset counters)
+// Reset ticket day (delete today’s tickets & reset counters)
 export const resetDay = async (req, res) => {
   try {
     const { id } = req.params;
     const worker = await Worker.findById(id);
     if (!worker) return res.status(404).json({ message: 'Agent not found' });
 
-    // Delete all today's tickets for the worker's speciality
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
     await Ticket.deleteMany({
       speciality: worker.speciality,
-      date: { $gte: today }
+      createdAt: { $gte: today } // ✅ fixed field name
     });
 
     worker.waitingList = 0;
