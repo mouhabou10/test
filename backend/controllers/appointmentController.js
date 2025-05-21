@@ -1,48 +1,12 @@
 // controllers/appointmentController.js
 import mongoose from 'mongoose';
+import Appointment from '../models/appointment.model.js';
 
-// We'll create a simple appointment schema for now
-// In a real application, you would have a proper model file
-const appointmentSchema = new mongoose.Schema(
-  {
-    serviceProviderId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: [true, 'Service provider ID is required'],
-      ref: 'ServiceProvider'
-    },
-    clientId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Client',
-      default: '6452a7d1f5b6a9c8e3d2b1a0' // Default client ID for testing
-    },
-    appointmentType: {
-      type: String,
-      required: [true, 'Appointment type is required'],
-      enum: ['consultation', 'radio', 'labo', 'operation']
-    },
-    status: {
-      type: String,
-      enum: ['pending', 'confirmed', 'cancelled', 'completed'],
-      default: 'pending'
-    },
-    notes: String,
-    appointmentDate: {
-      type: Date,
-      default: Date.now
-    }
-  },
-  {
-    timestamps: true
-  }
-);
-
-// Create the Appointment model if it doesn't exist
-const Appointment = mongoose.models.Appointment || mongoose.model('Appointment', appointmentSchema);
 
 // Create a new appointment
 export const createAppointment = async (req, res, next) => {
   try {
-    const { serviceProviderId, appointmentType, notes } = req.body;
+    const { serviceProviderId, appointmentType, notes, documentId } = req.body;
     
     // Validate required fields
     if (!serviceProviderId) {
@@ -59,21 +23,37 @@ export const createAppointment = async (req, res, next) => {
       });
     }
     
-    // Get client ID from user if authenticated, or use default
-    let clientId = '6452a7d1f5b6a9c8e3d2b1a0'; // Default for testing
+    // Get client ID from user if authenticated
+    let clientId;
     if (req.user && req.user.client) {
       clientId = req.user.client;
+    } else if (req.body.clientId) {
+      // Allow client ID to be passed in the request body
+      clientId = req.body.clientId;
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Client ID is required'
+      });
     }
     
-    // Create the appointment
-    const newAppointment = await Appointment.create({
+    // Create appointment data object
+    const appointmentData = {
       serviceProviderId,
       clientId,
       appointmentType,
       notes,
       status: 'pending',
       appointmentDate: new Date()
-    });
+    };
+    
+    // Add document reference if provided
+    if (documentId) {
+      appointmentData.document = documentId;
+    }
+    
+    // Create the appointment
+    const newAppointment = await Appointment.create(appointmentData);
     
     res.status(201).json({
       success: true,
@@ -218,6 +198,80 @@ export const getPendingAppointmentsForClient = async (req, res, next) => {
     });
   } catch (error) {
     console.error('Error fetching pending appointments:', error);
+    next(error);
+  }
+};
+
+// Update appointment status when service provider uploads document
+export const updateAppointmentStatus = async (req, res, next) => {
+  try {
+    const { appointmentId } = req.params;
+    const { status, documentId, notes } = req.body;
+    
+    // Validate appointment ID
+    if (!appointmentId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Appointment ID is required'
+      });
+    }
+    
+    // Validate status
+    if (!status || !['accepted', 'cancelled'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid status (accepted or cancelled) is required'
+      });
+    }
+    
+    // Find the appointment
+    const appointment = await Appointment.findById(appointmentId);
+    
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found'
+      });
+    }
+    
+    // Check if user is authorized to update this appointment
+    // Only the service provider associated with the appointment or an admin can update it
+    if (req.user && req.user.role !== 'admin') {
+      if (!req.user.serviceProvider || 
+          appointment.serviceProviderId.toString() !== req.user.serviceProvider.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: 'You are not authorized to update this appointment'
+        });
+      }
+    }
+    
+    // Update the appointment
+    const updateData = { status };
+    
+    // Add document reference if provided
+    if (documentId) {
+      updateData.document = documentId;
+    }
+    
+    // Add notes if provided
+    if (notes) {
+      updateData.notes = notes;
+    }
+    
+    const updatedAppointment = await Appointment.findByIdAndUpdate(
+      appointmentId,
+      updateData,
+      { new: true, runValidators: true }
+    ).populate('serviceProviderId', 'name type email');
+    
+    res.status(200).json({
+      success: true,
+      message: `Appointment status updated to ${status}`,
+      data: updatedAppointment
+    });
+  } catch (error) {
+    console.error('Error updating appointment status:', error);
     next(error);
   }
 };
