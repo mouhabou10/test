@@ -1,8 +1,9 @@
+import bcrypt from 'bcryptjs';
 import Worker from '../models/worker.model.js';
 import User from '../models/user.model.js';
 import mongoose from 'mongoose';
 
-// CREATE WORKER
+// CREATE WORKER with hashed password
 export const createWorker = async (req, res, next) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -15,9 +16,13 @@ export const createWorker = async (req, res, next) => {
       phoneNumber,
       password,
       role,
-      speciality,       // Expecting a string (name)
-      serviceProvider   // Expecting a valid ObjectId string
+      speciality, // expected to be a string
+      serviceProvider
     } = req.body;
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create User
     const newUser = await User.create([{
@@ -25,15 +30,15 @@ export const createWorker = async (req, res, next) => {
       fullName,
       email,
       phoneNumber,
-      password,
+      password: hashedPassword,
       role
     }], { session });
 
-    // Create Worker
+    // Create Worker with string speciality
     const newWorker = await Worker.create([{
       user: newUser[0]._id,
       jobId,
-      speciality,       // This should match your schema type (see below)
+      speciality, // save as string
       serviceProvider
     }], { session });
 
@@ -44,8 +49,18 @@ export const createWorker = async (req, res, next) => {
       success: true,
       message: 'Worker and user created successfully',
       data: {
-        user: newUser[0],
-        worker: newWorker[0]
+        user: {
+          _id: newUser[0]._id,
+          fullName: newUser[0].fullName,
+          email: newUser[0].email,
+          role: newUser[0].role
+        },
+        worker: {
+          _id: newWorker[0]._id,
+          jobId: newWorker[0].jobId,
+          speciality: newWorker[0].speciality,
+          serviceProvider: newWorker[0].serviceProvider
+        }
       }
     });
   } catch (error) {
@@ -72,7 +87,7 @@ export const getAllWorkers = async (req, res, next) => {
 export const getWorkerById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const worker = await Worker.findById(id); // Use findById for ObjectId
+    const worker = await Worker.findById(id);
 
     if (!worker) {
       const error = new Error('Worker not found');
@@ -104,15 +119,20 @@ export const deleteWorker = async (req, res, next) => {
   }
 };
 
-
-
+// UPDATE WORKER with password hashing if password provided
 export const updateWorker = async (req, res, next) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
     const { id } = req.params;
-    const updatedData = req.body;
+    const updatedData = { ...req.body };
+
+    // Hash password if provided
+    if (updatedData.password) {
+      const salt = await bcrypt.genSalt(10);
+      updatedData.password = await bcrypt.hash(updatedData.password, salt);
+    }
 
     // Update Worker fields (jobId, speciality, serviceProvider)
     const updatedWorker = await Worker.findByIdAndUpdate(id, updatedData, { new: true, session });
@@ -123,15 +143,15 @@ export const updateWorker = async (req, res, next) => {
       throw error;
     }
 
-    // Prepare fields to update in User model
+    // Prepare user fields to update
     const userFields = {};
-    ['fullName', 'email', 'phoneNumber', 'role'].forEach(field => {
+    ['fullName', 'email', 'phoneNumber', 'role', 'password'].forEach(field => {
       if (updatedData[field] !== undefined) {
         userFields[field] = updatedData[field];
       }
     });
 
-    // Update User if there are user fields
+    // Update User document with any user fields
     if (Object.keys(userFields).length > 0) {
       await User.findByIdAndUpdate(updatedWorker.user, userFields, { session });
     }
@@ -150,4 +170,3 @@ export const updateWorker = async (req, res, next) => {
     next(error);
   }
 };
-
