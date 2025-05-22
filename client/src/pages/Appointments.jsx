@@ -134,7 +134,7 @@ const Appointments = () => {
       <Header />
       <SideBareClient />
       
-      <div style={{ marginLeft: "20%", padding: "20px" }}>
+      <div style={{ marginLeft: "15%", padding: "20px" }}>
         <h1 style={{ color: "#0052E0", marginBottom: "20px" }}>My Appointments</h1>
         
         {/* Filter buttons */}
