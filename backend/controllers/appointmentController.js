@@ -202,6 +202,26 @@ export const getPendingAppointmentsForClient = async (req, res, next) => {
   }
 };
 
+// Get all radio appointments
+export const getRadioAppointments = async (req, res, next) => {
+  try {
+    // Find all appointments with type 'radio'
+    const radioAppointments = await Appointment.find({ appointmentType: 'radio' })
+      .populate('serviceProviderId', 'name type email')
+      .populate('clientId', 'name email')
+      .populate('document');
+    
+    res.status(200).json({
+      success: true,
+      count: radioAppointments.length,
+      data: radioAppointments
+    });
+  } catch (error) {
+    console.error('Error fetching radio appointments:', error);
+    next(error);
+  }
+};
+
 // Update appointment status when service provider uploads document
 export const updateAppointmentStatus = async (req, res, next) => {
   try {
