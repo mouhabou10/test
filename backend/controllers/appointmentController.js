@@ -132,11 +132,12 @@ export const createTestAppointment = async (req, res, next) => {
   }
 };
 
-// Get pending appointments for a client (only operation, labo, radio types)
+// Get appointments for a client with optional status filter (only operation, labo, radio types)
 export const getPendingAppointmentsForClient = async (req, res, next) => {
   try {
-    // Get client ID from request parameters
+    // Get client ID from request parameters and status from query params
     const { clientId } = req.params;
+    const { status, populate } = req.query; // Get status and populate from query params
     
     // Validate client ID
     if (!clientId) {
@@ -181,20 +182,42 @@ export const getPendingAppointmentsForClient = async (req, res, next) => {
     
     // No debug code needed
     
-    // Find appointments with pending status for the specified client
-    // Only include operation, labo, and radio appointments (exclude consultation)
-    const pendingAppointments = await Appointment.find({
+    // Build the query object
+    const query = {
       clientId: clientIdQuery,
-      status: 'pending',
       appointmentType: { $in: ['operation', 'labo', 'radio'] }
-    }).populate('serviceProviderId', 'name type email');
+    };
     
-    // Appointments filtered successfully
+    // Add status filter if provided, otherwise default to 'pending'
+    if (status && status !== 'all') {
+      query.status = status;
+    } else if (!status) {
+      query.status = 'pending'; // Default to pending if no status provided
+    }
+    // If status is 'all', don't filter by status
+    
+    // Create a base query
+    let appointmentsQuery = Appointment.find(query);
+    
+    // Apply population based on the populate parameter
+    if (populate === 'true') {
+      appointmentsQuery = appointmentsQuery
+        .populate('serviceProviderId', 'name type email speciality')
+        .populate('document')
+        .populate('clientId', 'fullName email phoneNumber');
+    } else {
+      // Basic population for backward compatibility
+      appointmentsQuery = appointmentsQuery
+        .populate('serviceProviderId', 'name type email');
+    }
+    
+    // Execute the query
+    const appointments = await appointmentsQuery;
     
     res.status(200).json({
       success: true,
-      count: pendingAppointments.length,
-      data: pendingAppointments
+      count: appointments.length,
+      data: appointments
     });
   } catch (error) {
     console.error('Error fetching pending appointments:', error);
@@ -218,6 +241,63 @@ export const getRadioAppointments = async (req, res, next) => {
     });
   } catch (error) {
     console.error('Error fetching radio appointments:', error);
+    next(error);
+  }
+};
+
+// Get all appointments for a client (operation, labo, radio types)
+export const getAllAppointmentsForClient = async (req, res, next) => {
+  try {
+    // Get client ID from request parameters
+    const { clientId } = req.params;
+    
+    // Validate client ID
+    if (!clientId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Client ID is required'
+      });
+    }
+    
+    // Determine which client ID to use
+    let clientIdToUse;
+    
+    // If user is authenticated, check if they're requesting their own appointments
+    if (req.user && req.user.client) {
+      // Use the authenticated user's client ID
+      clientIdToUse = req.user.client;
+    } else {
+      // If no user authentication, just use the provided client ID
+      clientIdToUse = clientId;
+    }
+    
+    // Try to convert clientId to ObjectId if it's a valid ObjectId string
+    let clientIdQuery;
+    try {
+      if (mongoose.Types.ObjectId.isValid(clientIdToUse)) {
+        clientIdQuery = clientIdToUse; // MongoDB will handle the conversion
+      } else {
+        // If it's not a valid ObjectId, use the string as is
+        clientIdQuery = clientIdToUse;
+      }
+    } catch (err) {
+      clientIdQuery = clientIdToUse; // Fallback to using the string
+    }
+    
+    // Find all appointments for the specified client
+    // Only include operation, labo, and radio appointments (exclude consultation)
+    const appointments = await Appointment.find({
+      clientId: clientIdQuery,
+      appointmentType: { $in: ['operation', 'labo', 'radio'] }
+    }).populate('serviceProviderId', 'name type email');
+    
+    res.status(200).json({
+      success: true,
+      count: appointments.length,
+      data: appointments
+    });
+  } catch (error) {
+    console.error('Error fetching all appointments:', error);
     next(error);
   }
 };

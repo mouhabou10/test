@@ -1,8 +1,10 @@
 import React from 'react';
-import { FaHospital, FaFlask, FaXRay, FaCalendarAlt, FaClock, FaUserMd } from 'react-icons/fa';
+import { FaHospital, FaFlask, FaXRay, FaCalendarAlt, FaClock, FaUserMd, FaTicketAlt } from 'react-icons/fa';
 import { MdPending } from 'react-icons/md';
+import { useNavigate } from 'react-router-dom';
 
 const RequestInfo = ({ appointment }) => {
+  const navigate = useNavigate();
   // If no appointment is provided, return null or a placeholder
   if (!appointment) {
     return (
@@ -30,9 +32,24 @@ const RequestInfo = ({ appointment }) => {
       })
     : '';
   
+  // Format creation date if available
+  const createdAt = appointment.createdAt
+    ? new Date(appointment.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
+    : 'Unknown';
+  
   // Get provider name if available
   const providerName = appointment.serviceProviderId?.name || 'Unknown provider';
   const providerType = appointment.serviceProviderId?.type || '';
+  
+  // Get document ID if available
+  const hasDocument = !!appointment.document;
+  
+  // Get notes if available
+  const notes = appointment.notes || 'No additional notes';
   
   // Get type-specific data
   const getTypeInfo = (type) => {
@@ -79,6 +96,7 @@ const RequestInfo = ({ appointment }) => {
           bgColor: '#fff9e6',
           borderColor: '#ffcc66'
         };
+      case 'accepted':
       case 'confirmed':
         return {
           color: '#33cc66',
@@ -107,6 +125,24 @@ const RequestInfo = ({ appointment }) => {
   };
   
   const statusStyle = getStatusStyle(appointment.status);
+
+  // Function to handle ticket button click
+  const handleGetTicket = () => {
+    // Save appointment data to localStorage
+    if (appointment.appointmentType.toLowerCase() === 'radio') {
+      localStorage.setItem('radioAppointment', JSON.stringify(appointment));
+      navigate(`/radio/radio-ticket/${appointment._id}`);
+    } else if (appointment.appointmentType.toLowerCase() === 'labo') {
+      localStorage.setItem('laboAppointment', JSON.stringify(appointment));
+      navigate(`/labo/labo-ticket/${appointment._id}`);
+    }
+  };
+
+  // Check if appointment is eligible for ticket (radio or labo with accepted status)
+  const isTicketEligible = 
+    appointment.status.toLowerCase() === 'accepted' && 
+    (appointment.appointmentType.toLowerCase() === 'radio' || 
+     appointment.appointmentType.toLowerCase() === 'labo');
   
   return (
     <div 
@@ -150,7 +186,7 @@ const RequestInfo = ({ appointment }) => {
           
           <div style={styles.detailItem}>
             <FaCalendarAlt style={styles.detailIcon} />
-            <span style={styles.detailLabel}>Date:</span>
+            <span style={styles.detailLabel}>Appointment Date:</span>
             <span style={styles.detailValue}>{formattedDate}</span>
           </div>
           
@@ -159,6 +195,48 @@ const RequestInfo = ({ appointment }) => {
               <FaClock style={styles.detailIcon} />
               <span style={styles.detailLabel}>Time:</span>
               <span style={styles.detailValue}>{formattedTime}</span>
+            </div>
+          )}
+          
+          <div style={styles.detailItem}>
+            <FaCalendarAlt style={styles.detailIcon} />
+            <span style={styles.detailLabel}>Created On:</span>
+            <span style={styles.detailValue}>{createdAt}</span>
+          </div>
+          
+          {hasDocument && (
+            <div style={styles.detailItem}>
+              <i className="fas fa-file-medical" style={styles.detailIcon}></i>
+              <span style={styles.detailLabel}>Prescription:</span>
+              <span style={{...styles.detailValue, color: '#28a745'}}>Uploaded</span>
+              <button 
+                onClick={() => window.open(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/documents/${appointment.document}`, '_blank')}
+                style={styles.viewDocButton}
+              >
+                <i className="fas fa-eye" style={{marginRight: '5px'}}></i>
+                View
+              </button>
+            </div>
+          )}
+          
+          {notes && notes !== 'No additional notes' && (
+            <div style={{...styles.detailItem, alignItems: 'flex-start'}}>
+              <i className="fas fa-sticky-note" style={{...styles.detailIcon, marginTop: '3px'}}></i>
+              <span style={styles.detailLabel}>Notes:</span>
+              <span style={{...styles.detailValue, flex: 1}}>{notes}</span>
+            </div>
+          )}
+
+          {/* Ticket button for accepted radio and labo appointments */}
+          {isTicketEligible && (
+            <div style={styles.ticketButtonContainer}>
+              <button 
+                onClick={handleGetTicket}
+                style={styles.ticketButton}
+              >
+                <FaTicketAlt style={styles.ticketIcon} />
+                Get Ticket
+              </button>
             </div>
           )}
         </div>
@@ -261,6 +339,43 @@ const styles = {
     borderRadius: '4px',
     fontSize: '12px',
     color: '#666'
+  },
+  ticketButtonContainer: {
+    marginTop: '12px',
+    display: 'flex',
+    justifyContent: 'flex-end'
+  },
+  ticketButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '8px 16px',
+    backgroundColor: '#28a745',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+  },
+  ticketIcon: {
+    fontSize: '16px'
+  },
+  viewDocButton: {
+    marginLeft: '10px',
+    padding: '3px 8px',
+    backgroundColor: '#0052E0',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    fontSize: '12px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    transition: 'all 0.2s ease'
   }
 };
 

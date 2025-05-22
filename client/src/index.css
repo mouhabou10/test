@@ -3533,6 +3533,584 @@ padding: 2.5rem;
   }
 }
 
+/* Requests Page Styles */
+.requests-page-container {
+  margin-left: 20%;
+  padding: 20px;
+}
+
+.requests-page-container h1 {
+  color: #0052E0;
+  margin-bottom: 20px;
+}
+
+.filters-container {
+  margin-bottom: 20px;
+}
+
+.filters-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-divider {
+  width: 1px;
+  height: 24px;
+  background-color: #ddd;
+  margin: 0 10px;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  border-radius: 5px;
+  border: none;
+  background-color: #f0f0f0;
+  color: #333;
+  cursor: pointer;
+}
+
+.filter-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.filter-btn.active-all {
+  background-color: #0052E0;
+  color: white;
+  font-weight: bold;
+}
+
+/* Spinner Animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Consultation Ticket Styles */
+.consultation-ticket {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  max-width: 650px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.consultation-ticket::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #0052E0, #0167FB);
+}
+
+.consultation-ticket.loading,
+.consultation-ticket.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(0, 82, 224, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #0052E0;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+.error-message {
+  color: #dc3545;
+  text-align: center;
+  padding: 20px;
+}
+
+.error-message h3 {
+  color: #dc3545;
+  margin-bottom: 10px;
+}
+
+.login-button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #0052E0;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.login-button:hover {
+  background-color: #003db1;
+}
+
+.ticket-header-text {
+  text-align: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.header-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.header-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.hospital-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0052E0;
+  margin-top: 10px;
+}
+
+.ticket-number-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 30px 0;
+}
+
+.waiting-info {
+  font-size: 16px;
+  color: #555;
+}
+
+.highlight {
+  color: #0052E0;
+  font-weight: 600;
+}
+
+.number-circle {
+  width: 120px;
+  height: 120px;
+  background-color: #0052E0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 82, 224, 0.3);
+}
+
+.number {
+  font-size: 48px;
+  font-weight: 700;
+  color: white;
+}
+
+.ticket-details {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 25px 0;
+}
+
+.detail-row {
+  margin-bottom: 10px;
+}
+
+.detail-row p {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.detail-row p strong {
+  font-weight: 600;
+  color: #555;
+  margin-right: 5px;
+}
+
+.validity-info {
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  margin: 20px 0;
+  padding: 10px;
+  background-color: #fff8e1;
+  border-radius: 5px;
+  border-left: 4px solid #ffc107;
+}
+
+.ticket-footer {
+  margin-top: 30px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.important-note {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0052E0;
+  margin-bottom: 10px;
+}
+
+.instructions {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.instructions li {
+  margin-bottom: 8px;
+  color: #555;
+  font-size: 14px;
+}
+
+/* RadioTicket and LaboTicket Styles */
+.ticket-page-container {
+  margin-left: 20%;
+  margin-right: 5%;
+  margin-bottom: 5%;
+  padding: 20px;
+}
+
+.ticket-booking-container {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.ticket-header {
+  background: linear-gradient(135deg, #0052E0, #0167FB);
+  color: white;
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ticket-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+}
+
+.ticket-icon {
+  font-size: 28px;
+}
+
+.ticket-booking-content {
+  padding: 30px;
+}
+
+.ticket-status {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+}
+
+.ticket-status.accepted {
+  background-color: #e8f5e9;
+  border-left: 4px solid #43a047;
+}
+
+.status-icon {
+  font-size: 24px;
+  margin-right: 15px;
+}
+
+.ticket-status.accepted .status-icon {
+  color: #43a047;
+}
+
+.status-text h3 {
+  margin: 0 0 5px 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.status-text p {
+  margin: 0;
+  color: #666;
+}
+
+.ticket-booking-info {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 25px;
+  margin-bottom: 25px;
+}
+
+.ticket-booking-info h2 {
+  margin: 0 0 15px 0;
+  font-size: 20px;
+  color: #0052E0;
+}
+
+.ticket-booking-info p {
+  margin: 0 0 20px 0;
+  color: #555;
+  line-height: 1.6;
+}
+
+.booking-button {
+  background-color: #0052E0;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.booking-button:hover {
+  background-color: #003db1;
+  transform: translateY(-2px);
+}
+
+.booking-button:active {
+  transform: translateY(0);
+}
+
+.booking-button.loading {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.button-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top: 2px solid white;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+.booking-error {
+  background-color: #ffebee;
+  border-radius: 5px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.error-icon {
+  color: #dc3545;
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+.booking-error p {
+  margin: 0;
+  color: #dc3545;
+}
+
+.ticket-note {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.note-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.note-header i {
+  color: #0052E0;
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+.note-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.note-content {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.note-content li {
+  margin-bottom: 10px;
+  color: #555;
+}
+
+/* Request Confirmation Styles */
+.request-confirmation-container {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  padding: 40px 30px;
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.confirmation-icon {
+  margin-bottom: 25px;
+}
+
+.icon-circle {
+  width: 80px;
+  height: 80px;
+  background-color: #4CAF50;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+}
+
+.icon-circle i {
+  color: white;
+  font-size: 40px;
+}
+
+.confirmation-content h2 {
+  color: #0052E0;
+  font-size: 24px;
+  margin: 0 0 10px 0;
+}
+
+.confirmation-content h3 {
+  color: #333;
+  font-size: 18px;
+  margin: 0 0 25px 0;
+  font-weight: 500;
+}
+
+.confirmation-message {
+  max-width: 600px;
+  margin: 0 auto 30px;
+}
+
+.confirmation-message p {
+  margin: 0 0 15px 0;
+  color: #555;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+.highlight-message {
+  background-color: #e8f5e9;
+  border-radius: 5px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #43a047 !important;
+  font-weight: 600;
+}
+
+.highlight-message i {
+  margin-right: 10px;
+}
+
+.confirmation-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.primary-button, .secondary-button {
+  padding: 12px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.primary-button {
+  background-color: #0052E0;
+  color: white;
+}
+
+.primary-button:hover {
+  background-color: #003db1;
+  transform: translateY(-2px);
+}
+
+.secondary-button {
+  background-color: #f1f3f5;
+  color: #555;
+}
+
+.secondary-button:hover {
+  background-color: #e9ecef;
+  transform: translateY(-2px);
+}
+
+.primary-button i, .secondary-button i {
+  margin-right: 8px;
+}
+
+.filter-btn.active-radio {
+  background-color: #0052E0;
+  color: white;
+  font-weight: bold;
+}
+
+.filter-btn.active-labo {
+  background-color: #0052E0;
+  color: white;
+  font-weight: bold;
+}
+
+.filter-btn.active-operation {
+  background-color: #0052E0;
+  color: white;
+  font-weight: bold;
+}
+
+.filter-btn.active-pending {
+  background-color: #FFA500;
+  color: white;
+  font-weight: bold;
+}
+
+.filter-btn.active-accepted {
+  background-color: #28a745;
+  color: white;
+  font-weight: bold;
+}
+
+.filter-btn.active-cancelled {
+  background-color: #dc3545;
+  color: white;
+  font-weight: bold;
+}
+
 @media (max-width: 768px) {
   .appointments-container {
     margin: 0 2% 0 20%;

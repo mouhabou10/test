@@ -24,63 +24,46 @@ const Appointments = () => {
           return;
         }
 
-        // Since we don't have a direct API endpoint for all appointments,
-        // we'll use sample data to demonstrate the UI
-        const sampleAppointments = [
-          {
-            _id: 'sample-1',
-            type: 'consultation',
-            status: 'confirmed',
-            provider: { name: 'Dr. Sarah Johnson' },
-            appointmentDate: new Date(Date.now() + 86400000), // tomorrow
-            specialty: 'Cardiology',
-            location: 'Main Hospital, Floor 3, Room 302'
-          },
-          {
-            _id: 'sample-2',
-            type: 'radio',
-            status: 'completed',
-            provider: { name: 'Algiers Radiology Center' },
-            appointmentDate: new Date(Date.now() - 604800000), // a week ago
-            location: 'Radiology Wing, Floor 1'
-          },
-          {
-            _id: 'sample-3',
-            type: 'labo',
-            status: 'confirmed',
-            provider: { name: 'Central Laboratory' },
-            appointmentDate: new Date(Date.now() + 172800000), // day after tomorrow
-            notes: 'Fasting required 8 hours before test'
-          },
-          {
-            _id: 'sample-4',
-            type: 'operation',
-            status: 'pending',
-            provider: { name: 'University Hospital' },
-            appointmentDate: new Date(Date.now() + 1209600000), // two weeks from now
-            specialty: 'Orthopedic Surgery',
-            notes: 'Pre-operation consultation required'
-          },
-          {
-            _id: 'sample-5',
-            type: 'consultation',
-            status: 'pending',
-            provider: { name: 'Dr. Ahmed Benali' },
-            appointmentDate: new Date(Date.now() + 345600000), // 4 days from now
-            specialty: 'Dermatology',
-            location: 'Medical Center, Floor 2'
-          },
-          {
-            _id: 'sample-6',
-            type: 'radio',
-            status: 'confirmed',
-            provider: { name: 'Modern Imaging Center' },
-            appointmentDate: new Date(Date.now() + 518400000), // 6 days from now
-            notes: 'MRI scan of left knee'
-          }
-        ];
+        // Get the client ID
+        let clientId;
+        if (user.client) {
+          clientId = user.client; // If client reference exists, use it
+        } else if (user._id) {
+          clientId = user._id; // Otherwise use the user's ID directly
+        } else if (user.userId) {
+          clientId = user.userId; // Last resort: use userId if available
+        } else {
+          // If no ID is found, show an error
+          setError('No client ID found for the current user');
+          setLoading(false);
+          return;
+        }
         
-        setAppointments(sampleAppointments);
+        // Fetch all appointments for the client with full population
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/appointments/client/${clientId}/all?populate=true`, 
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to fetch appointments: ${errorText}`);
+        }
+        
+        const data = await response.json();
+        console.log('Fetched appointments:', data);
+        
+        if (data.success && Array.isArray(data.data)) {
+          setAppointments(data.data);
+        } else {
+          setAppointments([]);
+          console.warn('No appointments found or invalid data format');
+        }
+        
         setLoading(false);
       } catch (err) {
         console.error('Error setting up appointments:', err);
@@ -94,8 +77,8 @@ const Appointments = () => {
 
   // Filter appointments based on active tab
   const filteredAppointments = appointments.filter(appointment => {
-    // Handle both appointmentType (from backend) and type (from sample data)
-    const appointmentType = appointment.appointmentType || appointment.type;
+    // Get the appointment type from the real data structure
+    const appointmentType = appointment.appointmentType;
     
     if (activeTab === 'all') return true;
     if (activeTab === 'consultation') return appointmentType === 'consultation';
@@ -282,19 +265,32 @@ const Appointments = () => {
               </thead>
               <tbody>
                 {filteredAppointments.map((appointment) => {
-                  // Get appointment type (handle both data structures)
-                  const type = appointment.appointmentType || appointment.type;
+                  // Get appointment type
+                  const type = appointment.appointmentType || 'unknown';
                   
-                  // Get status badge color
+                  // Helper function to get status color
                   const getStatusColor = (status) => {
-                    switch(status) {
-                      case 'pending': return '#ffa000';
-                      case 'confirmed': return '#43a047';
-                      case 'completed': return '#1976d2';
+                    switch(status.toLowerCase()) {
+                      case 'confirmed': return '#4caf50';
+                      case 'accepted': return '#4caf50';
+                      case 'completed': return '#2196f3';
+                      case 'pending': return '#ff9800';
                       case 'cancelled': return '#e53935';
                       default: return '#757575';
                     }
                   };
+                  
+                  // Format creation date
+                  const createdAt = appointment.createdAt
+                    ? new Date(appointment.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })
+                    : 'Unknown';
+                  
+                  // Check if document exists
+                  const hasDocument = !!appointment.document;
                   
                   return (
                     <tr key={appointment._id} style={{ borderBottom: "1px solid #f0f0f0" }}>
@@ -305,12 +301,15 @@ const Appointments = () => {
                         </div>
                       </td>
                       <td style={{ padding: "15px 10px" }}>
-                        {appointment.provider ? appointment.provider.name : 
-                         appointment.serviceProviderId ? appointment.serviceProviderId.name : 
-                         'Not assigned'}
+                        {appointment.serviceProviderId ? 
+                          (typeof appointment.serviceProviderId === 'object' ? 
+                            appointment.serviceProviderId.name : 
+                            'Provider ID: ' + appointment.serviceProviderId) : 
+                          'Not assigned'}
                       </td>
                       <td style={{ padding: "15px 10px" }}>
-                        {appointment.appointmentDate ? formatDate(appointment.appointmentDate) : 'Not scheduled'}
+                        <div>{appointment.appointmentDate ? formatDate(appointment.appointmentDate) : 'Not scheduled'}</div>
+                        <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>Created: {createdAt}</div>
                       </td>
                       <td style={{ padding: "15px 10px" }}>
                         <span style={{ 
@@ -327,8 +326,13 @@ const Appointments = () => {
                         </span>
                       </td>
                       <td style={{ padding: "15px 10px" }}>
-                        {appointment.specialty && <div><strong>Specialty:</strong> {appointment.specialty}</div>}
-                        {appointment.location && <div><strong>Location:</strong> {appointment.location}</div>}
+                        {appointment.serviceProviderId && appointment.serviceProviderId.speciality && 
+                          <div><strong>Specialty:</strong> {appointment.serviceProviderId.speciality}</div>}
+                        {hasDocument && 
+                          <div style={{ marginTop: '5px' }}>
+                            <strong>Prescription:</strong> <span style={{ color: '#28a745' }}>Uploaded</span>
+                          </div>
+                        }
                         {appointment.notes && <div><strong>Notes:</strong> {appointment.notes}</div>}
                       </td>
                       <td style={{ padding: "15px 10px", textAlign: "right" }}>

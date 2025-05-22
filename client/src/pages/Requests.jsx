@@ -8,7 +8,8 @@ const Requests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeTypeFilter, setActiveTypeFilter] = useState("all");
+  const [activeStatusFilter, setActiveStatusFilter] = useState("all");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,9 +37,9 @@ const Requests = () => {
           return;
         }
         
-        // Fetch pending appointments
-        const pendingAppointmentsResponse = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/appointments/client/${clientId}/pending`, 
+        // Fetch all appointments using the status query parameter with full population
+        const appointmentsResponse = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/appointments/client/${clientId}/pending?status=all&populate=true`, 
           {
             headers: {
               'Authorization': `Bearer ${token}`
@@ -46,11 +47,12 @@ const Requests = () => {
           }
         );
         
-        if (pendingAppointmentsResponse.ok) {
-          const pendingData = await pendingAppointmentsResponse.json();
-          setRequests(pendingData.data || []);
+        if (appointmentsResponse.ok) {
+          const data = await appointmentsResponse.json();
+          console.log('Appointments data:', data);
+          setRequests(data.data || []);
         } else {
-          const errorText = await pendingAppointmentsResponse.text();
+          const errorText = await appointmentsResponse.text();
           throw new Error(`Failed to fetch requests: ${errorText}`);
         }
       } catch (err) {
@@ -64,76 +66,83 @@ const Requests = () => {
     fetchRequests();
   }, []);
 
-  // Filter requests by type
-  const filteredRequests = activeFilter === "all" 
-    ? requests 
-    : requests.filter(request => request.appointmentType.toLowerCase() === activeFilter);
+  // Filter requests by type and status
+  const filteredRequests = requests.filter(request => {
+    // Filter by appointment type
+    const typeMatch = activeTypeFilter === "all" || request.appointmentType.toLowerCase() === activeTypeFilter;
+    
+    // Filter by status
+    const statusMatch = activeStatusFilter === "all" || request.status.toLowerCase() === activeStatusFilter;
+    
+    // Return true if both filters match
+    return typeMatch && statusMatch;
+  });
 
   return (
     <section>
       <Header />
       <SideBareClient />
-      <div className="requests-page-container" style={{ marginLeft: "20%", padding: "20px" }}>
-        <h1 style={{ color: "#0052E0", marginBottom: "20px" }}>My Requests</h1>
+      <div className="requests-page-container">
+        <h1>My Requests</h1>
         
-        {/* Filter buttons */}
-        <div className="request-filters" style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
-          <button 
-            className={`filter-btn ${activeFilter === "all" ? "active" : ""}`}
-            onClick={() => setActiveFilter("all")}
-            style={{ 
-              padding: "8px 16px", 
-              borderRadius: "5px", 
-              border: "none", 
-              backgroundColor: activeFilter === "all" ? "#0052E0" : "#f0f0f0",
-              color: activeFilter === "all" ? "white" : "#333",
-              cursor: "pointer"
-            }}
-          >
-            All
-          </button>
-          <button 
-            className={`filter-btn ${activeFilter === "radio" ? "active" : ""}`}
-            onClick={() => setActiveFilter("radio")}
-            style={{ 
-              padding: "8px 16px", 
-              borderRadius: "5px", 
-              border: "none", 
-              backgroundColor: activeFilter === "radio" ? "#0052E0" : "#f0f0f0",
-              color: activeFilter === "radio" ? "white" : "#333",
-              cursor: "pointer"
-            }}
-          >
-            Radio
-          </button>
-          <button 
-            className={`filter-btn ${activeFilter === "labo" ? "active" : ""}`}
-            onClick={() => setActiveFilter("labo")}
-            style={{ 
-              padding: "8px 16px", 
-              borderRadius: "5px", 
-              border: "none", 
-              backgroundColor: activeFilter === "labo" ? "#0052E0" : "#f0f0f0",
-              color: activeFilter === "labo" ? "white" : "#333",
-              cursor: "pointer"
-            }}
-          >
-            Labo
-          </button>
-          <button 
-            className={`filter-btn ${activeFilter === "operation" ? "active" : ""}`}
-            onClick={() => setActiveFilter("operation")}
-            style={{ 
-              padding: "8px 16px", 
-              borderRadius: "5px", 
-              border: "none", 
-              backgroundColor: activeFilter === "operation" ? "#0052E0" : "#f0f0f0",
-              color: activeFilter === "operation" ? "white" : "#333",
-              cursor: "pointer"
-            }}
-          >
-            Operation
-          </button>
+        {/* Combined Filters in one line */}
+        <div className="filters-container">
+          <div className="filters-row">
+            {/* Type filters */}
+            <button 
+              className={`filter-btn ${activeTypeFilter === "all" ? "active-all" : ""}`}
+              onClick={() => setActiveTypeFilter("all")}
+            >
+              All Types
+            </button>
+            <button 
+              className={`filter-btn ${activeTypeFilter === "radio" ? "active-radio" : ""}`}
+              onClick={() => setActiveTypeFilter("radio")}
+            >
+              Radio
+            </button>
+            <button 
+              className={`filter-btn ${activeTypeFilter === "labo" ? "active-labo" : ""}`}
+              onClick={() => setActiveTypeFilter("labo")}
+            >
+              Labo
+            </button>
+            <button 
+              className={`filter-btn ${activeTypeFilter === "operation" ? "active-operation" : ""}`}
+              onClick={() => setActiveTypeFilter("operation")}
+            >
+              Operation
+            </button>
+            
+            {/* Divider */}
+            <div className="filter-divider"></div>
+            
+            {/* Status filters */}
+            <button 
+              className={`filter-btn ${activeStatusFilter === "all" ? "active-all" : ""}`}
+              onClick={() => setActiveStatusFilter("all")}
+            >
+              All Statuses
+            </button>
+            <button 
+              className={`filter-btn ${activeStatusFilter === "pending" ? "active-pending" : ""}`}
+              onClick={() => setActiveStatusFilter("pending")}
+            >
+              Pending
+            </button>
+            <button 
+              className={`filter-btn ${activeStatusFilter === "accepted" ? "active-accepted" : ""}`}
+              onClick={() => setActiveStatusFilter("accepted")}
+            >
+              Accepted
+            </button>
+            <button 
+              className={`filter-btn ${activeStatusFilter === "cancelled" ? "active-cancelled" : ""}`}
+              onClick={() => setActiveStatusFilter("cancelled")}
+            >
+              Cancelled
+            </button>
+          </div>
         </div>
         
         {/* Requests list */}
@@ -177,9 +186,12 @@ const Requests = () => {
             </div>
           ) : filteredRequests.length === 0 ? (
             <div className="no-requests" style={{ textAlign: "center", padding: "40px", color: "#666" }}>
-              <p>No {activeFilter !== "all" ? activeFilter : ""} requests found.</p>
+              <p>No {activeTypeFilter !== "all" ? activeTypeFilter : ""} requests 
+                 {activeStatusFilter !== "all" ? ` with ${activeStatusFilter} status` : ""} found.</p>
               <p style={{ marginTop: "10px", fontSize: "14px" }}>
-                When you make a request for radio, labo, or operation services, they will appear here.
+                {activeStatusFilter === "all" && activeTypeFilter === "all" ?
+                  "When you make a request for radio, labo, or operation services, they will appear here." :
+                  "Try changing your filters to see more requests."}
               </p>
             </div>
           ) : (
