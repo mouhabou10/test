@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+
+// Create a static variable outside the component to track created tickets across remounts
+const laboCreatedTickets = {};
 
 const LaboTicket = () => {
   const { id } = useParams();
@@ -10,12 +13,35 @@ const LaboTicket = () => {
   const [showTicketOption, setShowTicketOption] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isCreatingTicket, setIsCreatingTicket] = useState(false);
+  // Use a ref to track if this component instance has already created a ticket
+  const hasCreatedTicketRef = useRef(false);
 
   // Function to handle booking a ticket
   const handleBookTicket = async () => {
+    // Check if we've already created a ticket for this ID in this session (using static variable)
+    if (laboCreatedTickets[id]) {
+      console.log('Ticket already created for this ID in this session, using existing ticket');
+      navigate(`/labo/labo-ticket/${id}/online-ticket`);
+      return;
+    }
+    
+    // Check if this component instance has already created a ticket (using ref)
+    if (hasCreatedTicketRef.current) {
+      console.log('This component instance has already created a ticket, skipping duplicate creation');
+      return;
+    }
+    
+    // Check if a ticket creation is already in progress
+    if (isCreatingTicket) {
+      console.log('Ticket creation already in progress, skipping duplicate request');
+      return;
+    }
+    
     try {
       setLoading(true);
       setError(null);
+      setIsCreatingTicket(true); // Set flag to prevent duplicate requests
       
       // Get user data and token
       const token = localStorage.getItem('token');
@@ -40,7 +66,8 @@ const LaboTicket = () => {
         {
           serviceProvider: appointmentData.serviceProviderId._id,
           client: user._id,
-          speciality: 'Laboratory'
+          speciality: 'Laboratory',
+          ticketType: 'labo'
         },
         {
           headers: {
@@ -52,11 +79,18 @@ const LaboTicket = () => {
       
       if (response.data.success) {
         // Store ticket data in localStorage for the OnlineTicket component
-        localStorage.setItem('currentTicket', JSON.stringify({
+        const ticketData = {
           ...response.data.data,
           appointmentType: 'labo',
           appointmentData
-        }));
+        };
+        
+        localStorage.setItem('currentTicket', JSON.stringify(ticketData));
+        
+        // Mark this ticket as created in our tracking mechanisms
+        laboCreatedTickets[id] = ticketData;
+        hasCreatedTicketRef.current = true;
+        console.log('Ticket marked as created in tracking mechanisms');
         
         // Navigate to the online ticket page
         navigate(`/labo/labo-ticket/${id}/online-ticket`);
@@ -68,6 +102,7 @@ const LaboTicket = () => {
       setError(err.response?.data?.message || err.message || 'Failed to create ticket');
     } finally {
       setLoading(false);
+      setIsCreatingTicket(false); // Reset the flag
     }
   };
 
