@@ -15,6 +15,11 @@ const serviceProviderSchema = new mongoose.Schema(
       lowercase: true,
       trim: true
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    
     password: {
       type: String,
       required: [true, 'Password is required'],

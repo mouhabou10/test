@@ -13,11 +13,14 @@ const ServiceProviderTable = ({ data }) => {
 
   const handleApprove = async (id) => {
     try {
-      await axios.post(`http://localhost:3000/api/v1/account-demands/approve/${id}`);
+      // Approve the selected demand
+      await axios.post(`http://localhost:3000/api/v1/account-demands/approve/${id}`, {
+        // Optionally, you could send additional data here if required by backend
+      });
       setShowModal(false);
       window.location.reload();
     } catch (err) {
-      console.error('Failed to approve:', err);
+      console.error('Failed to approve:', err.response?.data || err.message);
     }
   };
 
@@ -27,7 +30,7 @@ const ServiceProviderTable = ({ data }) => {
       setShowModal(false);
       window.location.reload();
     } catch (err) {
-      console.error('Failed to reject:', err);
+      console.error('Failed to reject:', err.response?.data || err.message);
     }
   };
 
@@ -79,7 +82,6 @@ const ServiceProviderTable = ({ data }) => {
             <p><strong>Account Type:</strong> {selected.type}</p>
             <p><strong>Speciality:</strong> {selected.speciality || '-'}</p>
             <p><strong>Director ID:</strong> {selected.directorId}</p>
-            {/* Add more fields if needed */}
 
             <div className="modal-actions">
               <button onClick={() => handleApprove(selected._id)} className="action-btn approve">✅ Approve</button>

@@ -18,7 +18,7 @@ const ticketSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['not passed yet', 'passed', 'cancelled'],
+      enum: ['not passed yet','paused','resumed', 'passed', 'cancelled'],
       default: 'not passed yet'
     },
     speciality: {

@@ -1,103 +1,90 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button } from '../component/Button.jsx';
-import { Card, CardContent } from '../component/Card.jsx';
-import { toast, ToastContainer } from 'react-toastify';
-import { AuthContext } from '../context/AuthContext.jsx';
-import './component.css';
 
 const TicketComp = () => {
-  const [ticketStats, setTicketStats] = useState({
-    dailyTickets: 0,
-    waitingList: 0,
-    passedTickets: 0,
-    paused: false,
-  });
+  const [waitingList, setWaitingList] = useState(0);
+  const [passedList, setPassedList] = useState(0);
 
-  const { user } = useContext(AuthContext);
+  const userId = localStorage.getItem('userId');
+  const speciality = localStorage.getItem('speciality');
 
-  useEffect(() => {
-    if (user?.speciality && user?.serviceProvider) {
-      fetchTicketStats(user.speciality, user.serviceProvider);
-    }
-  }, [user]);
-
-  const fetchTicketStats = async (speciality, serviceProviderId) => {
+  const fetchStats = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/v1/tickets/stats`);
-      console.log('API Response:', response.data);
-
-      const stats = response.data?.data?.find(
-        (stat) =>
-          stat.speciality?.trim().toLowerCase() === speciality.trim().toLowerCase() &&
-          stat.serviceProvider === serviceProviderId
-      );
-
-      if (stats) {
-        setTicketStats({
-          dailyTickets: stats.dailyTickets || 0,
-          waitingList: stats.waitingList || 0,
-          passedTickets: stats.passedTickets || 0,
-          paused: stats.paused || false,
-        });
-      } else {
-        toast.error('No stats found for your speciality and service provider');
+      const res = await axios.get('http://localhost:3000/api/v1/tickets/stats');
+      const stat = res.data.data.find((s) => s.speciality === speciality);
+      if (stat) {
+        setWaitingList(stat.waitingList);
+        setPassedList(stat.passedTickets);
+        
       }
     } catch (err) {
-      console.error('Error fetching ticket stats:', err);
-      toast.error('Failed to fetch ticket stats');
+      console.error('Error fetching stats:', err);
     }
   };
 
-  const handleResetDay = async () => {
+  const increment = async () => {
     try {
-      await axios.post(`/api/tickets/reset/${user.userId}`);
-      setTicketStats({
-        dailyTickets: 0,
-        waitingList: 0,
-        passedTickets: 0,
-        paused: false,
-      });
-      toast.success('Day reset successfully');
+      await axios.put(`http://localhost:3000/api/tickets/increment/${userId}`);
+      fetchStats();
+    } catch (err) {
+      console.error('Error incrementing passed list:', err);
+    }
+  };
+
+  const pause = async () => {
+    try {
+      await axios.put(`http://localhost:3000/api/tickets/pause/${userId}`);
+      alert('Ticket demand paused.');
+      fetchStats();
+    } catch (err) {
+      console.error('Error pausing demand:', err);
+    }
+  };
+
+  const reset = async () => {
+    const confirmed = window.confirm('Are you sure you want to reset today’s tickets?');
+    if (!confirmed) return;
+
+    try {
+      await axios.delete(`http://localhost:3000/api/tickets/reset/${userId}`);
+      fetchStats();
     } catch (err) {
       console.error('Error resetting day:', err);
-      toast.error('Failed to reset day');
     }
   };
 
-  const handleIncrementPassed = async () => {
-    try {
-      await axios.post(`/api/tickets/next/${user.userId}`);
-      setTicketStats((prev) => ({
-        ...prev,
-        passedTickets: prev.passedTickets + 1,
-        waitingList: prev.waitingList - 1,
-      }));
-      toast.success('Incremented passed tickets');
-    } catch (err) {
-      console.error('Error incrementing passed tickets:', err);
-      toast.error('Failed to increment passed tickets');
+  useEffect(() => {
+    if (speciality) {
+      fetchStats();
     }
-  };
+  }, [speciality]);
+
+  if (!userId || !speciality) return <p>Loading user info...</p>;
 
   return (
-    <div className="ticket-comp">
-      <ToastContainer />
-      <Card>
-        <CardContent>
-          <h2>Ticket Stats for {user?.speciality || 'Unknown Speciality'}</h2>
-          <p>Daily Tickets: {ticketStats.dailyTickets}</p>
-          <p>Waiting List: {ticketStats.waitingList}</p>
-          <p>Passed Tickets: {ticketStats.passedTickets}</p>
-          <p>Status: {ticketStats.paused ? 'Paused' : 'Active'}</p>
-          <div className="buttons">
-            <Button onClick={handleResetDay}>Reset Day</Button>
-            <Button onClick={handleIncrementPassed} disabled={ticketStats.waitingList === 0}>
-              Increment Passed Tickets
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+    <div style={{ padding: '1rem', boxShadow: '0 0 10px rgba(0,0,0,0.15)', borderRadius: '8px', maxWidth: '400px' }}>
+      <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+        {speciality} Tickets
+      </h2>
+
+      <p>Waiting: {waitingList}</p>
+      <p>Passed: {passedList}</p>
+      <p>Total Today: {waitingList + passedList}</p>
+
+      <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+        <button onClick={increment} style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}>
+          Next
+        </button>
+        <button onClick={pause} style={{ padding: '0.5rem 1rem', cursor: 'pointer', border: '1px solid gray', background: 'white' }}>
+          Pause
+        </button>
+        <button
+          onClick={reset}
+          style={{ padding: '0.5rem 1rem', cursor: 'pointer', background: 'red', color: 'white', border: 'none' }}
+        >
+          Reset
+        </button>
+      </div>
     </div>
   );
 };
