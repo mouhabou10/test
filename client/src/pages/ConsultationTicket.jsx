@@ -2,11 +2,27 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-// Define the API URL - use a direct URL to avoid environment variable issues
-const API_URL = 'http://localhost:3000';
+// Define the API URL - use environment variable or fallback to localhost
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-// Create a static variable outside the component to track created tickets across remounts
-const createdTickets = {};
+// Global tracking of ticket creation requests to prevent duplicates across sessions
+// This is a static variable that persists across component remounts
+const pendingTicketRequests = new Map();
+const createdTickets = new Map();
+
+// Create a throttle function to prevent multiple rapid calls
+const throttle = (func, limit) => {
+  let inThrottle;
+  return function() {
+    const args = arguments;
+    const context = this;
+    if (!inThrottle) {
+      func.apply(context, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+};
 
 const ConsultationTicket = () => {
   const { id } = useParams();
@@ -14,41 +30,60 @@ const ConsultationTicket = () => {
   const [ticketData, setTicketData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // Add a ref to track if a ticket creation request is in progress
-  const [isCreatingTicket, setIsCreatingTicket] = useState(false);
-  // Use a ref to track if this component has already created a ticket for this ID
-  const hasCreatedTicketRef = useRef(false);
+  
+  // Use refs to track the ticket creation state to prevent race conditions
+  const isCreatingTicketRef = useRef(false);
+  const hasCheckedDatabaseRef = useRef(false);
+  const requestIdRef = useRef(`${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 
   useEffect(() => {
     console.log('=== ConsultationTicket Component Mounted ===');
     console.log('Ticket ID from URL:', id);
     
+    // Generate a unique request ID for this ticket creation attempt
+    const requestId = requestIdRef.current;
+    console.log('Request ID:', requestId);
+    
+    // Check if there's already a pending request for this service provider
+    if (pendingTicketRequests.has(id)) {
+      console.log('There is already a pending request for this service provider');
+      
+      // Wait for the pending request to complete
+      const checkInterval = setInterval(() => {
+        if (!pendingTicketRequests.has(id)) {
+          clearInterval(checkInterval);
+          
+          // Check if a ticket was created by the other request
+          if (createdTickets.has(id)) {
+            console.log('Ticket was created by another request, using that ticket');
+            setTicketData(createdTickets.get(id));
+            setLoading(false);
+          } else {
+            // If no ticket was created, proceed with our own request
+            console.log('No ticket was created by the other request, proceeding with our own');
+            createOrGetTicket();
+          }
+        }
+      }, 500);
+      
+      return () => clearInterval(checkInterval);
+    }
+    
+    // Mark this service provider as having a pending request
+    pendingTicketRequests.set(id, requestId);
+    
+    // Function to create or get a ticket
     const createOrGetTicket = async () => {
       console.log('Starting createOrGetTicket function...');
       
-      // Check if we've already created a ticket for this ID in this session (using static variable)
-      if (createdTickets[id]) {
-        console.log('Ticket already created for this ID in this session, using existing ticket');
-        setTicketData(createdTickets[id]);
-        setLoading(false);
-        return;
-      }
-      
-      // Check if this component instance has already created a ticket (using ref)
-      if (hasCreatedTicketRef.current) {
-        console.log('This component instance has already created a ticket, skipping duplicate creation');
-        setLoading(false);
-        return;
-      }
-      
-      // Check if a ticket creation is already in progress
-      if (isCreatingTicket) {
-        console.log('Ticket creation already in progress, skipping duplicate request');
+      // Use ref to prevent race conditions
+      if (isCreatingTicketRef.current) {
+        console.log('Ticket creation already in progress (ref), skipping duplicate request');
         return;
       }
       
       // Set the flag to indicate that ticket creation is in progress
-      setIsCreatingTicket(true);
+      isCreatingTicketRef.current = true;
       try {
         const token = localStorage.getItem('token');
         console.log('Token retrieved from localStorage:', token ? 'Token exists' : 'No token found');
@@ -59,9 +94,6 @@ const ConsultationTicket = () => {
         const user = JSON.parse(userStr || '{}');
         console.log('Parsed user data:', user);
         console.log('User ID:', user._id);
-        
-        const existingTicket = localStorage.getItem(`ticket_${id}`);
-        console.log('Existing ticket in localStorage:', existingTicket ? 'Found' : 'Not found');
         
         // Get the search parameters to access the selected specialty
         const searchParamsStr = localStorage.getItem('consultationSearchParams');
@@ -84,14 +116,77 @@ const ConsultationTicket = () => {
           return;
         }
 
-        // We now always create a new ticket, even if one exists in localStorage
-        if (existingTicket) {
-          console.log('Existing ticket found in localStorage, but creating a new one anyway');
-          // Remove the existing ticket from localStorage to avoid confusion
-          localStorage.removeItem(`ticket_${id}`);
+        // First check if a ticket already exists in the database for this provider and client
+        if (!hasCheckedDatabaseRef.current) {
+          try {
+            console.log('Checking for existing tickets in the database...');
+            const checkResponse = await axios.get(
+              `${API_URL}/api/v1/tickets/check?client=${user._id}&serviceProvider=${id}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            
+            console.log('Check response:', checkResponse.data);
+            hasCheckedDatabaseRef.current = true;
+            
+            if (checkResponse.data.exists) {
+              console.log('Existing ticket found in database, using it');
+              const existingTicket = checkResponse.data.ticket;
+              
+              // Store the ticket data in our tracking mechanisms
+              createdTickets.set(id, existingTicket);
+              
+              // Update state with the existing ticket data
+              setTicketData(existingTicket);
+              setLoading(false);
+              
+              // Remove this service provider from pending requests
+              pendingTicketRequests.delete(id);
+              isCreatingTicketRef.current = false;
+              return;
+            }
+          } catch (checkErr) {
+            console.error('Error checking for existing tickets:', checkErr);
+            // Continue with ticket creation if check fails
+          }
         }
         
-        console.log('No existing ticket found, creating a new one');
+        // Check localStorage for an existing ticket
+        const existingTicketStr = localStorage.getItem(`ticket_${id}`);
+        if (existingTicketStr) {
+          try {
+            console.log('Existing ticket found in localStorage, verifying with backend');
+            const parsedTicket = JSON.parse(existingTicketStr);
+            
+            // Verify the ticket exists in the backend
+            const verifyResponse = await axios.get(
+              `${API_URL}/api/v1/tickets/${parsedTicket._id}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            
+            if (verifyResponse.data.success) {
+              console.log('Ticket verified with backend, using existing ticket');
+              const verifiedTicket = verifyResponse.data.data;
+              
+              // Store the ticket data in our tracking mechanisms
+              createdTickets.set(id, verifiedTicket);
+              
+              // Update state with the existing ticket data
+              setTicketData(verifiedTicket);
+              setLoading(false);
+              
+              // Remove this service provider from pending requests
+              pendingTicketRequests.delete(id);
+              isCreatingTicketRef.current = false;
+              return;
+            }
+          } catch (verifyErr) {
+            console.log('Ticket verification failed, will create a new one:', verifyErr.message);
+            // If verification fails, remove the invalid ticket from localStorage
+            localStorage.removeItem(`ticket_${id}`);
+          }
+        }
+        
+        console.log('Creating a new ticket...');
         console.log('Creating ticket with speciality:', speciality);
         
         // Use the direct API URL defined at the top of the file
@@ -134,8 +229,7 @@ const ConsultationTicket = () => {
             console.log('Ticket data saved to localStorage');
             
             // Mark this ticket as created in our tracking mechanisms
-            createdTickets[id] = newTicketData;
-            hasCreatedTicketRef.current = true;
+            createdTickets.set(id, newTicketData);
             console.log('Ticket marked as created in tracking mechanisms');
             
             setTicketData(newTicketData);
@@ -181,7 +275,9 @@ const ConsultationTicket = () => {
       } finally {
         setLoading(false);
         // Reset the ticket creation flag
-        setIsCreatingTicket(false);
+        isCreatingTicketRef.current = false;
+        // Remove this service provider from pending requests
+        pendingTicketRequests.delete(id);
       }
     };
 

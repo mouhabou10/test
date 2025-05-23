@@ -7,39 +7,79 @@ import Worker from '../models/worker.model.js';
 // Track recent ticket creations to prevent duplicates
 const recentTicketCreations = new Map();
 
+// Track request IDs to prevent duplicate submissions
+const processedRequestIds = new Set();
+
 // Create a ticket for a client
 export const createTicket = async (req, res) => {
-  console.log('==================================================');
-  console.log('CREATE TICKET REQUEST RECEIVED');
-  console.log('==================================================');
-  console.log('Request body:', JSON.stringify(req.body, null, 2));
-  console.log('Request headers:', JSON.stringify(req.headers, null, 2));
+  // Ticket creation request received
   
   // Extract client and service provider IDs
   const clientId = req.body.client;
   const serviceProviderId = req.body.serviceProvider;
+  const ticketType = req.body.ticketType || 'consultation';
+  const clientName = req.body.clientName;
+  
+  // Check for request ID (used to prevent duplicate submissions)
+  const requestId = req.body.requestId || req.headers['x-request-id'];
+  if (requestId && processedRequestIds.has(requestId)) {
+    // Request ID already processed - preventing duplicate
+    
+    // Try to find the ticket that was created with this request
+    try {
+      const existingTicket = await Ticket.findOne({
+        client: clientId,
+        serviceProvider: serviceProviderId,
+        ticketType: ticketType,
+        // Look for tickets created in the last 5 minutes
+        createdAt: { $gte: new Date(Date.now() - 5 * 60 * 1000) }
+      }).populate('serviceProvider').sort({ createdAt: -1 });
+      
+      if (existingTicket) {
+        return res.status(201).json({
+          success: true,
+          message: 'Existing ticket returned (duplicate request ID)',
+          data: existingTicket
+        });
+      }
+    } catch (err) {
+      console.error('Error finding ticket for duplicate request ID:', err);
+    }
+    
+    // If we couldn't find the ticket, still prevent duplicate creation
+    return res.status(409).json({
+      success: false,
+      message: 'Duplicate request detected',
+      error: 'This request has already been processed'
+    });
+  }
   
   // Create a unique key for this ticket request
-  const requestKey = `${clientId}-${serviceProviderId}-${req.body.ticketType || 'consultation'}`;
+  const requestKey = `${clientId}-${serviceProviderId}-${ticketType}`;
   
   // Check if we've recently created a ticket for this client-provider-type combination
   const now = Date.now();
   const recentCreation = recentTicketCreations.get(requestKey);
   
-  // Always check for recent tickets in the database regardless of our in-memory tracking
-  // This handles cases where the server was restarted or the in-memory map was cleared
+  // Check for tickets created today for this client-provider-type-specialty combination
   try {
-    console.log('Checking for recent tickets in the database...');
+    // Get today's date at midnight
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Get the specialty for this ticket
+    const ticketSpeciality = req.body.speciality || 'General';
+    
     const existingTicket = await Ticket.findOne({
       client: clientId,
       serviceProvider: serviceProviderId,
-      ticketType: req.body.ticketType || 'consultation',
-      createdAt: { $gte: new Date(Date.now() - 30000) } // Created in the last 30 seconds
+      ticketType: ticketType,
+      speciality: ticketSpeciality,
+      createdAt: { $gte: today } // Created today
     }).populate('serviceProvider').sort({ createdAt: -1 });
     
     if (existingTicket) {
-      console.log('DUPLICATE PREVENTION: Found recent ticket in database');
-      console.log(`Ticket was created at ${existingTicket.createdAt}, ${Date.now() - existingTicket.createdAt.getTime()}ms ago`);
+      // Found existing ticket in database
       
       // Update our in-memory tracking
       recentTicketCreations.set(requestKey, existingTicket.createdAt.getTime());
@@ -58,8 +98,7 @@ export const createTicket = async (req, res) => {
   
   // Also check our in-memory tracking as a second layer of protection
   if (recentCreation && (now - recentCreation) < 30000) { // 30 seconds threshold
-    console.log('DUPLICATE TICKET REQUEST DETECTED IN MEMORY');
-    console.log(`Previous request was ${now - recentCreation}ms ago`);
+    // Duplicate ticket request detected in memory
     
     // Try again to find the ticket in the database
     try {
@@ -71,14 +110,14 @@ export const createTicket = async (req, res) => {
       }).populate('serviceProvider').sort({ createdAt: -1 });
       
       if (existingTicket) {
-        console.log('Found existing ticket, returning it instead of creating a new one');
+        // Return existing ticket instead of creating a new one
         return res.status(201).json({
           success: true,
           message: 'Existing ticket returned',
           data: existingTicket
         });
       } else {
-        console.log('WARNING: In-memory tracking indicated a recent ticket, but none found in database');
+        // In-memory tracking indicated a recent ticket, but none found in database
       }
     } catch (err) {
       console.error('Error finding existing ticket:', err);
@@ -96,7 +135,7 @@ export const createTicket = async (req, res) => {
   }
   
   try {
-    const { serviceProvider: serviceProviderId, client: clientId, clientName, speciality, ticketType } = req.body;
+    const { clientName, speciality } = req.body;
     
     // Validate required fields
     if (!serviceProviderId) {
@@ -113,11 +152,9 @@ export const createTicket = async (req, res) => {
       });
     }
 
-
     // Check if service provider exists first
 
     // We no longer check for existing tickets - allowing multiple tickets per client
-    console.log('Allowing multiple tickets per client - not checking for existing tickets');
     
     // Just log if there are existing tickets for informational purposes
     const existingTickets = await Ticket.find({
@@ -128,9 +165,7 @@ export const createTicket = async (req, res) => {
       }
     });
 
-    if (existingTickets.length > 0) {
-      console.log(`Client already has ${existingTickets.length} tickets for this service provider today`);
-    }
+    // Check if client already has tickets today (for information only)
 
     // Check if service provider exists
     const serviceProvider = await ServiceProvider.findById(serviceProviderId);
@@ -178,11 +213,7 @@ export const createTicket = async (req, res) => {
       client = await Client.create({
         clientNumber: `TEMP${Date.now()}`,
         fullName: clientName,
-        user: clientId,
-        clientNumber: `CLT${Date.now()}`,
-        fullName: user.fullName,
-        email: user.email,
-        phoneNumber: user.phoneNumber
+        user: clientId
       });
     }
 
@@ -199,81 +230,64 @@ export const createTicket = async (req, res) => {
     await serviceProvider.save();
 
     // Create the ticket with speciality
-    console.log('==================================================');
-    console.log('CREATING TICKET');
-    console.log('==================================================');
-    console.log('Client ID:', client._id, 'Type:', typeof client._id);
-    console.log('Service Provider ID:', serviceProviderId, 'Type:', typeof serviceProviderId);
-    console.log('Ticket Number:', serviceProvider.ticketCounter, 'Type:', typeof serviceProvider.ticketCounter);
-    console.log('Speciality:', req.body.speciality || serviceProvider.speciality || 'General');
-    
-    // Check if the Ticket model is properly defined
-    console.log('Ticket model schema:', JSON.stringify(Ticket.schema.paths, null, 2));
-    
-    // For now, let's skip the complex calculations that might be causing issues
-    console.log('DEBUG: Skipping complex calculations for total, waitingList, and clientTurn');
+    // Creating a new ticket
     
     let totalTickets = 0;
     let waitingTickets = 0;
     let clientTurn = 1;
     
     try {
-      // Get the total number of tickets for this service provider and type
+      // Get the specialty for this ticket
+      const ticketSpeciality = req.body.speciality || serviceProvider.speciality || 'General';
+      
+      // Get the total number of tickets for this service provider AND specialty
       totalTickets = await Ticket.countDocuments({
         serviceProvider: serviceProviderId,
+        speciality: ticketSpeciality,
         createdAt: {
           $gte: new Date(new Date().setHours(0, 0, 0, 0)) // Today's tickets only
         }
       });
-      console.log('DEBUG: Successfully counted total tickets:', totalTickets);
+      // Successfully counted total tickets for specialty
       
-      // Get the number of waiting tickets (not passed yet)
+      // Get the number of waiting tickets (not passed yet) for this specialty
       waitingTickets = await Ticket.countDocuments({
         serviceProvider: serviceProviderId,
+        speciality: ticketSpeciality,
         status: 'not passed yet',
         createdAt: {
           $gte: new Date(new Date().setHours(0, 0, 0, 0)) // Today's tickets only
         }
       });
-      console.log('DEBUG: Successfully counted waiting tickets:', waitingTickets);
+      // Successfully counted waiting tickets for specialty
       
       // Calculate client turn (total + waiting list)
       clientTurn = totalTickets + 1; // Simplified calculation
-      console.log('DEBUG: Calculated client turn:', clientTurn);
+      // Calculated client turn
     } catch (countError) {
-      console.error('DEBUG: Error during ticket counting:', countError);
+      console.error('Error during ticket counting:', countError);
       // Continue with default values if counting fails
     }
     
-    console.log('DEBUG: Final values - Total tickets:', totalTickets);
-    console.log('DEBUG: Final values - Waiting tickets:', waitingTickets);
-    console.log('DEBUG: Final values - Client turn:', clientTurn);
+    // Final values calculated
+    
+    // Get the specialty for this ticket
+    const providerSpeciality = req.body.speciality || serviceProvider.speciality || 'General';
     
     // Create the ticket object with the new fields
     const ticketData = {
       client: client._id,
       serviceProvider: serviceProviderId,
-      number: serviceProvider.ticketCounter,
+      number: totalTickets + 1, // Number is specialty-specific
       status: 'not passed yet',
-      speciality: req.body.speciality || serviceProvider.speciality || 'General',  // Ensure there's always a speciality
+      speciality: providerSpeciality,  // Ensure there's always a speciality
       ticketType: req.body.ticketType || 'consultation',  // Default to consultation if not specified
-      total: totalTickets + 1,
-      waitingList: waitingTickets + 1,
+      total: totalTickets + 1, // Total for this specialty
+      waitingList: waitingTickets + 1, // Waiting list for this specialty
       clientTurn: clientTurn
     };
     
-    console.log('DEBUG: Created ticket data object');
-    console.log('DEBUG: Ticket client:', ticketData.client);
-    console.log('DEBUG: Ticket service provider:', ticketData.serviceProvider);
-    console.log('DEBUG: Ticket number:', ticketData.number);
-    console.log('DEBUG: Ticket status:', ticketData.status);
-    console.log('DEBUG: Ticket speciality:', ticketData.speciality);
-    console.log('DEBUG: Ticket type:', ticketData.ticketType);
-    
-    console.log('Ticket data to be saved:', JSON.stringify(ticketData, null, 2));
-    
     const ticket = new Ticket(ticketData);
-    console.log('Ticket model instance created');
     
     // Validate the ticket before saving
     const validationError = ticket.validateSync();
@@ -286,32 +300,10 @@ export const createTicket = async (req, res) => {
       });
     }
     
-    console.log('Ticket validation passed, attempting to save...');
-    
+    // Ticket validation passed, attempting to save
     try {
-      console.log('DEBUG: About to save ticket to database');
-      console.log('DEBUG: Ticket model instance:', ticket);
-      console.log('DEBUG: Ticket model methods available:', Object.keys(ticket.__proto__));
-      
-      // Try to save with a timeout to catch hanging operations
-      const savePromise = ticket.save();
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Ticket save operation timed out')), 5000);
-      });
-      
-      // Race the save operation against the timeout
-      const savedTicket = await Promise.race([savePromise, timeoutPromise]);
-      
-      console.log('==================================================');
-      console.log('TICKET SAVED SUCCESSFULLY');
-      console.log('==================================================');
-      console.log('Ticket ID:', savedTicket._id);
-      console.log('Saved ticket data:', JSON.stringify(savedTicket.toObject(), null, 2));
+      await ticket.save();
     } catch (saveError) {
-      console.error('==================================================');
-      console.error('ERROR SAVING TICKET');
-      console.error('==================================================');
-      console.error('Error name:', saveError.name);
       console.error('Error message:', saveError.message);
       console.error('Error stack:', saveError.stack);
       
@@ -331,14 +323,17 @@ export const createTicket = async (req, res) => {
         details: saveError.errors || {}
       });
     }
-    
+
     try {
       await ticket.populate('serviceProvider');
     } catch (populateError) {
-      console.error('Error populating ticket:', populateError);
+      // Error populating ticket - continue anyway
       // Continue even if population fails
     }
 
+    // Add the ticket to our in-memory tracking
+    recentTicketCreations.set(requestKey, now);
+    
     res.status(201).json({
       success: true,
       message: 'Ticket created successfully',
@@ -347,6 +342,7 @@ export const createTicket = async (req, res) => {
         waitingCount: serviceProvider.waitingCount
       }
     });
+
   } catch (err) {
     console.error('Error creating ticket:', err);
     res.status(500).json({
@@ -356,7 +352,6 @@ export const createTicket = async (req, res) => {
     });
   }
 };
-
 // Get ticket stats for all workers
 export const getTicketStats = async (req, res) => {
   try {
@@ -444,7 +439,7 @@ export const resetDay = async (req, res) => {
 
     await Ticket.deleteMany({
       speciality: worker.speciality,
-      createdAt: { $gte: today } // ✅ fixed field name
+      createdAt: { $gte: today } // 
     });
 
     worker.waitingList = 0;
@@ -454,5 +449,55 @@ export const resetDay = async (req, res) => {
     res.status(200).json({ message: 'Day reset successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+// Check if a ticket already exists for a client and service provider
+export const checkExistingTicket = async (req, res) => {
+  
+  try {
+    const { client, serviceProvider } = req.query;
+    
+    if (!client || !serviceProvider) {
+      return res.status(400).json({
+        success: false,
+        message: 'Client ID and Service Provider ID are required'
+      });
+    }
+    
+    // Look for a ticket created today for this client and service provider
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const existingTicket = await Ticket.findOne({
+      client: client,
+      serviceProvider: serviceProvider,
+      ticketType: 'consultation',
+      createdAt: { $gte: today }
+    }).populate('serviceProvider');
+    
+    // Check if existing ticket was found
+    
+    if (existingTicket) {
+      return res.status(200).json({
+        success: true,
+        exists: true,
+        message: 'Existing ticket found',
+        ticket: existingTicket
+      });
+    }
+    
+    return res.status(200).json({
+      success: true,
+      exists: false,
+      message: 'No existing ticket found'
+    });
+  } catch (error) {
+    console.error('Error checking for existing ticket:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error checking for existing ticket',
+      error: error.message
+    });
   }
 };
