@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { Button } from '../component/Button.jsx';
 import { Card, CardContent } from '../component/Card.jsx';
 import { toast, ToastContainer } from 'react-toastify';
+import { AuthContext } from '../context/AuthContext.jsx';
 import './component.css';
 
 const TicketComp = () => {
@@ -13,112 +14,90 @@ const TicketComp = () => {
     paused: false,
   });
 
-  const worker = JSON.parse(localStorage.getItem('loggedWorker'));
-  const serviceProvider = JSON.parse(localStorage.getItem('loggedServiceProvider'));
+  const { user } = useContext(AuthContext);
 
-  const fetchTicketStats = async () => {
+  useEffect(() => {
+    if (user?.speciality && user?.serviceProvider) {
+      fetchTicketStats(user.speciality, user.serviceProvider);
+    }
+  }, [user]);
+
+  const fetchTicketStats = async (speciality, serviceProviderId) => {
     try {
-      const response = await axios.get(`/api/tickets/stats/${worker._id}`);
-      const data = response.data.data;
-      setTicketStats({
-        dailyTickets: data.dailyTickets,
-        waitingList: data.waitingList,
-        passedTickets: data.passedTickets,
-        paused: data.ticketDemandPaused || false,
-      });
+      const response = await axios.get(`http://localhost:3000/api/v1/tickets/stats`);
+      console.log('API Response:', response.data);
+
+      const stats = response.data?.data?.find(
+        (stat) =>
+          stat.speciality?.trim().toLowerCase() === speciality.trim().toLowerCase() &&
+          stat.serviceProvider === serviceProviderId
+      );
+
+      if (stats) {
+        setTicketStats({
+          dailyTickets: stats.dailyTickets || 0,
+          waitingList: stats.waitingList || 0,
+          passedTickets: stats.passedTickets || 0,
+          paused: stats.paused || false,
+        });
+      } else {
+        toast.error('No stats found for your speciality and service provider');
+      }
     } catch (err) {
       console.error('Error fetching ticket stats:', err);
       toast.error('Failed to fetch ticket stats');
     }
   };
 
-  const handlePause = async () => {
+  const handleResetDay = async () => {
     try {
-      await axios.post(`/api/tickets/pause/${worker._id}`);
-      toast.success('Ticket demand paused');
-      fetchTicketStats();
-    } catch (err) {
-      console.error('Error pausing ticket demand:', err);
-    }
-  };
-
-  const handleReset = async () => {
-    if (!window.confirm('Are you sure you want to reset the ticket list for today?')) return;
-    try {
-      await axios.post(`/api/tickets/reset/${worker._id}`);
+      await axios.post(`/api/tickets/reset/${user.userId}`);
+      setTicketStats({
+        dailyTickets: 0,
+        waitingList: 0,
+        passedTickets: 0,
+        paused: false,
+      });
       toast.success('Day reset successfully');
-      fetchTicketStats();
     } catch (err) {
       console.error('Error resetting day:', err);
+      toast.error('Failed to reset day');
     }
   };
 
-  const handleIncrement = async () => {
+  const handleIncrementPassed = async () => {
     try {
-      await axios.post(`/api/tickets/next/${worker._id}`);
-      toast.success('Ticket incremented');
-      fetchTicketStats();
+      await axios.post(`/api/tickets/next/${user.userId}`);
+      setTicketStats((prev) => ({
+        ...prev,
+        passedTickets: prev.passedTickets + 1,
+        waitingList: prev.waitingList - 1,
+      }));
+      toast.success('Incremented passed tickets');
     } catch (err) {
-      console.error('Error incrementing ticket:', err);
+      console.error('Error incrementing passed tickets:', err);
+      toast.error('Failed to increment passed tickets');
     }
   };
-
-  useEffect(() => {
-    if (worker && serviceProvider) fetchTicketStats();
-  }, []);
 
   return (
-    <div className="p-6 flex flex-col items-center gap-4 w-full">
-      <ToastContainer position="top-right" autoClose={3000} />
-
-      {/* Passed Tickets */}
-      <Card className="bg-white shadow-md p-4 w-full max-w-md">
-        <CardContent className="text-center">
-          <h2 className="text-md font-semibold mb-1">Passed Tickets</h2>
-          <p className="text-2xl font-bold text-green-600 justify-center  text-center" >{ticketStats.passedTickets}</p>
+    <div className="ticket-comp">
+      <ToastContainer />
+      <Card>
+        <CardContent>
+          <h2>Ticket Stats for {user?.speciality || 'Unknown Speciality'}</h2>
+          <p>Daily Tickets: {ticketStats.dailyTickets}</p>
+          <p>Waiting List: {ticketStats.waitingList}</p>
+          <p>Passed Tickets: {ticketStats.passedTickets}</p>
+          <p>Status: {ticketStats.paused ? 'Paused' : 'Active'}</p>
+          <div className="buttons">
+            <Button onClick={handleResetDay}>Reset Day</Button>
+            <Button onClick={handleIncrementPassed} disabled={ticketStats.waitingList === 0}>
+              Increment Passed Tickets
+            </Button>
+          </div>
         </CardContent>
       </Card>
-
-      {/* Increment */}
-      <Button
-        onClick={handleIncrement}
-        className={`w-full max-w-md bg-green-500 hover:bg-green-600 ${ticketStats.paused ? 'opacity-50 cursor-not-allowed' : ''}`}
-        disabled={ticketStats.paused}
-      >
-        Increment
-      </Button>
-
-      {/* Waiting List */}
-      <Card className="bg-white shadow-md p-4 w-full max-w-md">
-        <CardContent className="text-center">
-          <h2 className="text-md font-semibold mb-1">Waiting List</h2>
-          <p className="text-2xl font-bold text-yellow-600 justify-center  text-center">{ticketStats.waitingList}</p>
-        </CardContent>
-      </Card>
-
-      {/* Pause */}
-      <Button
-        onClick={handlePause}
-        className="w-full max-w-md bg-yellow-500 hover:bg-yellow-600"
-      >
-        Pause
-      </Button>
-
-      {/* Daily Tickets */}
-      <Card className="bg-white shadow-md  p-4 w-full max-w-md">
-        <CardContent className="text-center">
-          <h2 className="text-md font-semibold mb-1">Daily Tickets</h2>
-          <p className="text-2xl font-bold text-blue-600  justify-center  text-center">{ticketStats.dailyTickets}</p>
-        </CardContent>
-      </Card>
-
-      {/* Reset */}
-      <Button
-        onClick={handleReset}
-        className="w-full max-w-md bg-red-500 hover:bg-red-600"
-      >
-        Reset
-      </Button>
     </div>
   );
 };
