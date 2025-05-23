@@ -13,7 +13,7 @@ const PrescriptionTable = ({ filters = {} }) => {
   const [rejectionReason, setRejectionReason] = useState('');
   const [showAcceptField, setShowAcceptField] = useState(false);
   const [showRejectField, setShowRejectField] = useState(false);
-
+  
   useEffect(() => {
     const fetchRadioAppointments = async () => {
       try {
