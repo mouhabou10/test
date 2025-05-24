@@ -29,7 +29,8 @@ const TicketComp = () => {
   const [stats, setStats] = useState({
     waiting: 0,
     passed: 0,
-    total: 0
+    total: 0,
+    currentNumber: 0
   });
 
   const navigate = useNavigate();
@@ -37,114 +38,152 @@ const TicketComp = () => {
   const ticketType = getTicketType(user?.role);
 
   const fetchStats = async () => {
+    console.log('Starting fetchStats...');
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/v1/tickets/stats`, 
+        `${import.meta.env.VITE_API_BASE_URL}/tickets/stats`,
         {
           params: {
             serviceProvider: user?.serviceProviderId,
-            ticketType: ticketType,
+            ticketType,
             speciality: user?.speciality
           },
-          headers: { 
-            'Authorization': `Bearer ${user?.token}`,
-            'Content-Type': 'application/json'
+          headers: {
+            'Authorization': `Bearer ${user?.token}`
           }
         }
       );
 
-      if (response.data.success) {
-        setStats(response.data.data);
+      console.log('Raw API response:', response.data);
+
+      if (response.data.success && Array.isArray(response.data.data)) {
+        const currentStats = response.data.data.find(stat => 
+          stat.serviceProvider === user?.serviceProviderId && 
+          stat.ticketType === ticketType &&
+          stat.speciality === user?.speciality
+        );
+
+        console.log('Found current stats:', currentStats);
+
+        if (currentStats) {
+          setStats({
+            waiting: currentStats.waitingList || 0,
+            passed: currentStats.passedList || 0,
+            total: currentStats.dailyTickets || 0,
+            currentNumber: currentStats.currentNumber || 0
+          });
+        }
       }
+      setLoading(false);
     } catch (err) {
-      setError('Failed to fetch stats');
       console.error('Stats error:', err);
-    } finally {
+      setError('Failed to fetch stats');
       setLoading(false);
     }
   };
 
-  const handleReset = async () => {
-    try {
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/v1/tickets/reset`,
-        {
-          serviceProvider: user?.serviceProviderId,
-          ticketType: ticketType,
-          speciality: user?.speciality
-        },
-        {
-          headers: { 
-            'Authorization': `Bearer ${user?.token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+ // service-provider/src/component/TicketComp.jsx
+// service-provider/src/component/TicketComp.jsx
+
+const handleNext = async () => {
+  try {
+    console.log('Processing next ticket...');
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/tickets/next`,  // Remove duplicate api/v1
+      {
+        serviceProvider: user?.serviceProviderId,
+        ticketType,
+        speciality: user?.speciality
+      },
+      {
+        headers: { 'Authorization': `Bearer ${user?.token}` }
+      }
+    );
+
+    console.log('Next ticket response:', response.data);
+    if (response.data.success) {
       await fetchStats();
       setError(null);
-    } catch (err) {
-      setError('Failed to reset tickets');
-      console.error('Reset error:', err);
     }
-  };
+  } catch (err) {
+    console.error('Next ticket error:', err);
+    setError('Failed to process next ticket');
+  }
+};
 
-  const handlePauseResume = async () => {
-    try {
-      const endpoint = isPaused ? 'resume' : 'pause';
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/v1/tickets/${endpoint}`,
-        {
-          serviceProvider: user?.serviceProviderId,
-          ticketType: ticketType,
-          speciality: user?.speciality
-        },
-        {
-          headers: { 
-            'Authorization': `Bearer ${user?.token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+const handleReset = async () => {
+  try {
+    console.log('Resetting tickets...');
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/tickets/reset`,  // Remove duplicate api/v1
+      {
+        serviceProvider: user?.serviceProviderId,
+        ticketType,
+        speciality: user?.speciality
+      },
+      {
+        headers: { 'Authorization': `Bearer ${user?.token}` }
+      }
+    );
+
+    console.log('Reset response:', response.data);
+    if (response.data.success) {
+      await fetchStats();
+      setError(null);
+    }
+  } catch (err) {
+    console.error('Reset error:', err);
+    setError('Failed to reset tickets');
+  }
+};
+
+const handlePauseResume = async () => {
+  try {
+    const action = isPaused ? 'resume' : 'pause';
+    console.log(`${action}ing tickets...`);
+    
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/tickets/${action}`,  // Remove duplicate api/v1
+      {
+        serviceProvider: user?.serviceProviderId,
+        ticketType,
+        speciality: user?.speciality
+      },
+      {
+        headers: { 'Authorization': `Bearer ${user?.token}` }
+      }
+    );
+
+    console.log(`${action} response:`, response.data);
+    if (response.data.success) {
       setIsPaused(!isPaused);
-      setError(null);
-    } catch (err) {
-      setError(`Failed to ${isPaused ? 'resume' : 'pause'} ticket system`);
-      console.error('Pause/Resume error:', err);
-    }
-  };
-
-  const handleNext = async () => {
-    try {
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/v1/tickets/next`,
-        {
-          serviceProvider: user?.serviceProviderId,
-          ticketType: ticketType,
-          speciality: user?.speciality
-        },
-        {
-          headers: { 
-            'Authorization': `Bearer ${user?.token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
       await fetchStats();
       setError(null);
-    } catch (err) {
-      setError('Failed to process next ticket');
-      console.error('Next error:', err);
     }
-  };
+  } catch (err) {
+    console.error(`${isPaused ? 'Resume' : 'Pause'} error:`, err);
+    setError(`Failed to ${isPaused ? 'resume' : 'pause'} ticket system`);
+  }
+};
 
   useEffect(() => {
-    if (!user?.token) {
-      navigate('/login');
-      return;
-    }
-    if (ticketType) {
-      fetchStats();
-    }
+    let mounted = true;
+
+    const init = async () => {
+      if (!user?.token) {
+        navigate('/login');
+        return;
+      }
+      if (ticketType && mounted) {
+        await fetchStats();
+      }
+    };
+
+    init();
+
+    return () => {
+      mounted = false;
+    };
   }, [user, ticketType]);
 
   if (loading) return <div className="loading">Loading tickets...</div>;
@@ -154,15 +193,24 @@ const TicketComp = () => {
     <div className="ticket-management">
       <h2>{ticketType.charAt(0).toUpperCase() + ticketType.slice(1)} Tickets</h2>
       
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="error-message">
+          {error}
+          <button onClick={fetchStats} className="retry-btn">Retry</button>
+        </div>
+      )}
       
       <div className="ticket-stats">
+        <div className="stat-item current">
+          <span>Current Number</span>
+          <strong className="current-number">{stats.currentNumber}</strong>
+        </div>
         <div className="stat-item">
           <span>Waiting</span>
           <strong>{stats.waiting}</strong>
         </div>
         <div className="stat-item">
-          <span>Processed</span>
+          <span>Passed</span>
           <strong>{stats.passed}</strong>
         </div>
         <div className="stat-item">
@@ -175,9 +223,9 @@ const TicketComp = () => {
         <button 
           onClick={handleReset}
           className="action-btn reset"
-          disabled={!ticketType}
+          disabled={!ticketType || stats.total === 0}
         >
-          Reset Day
+          Reset All Tickets
         </button>
         
         <button 
@@ -185,7 +233,7 @@ const TicketComp = () => {
           className={`action-btn ${isPaused ? 'resume' : 'pause'}`}
           disabled={!ticketType}
         >
-          {isPaused ? 'Resume Tickets' : 'Pause Tickets'}
+          {isPaused ? 'Resume Tickets' : 'Pause New Tickets'}
         </button>
         
         <button 

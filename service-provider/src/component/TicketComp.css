@@ -99,7 +99,26 @@
     color: #6c757d;
     padding: 2rem;
   }
-  
+  .current-number {
+  font-size: 2.5rem !important;
+  color: #0052E0 !important;
+  font-weight: bold;
+}
+
+.stat-item.current {
+  background: #f8f9fa;
+  border: 2px solid #0052E0;
+  padding: 1.5rem;
+}
+
+.stat-item.current span {
+  color: #0052E0;
+  font-weight: 500;
+}
+
+.stat-item.current strong {
+  margin-top: 0.5rem;
+}
   /* Responsive Design */
   @media (max-width: 768px) {
     .ticket-stats {

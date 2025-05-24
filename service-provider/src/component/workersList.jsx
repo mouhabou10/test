@@ -5,23 +5,26 @@ import { Filter, Plus } from 'lucide-react';
 import "./list.css";
 import WorkerTable from './workerTable.jsx';
 import AddWorkerModal from './AddWorkerModal.jsx';
+import useAuth from '../hooks/useAuth.js';
 
 const WorkersList = () => {
   const [workers, setWorkers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState(null);
-
-  // Get serviceProviderId from localStorage
-  const serviceProviderId = localStorage.getItem('serviceProviderId');
+  const { user } = useAuth(); // Get user from auth context
 
   const fetchWorkers = async () => {
     try {
-      if (!serviceProviderId) {
+      if (!user?.serviceProviderId) {
         throw new Error('Service Provider ID not found');
       }
 
       const res = await axios.get(`http://localhost:3000/api/v1/workers`, {
-        params: { serviceProvider: serviceProviderId }
+        params: { serviceProvider: user.serviceProviderId },
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json'
+        }
       });
       setWorkers(res.data.data);
     } catch (err) {
@@ -31,18 +34,25 @@ const WorkersList = () => {
   };
 
   useEffect(() => {
-    fetchWorkers();
-  }, [serviceProviderId]); // Re-fetch when serviceProviderId changes
+    if (user?.serviceProviderId) {
+      fetchWorkers();
+    }
+  }, [user]); // Re-fetch when user changes
 
   const handleAddWorker = async (formData) => {
     try {
-      if (!serviceProviderId) {
+      if (!user?.serviceProviderId) {
         throw new Error('Service Provider ID not found');
       }
 
       await axios.post('http://localhost:3000/api/v1/workers', {
         ...formData,
-        serviceProvider: serviceProviderId
+        serviceProvider: user.serviceProviderId
+      }, {
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json'
+        }
       });
       setIsModalOpen(false);
       fetchWorkers();
@@ -53,21 +63,35 @@ const WorkersList = () => {
   };
 
   if (error) {
-    return <div className="error-message">{error}</div>;
+    return (
+      <div className="error-container">
+        <div className="error-message">{error}</div>
+        <button onClick={() => fetchWorkers()} className="retry-button">
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
     <div className='carder'>
-      <form action="">
-        <input type="text" className='names' placeholder="Search worker" />
+      <form onSubmit={(e) => e.preventDefault()}>
+        <input 
+          type="text" 
+          className='names' 
+          placeholder="Search worker" 
+        />
         <select name="title" id="title">
+          <option value="">All Roles</option>
           <option value="consultation-agent">Consultation Agent</option>
           <option value="labo-agent">Labo Agent</option>
           <option value="radio-agent">Radio Agent</option>
           <option value="department-chef">Department Chef</option>
         </select>
+        
         <input type="date" className="date-picker" />
-        <button type='submit' className='filter-button'>
+        
+        <button type='button' className='filter-button'>
           <Filter /> Filter
         </button>
 
@@ -80,14 +104,19 @@ const WorkersList = () => {
         </button>
       </form>
 
-      <WorkerTable data={workers} />
-
-      <AddWorkerModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleAddWorker}
-        serviceProviderId={serviceProviderId}
+      <WorkerTable 
+        data={workers} 
+        onRefresh={fetchWorkers}
       />
+
+      {isModalOpen && (
+        <AddWorkerModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleAddWorker}
+          serviceProviderId={user?.serviceProviderId}
+        />
+      )}
     </div>
   );
 };
