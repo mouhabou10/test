@@ -113,7 +113,7 @@ export const createTestAppointment = async (req, res, next) => {
     // Create a test appointment with pending status
     const appointmentData = {
       clientId,
-      serviceProviderId: serviceProviderId || '68287dd360af7babbb0f06ac', // Default provider ID
+      serviceProviderId: serviceProviderId , // Default provider ID
       appointmentType: appointmentType || 'consultation',
       status: 'pending',
       notes: 'Test appointment created for debugging',

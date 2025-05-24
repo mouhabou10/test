@@ -68,16 +68,20 @@ export const getAllAccountDemands = async (req, res, next) => {
   }
 };
 
+// backend/controllers/accountDemandController.js
+
 export const approveAccountDemand = async (req, res) => {
   try {
     const demand = await AccountDemand.findById(req.params.id);
     if (!demand) {
-      return res.status(404).json({ success: false, message: 'Account demand not found' });
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Account demand not found' 
+      });
     }
 
-    // Generate a valid Algerian 10-digit phone number: 0[5-7]XXXXXXXX
     const generatePhoneNumber = () => {
-      const secondDigit = Math.floor(Math.random() * 3) + 5; // yields 5,6, or 7
+      const secondDigit = Math.floor(Math.random() * 3) + 5;
       let phone = '0' + secondDigit;
       for (let i = 0; i < 8; i++) {
         phone += Math.floor(Math.random() * 10);
@@ -85,33 +89,51 @@ export const approveAccountDemand = async (req, res) => {
       return phone;
     };
 
-    // Create user
-    const newUser = await User.create({
-      email: demand.email,
-      password: demand.password,
-      confirmPassword: demand.confirmPassword,
-      role: 'serviceProvider',
-      phoneNumber: generatePhoneNumber()
-    });
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(demand.password, salt);
 
-    // Create service provider
+    // First create the service provider
     const newProvider = await ServiceProvider.create({
       name: demand.fullName,
       email: demand.email,
-      password: demand.password,
-      confirmPassword: demand.confirmPassword,
+      password: hashedPassword,
+      confirmPassword: hashedPassword,
       wilaya: demand.wilaya,
       type: demand.type,
       speciality: demand.type === 'cabine' ? demand.speciality : undefined,
       specialities: demand.type !== 'cabine' ? demand.specialities : [],
-      directorId: demand.directorId,
+      directorId: demand.directorId
+    });
+
+    // Then create user with service provider reference
+    const newUser = await User.create({
+      userId: Date.now(),
+      fullName: demand.fullName,
+      email: demand.email,
+      password: hashedPassword,
+      confirmPassword: hashedPassword,
+      role: 'manager',
+      phoneNumber: generatePhoneNumber(),
+      serviceProviderId: newProvider._id // Link to service provider
+    });
+
+    // Update service provider with user reference
+    await ServiceProvider.findByIdAndUpdate(newProvider._id, {
       userId: newUser._id
     });
 
     // Delete demand after approval
     await AccountDemand.findByIdAndDelete(demand._id);
 
-    res.status(200).json({ success: true, message: 'Account approved and service provider created' });
+    res.status(200).json({
+      success: true,
+      message: 'Account approved and service provider created',
+      data: {
+        user: newUser,
+        serviceProvider: newProvider
+      }
+    });
+
   } catch (error) {
     console.error('❌ Approval error:', error);
     res.status(400).json({ success: false, error: error.message });

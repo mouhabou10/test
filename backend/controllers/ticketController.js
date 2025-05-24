@@ -355,25 +355,56 @@ export const createTicket = async (req, res) => {
 // Get ticket stats for all workers
 export const getTicketStats = async (req, res) => {
   try {
-    const workers = await Worker.find();
+    console.log('Getting ticket stats with params:', req.query);
+    
+    const { serviceProvider, ticketType, speciality } = req.query;
 
-    const stats = workers.map(worker => ({
-      speciality: worker.speciality,
-      passedTickets: worker.passedList,
-      waitingList: worker.waitingList,
-      dailyTickets: worker.passedList + worker.waitingList
-    }));
+    // Get today's start date
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Build query based on filters
+    const query = {
+      createdAt: { $gte: today }
+    };
+    
+    if (serviceProvider) query.serviceProvider = serviceProvider;
+    if (ticketType) query.ticketType = ticketType;
+    if (speciality) query.speciality = speciality;
+
+    console.log('Finding tickets with query:', query);
+
+    // Get tickets for today
+    const tickets = await Ticket.find(query);
+    console.log('Found tickets:', tickets.length);
+
+    // Calculate stats
+    const stats = {
+      serviceProvider,
+      ticketType,
+      speciality,
+      waitingList: tickets.filter(t => t.status === 'not passed yet').length,
+      passedList: tickets.filter(t => t.status === 'passed').length,
+      dailyTickets: tickets.length,
+      currentNumber: tickets.length > 0 ? 
+        Math.max(...tickets.map(t => t.number)) : 0
+    };
+
+    console.log('Calculated stats:', stats);
 
     res.status(200).json({
       success: true,
       message: 'Ticket stats retrieved successfully',
-      data: stats
+      data: [stats] // Return as array for backward compatibility
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Error getting ticket stats:', err);
+    res.status(500).json({ 
+      success: false,
+      message: err.message 
+    });
   }
 };
-
 // Get ticket status by ID
 export const getTicketStatus = async (req, res) => {
   try {
@@ -396,59 +427,123 @@ export const getTicketStatus = async (req, res) => {
 // Increment passed ticket count
 export const incrementPassedTickets = async (req, res) => {
   try {
-    const { id } = req.params;
-    const worker = await Worker.findById(id);
-    if (!worker) return res.status(404).json({ message: 'Agent not found' });
+    const { serviceProvider, ticketType, speciality } = req.body;
+    console.log('Processing next ticket for:', { serviceProvider, ticketType, speciality });
 
-    if (worker.waitingList > 0) {
-      worker.passedList += 1;
-      worker.waitingList -= 1;
-      await worker.save();
+    // Find earliest waiting ticket
+    const nextTicket = await Ticket.findOne({
+      serviceProvider,
+      ticketType,
+      speciality,
+      status: 'not passed yet'
+    }).sort({ createdAt: 1 });
+
+    if (!nextTicket) {
+      return res.status(404).json({
+        success: false,
+        message: 'No waiting tickets found'
+      });
     }
 
-    res.status(200).json({ message: 'Passed ticket count incremented' });
+    // Update ticket status to passed
+    nextTicket.status = 'passed';
+    await nextTicket.save();
+
+    // Get today's date at midnight
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Calculate updated stats
+    const tickets = await Ticket.find({
+      serviceProvider,
+      ticketType,
+      speciality,
+      createdAt: { $gte: today }
+    });
+
+    const updatedStats = {
+      waitingList: tickets.filter(t => t.status === 'not passed yet').length,
+      passedList: tickets.filter(t => t.status === 'passed').length,
+      dailyTickets: tickets.length,
+      currentNumber: nextTicket.number,
+      serviceProvider,
+      ticketType,
+      speciality
+    };
+
+    console.log('Updated stats:', updatedStats);
+
+    res.status(200).json({
+      success: true,
+      message: 'Next ticket processed successfully',
+      data: updatedStats
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Next ticket error:', err);
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
   }
 };
-
-// Pause ticket demand
+// Update pauseTicketDemand to handle pause/resume
 export const pauseTicketDemand = async (req, res) => {
   try {
-    const { id } = req.params;
-    const worker = await Worker.findById(id);
-    if (!worker) return res.status(404).json({ message: 'Agent not found' });
+    const { serviceProvider, ticketType, speciality } = req.body;
+    const action = req.path.includes('pause') ? 'paused' : 'not passed yet';
+    
+    console.log(`${action === 'paused' ? 'Pausing' : 'Resuming'} tickets for:`, 
+      { serviceProvider, ticketType, speciality });
 
-    worker.ticketDemandPaused = true;
-    await worker.save();
-    res.status(200).json({ message: 'Ticket demand paused' });
+    // Update all waiting tickets status
+    await Ticket.updateMany(
+      {
+        serviceProvider,
+        ticketType,
+        speciality,
+        status: action === 'paused' ? 'not passed yet' : 'paused'
+      },
+      { $set: { status: action } }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Ticket system ${action === 'paused' ? 'paused' : 'resumed'} successfully`
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
   }
 };
 
-// Reset ticket day (delete today’s tickets & reset counters)
+// Update resetDay to clear tickets
 export const resetDay = async (req, res) => {
   try {
-    const { id } = req.params;
-    const worker = await Worker.findById(id);
-    if (!worker) return res.status(404).json({ message: 'Agent not found' });
+    const { serviceProvider, ticketType, speciality } = req.body;
+    console.log('Resetting tickets for:', { serviceProvider, ticketType, speciality });
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // Delete all matching tickets from today
     await Ticket.deleteMany({
-      speciality: worker.speciality,
-      createdAt: { $gte: today } // 
+      serviceProvider,
+      ticketType,
+      speciality,
+      createdAt: { $gte: today }
     });
 
-    worker.waitingList = 0;
-    worker.passedList = 0;
-    await worker.save();
-
-    res.status(200).json({ message: 'Day reset successfully' });
+    res.status(200).json({
+      success: true,
+      message: 'All tickets reset successfully'
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
   }
 };
 

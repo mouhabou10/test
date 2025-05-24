@@ -12,17 +12,18 @@ import {
 } from '../controllers/ticketController.js';
 
 const ticketRouter = Router();
+// ticketRoutes.js - Update routes
+
 
 ticketRouter.get('/stats', getTicketStats);
 ticketRouter.post('/create', createTicket);
 ticketRouter.get('/status/:id', getTicketStatus);
-ticketRouter.post('/next/:id', incrementPassedTickets);
-ticketRouter.post('/pause/:id', pauseTicketDemand);
-ticketRouter.post('/reset/:id', resetDay);
-
-// Check if a ticket already exists for a client and service provider
+// Remove :id parameter since we pass data in body
+ticketRouter.post('/next', incrementPassedTickets); 
+ticketRouter.post('/pause', pauseTicketDemand);
+ticketRouter.post('/resume', pauseTicketDemand);
+ticketRouter.post('/reset', resetDay);
 ticketRouter.get('/check', checkExistingTicket);
-
 // Get a specific ticket by ID
 ticketRouter.get('/:id', async (req, res) => {
   try {
