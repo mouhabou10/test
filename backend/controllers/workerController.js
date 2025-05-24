@@ -71,11 +71,16 @@ export const createWorker = async (req, res, next) => {
 };
 
 // GET ALL WORKERS
+// GET ALL WORKERS
 export const getAllWorkers = async (req, res, next) => {
   try {
-    const workers = await Worker.find()
-      .populate('serviceProvider', 'name')
-      .populate('speciality', 'name');
+    // Add serviceProvider filter from query params
+    const { serviceProvider } = req.query;
+    const filter = serviceProvider ? { serviceProvider } : {};
+
+    const workers = await Worker.find(filter)
+      .populate('user', 'fullName email phoneNumber role')
+      .populate('serviceProvider', 'name');
 
     res.status(200).json({ success: true, data: workers });
   } catch (error) {

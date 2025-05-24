@@ -39,29 +39,46 @@ const WorkersList = () => {
     }
   }, [user]); // Re-fetch when user changes
 
-  const handleAddWorker = async (formData) => {
-    try {
-      if (!user?.serviceProviderId) {
-        throw new Error('Service Provider ID not found');
-      }
+ // Modify handleAddWorker in WorkersList.jsx
+// service-provider/src/component/workersList.jsx
+const handleAddWorker = async (formData) => {
+  try {
+    if (!user?.serviceProviderId) {
+      throw new Error('Service Provider ID not found');
+    }
 
-      await axios.post('http://localhost:3000/api/v1/workers', {
-        ...formData,
-        serviceProvider: user.serviceProviderId
-      }, {
-        headers: {
-          'Authorization': `Bearer ${user.token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+    // Simplify the data structure to match backend expectations
+    const workerData = {
+      jobId: formData.jobId,
+      fullName: formData.fullName,
+      email: formData.email,
+      password: formData.password,
+      phoneNumber: formData.phoneNumber,
+      role: formData.role,
+      speciality: formData.speciality,
+      serviceProvider: user.serviceProviderId
+    };
+
+    console.log('Sending worker data:', workerData); // Debug log
+
+    const response = await axios.post('http://localhost:3000/api/v1/workers', workerData, {
+      headers: {
+        'Authorization': `Bearer ${user.token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.data.success) {
       setIsModalOpen(false);
       fetchWorkers();
-    } catch (err) {
-      console.error('Failed to add worker:', err);
-      setError(err.message);
+    } else {
+      throw new Error(response.data.message || 'Failed to create worker');
     }
-  };
-
+  } catch (err) {
+    console.error('Failed to add worker:', err.response?.data || err);
+    setError(err.response?.data?.message || err.message);
+  }
+};
   if (error) {
     return (
       <div className="error-container">

@@ -65,7 +65,7 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/services', serviceRoutes);
-app.use('/api/v1/service-provider', serviceProviderRouter);
+app.use('/api/v1/service-providers', serviceProviderRouter);
 app.use('/api/v1/appointments', appointmentRoutes);
 
 // Serve uploaded files

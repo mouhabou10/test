@@ -1,22 +1,38 @@
-import { Router } from 'express';
+import express from 'express';
+const router = express.Router();
+
 import {
   createServiceProvider,
   getAllServiceProviders,
   getServiceProviderById,
+  deleteServiceProvider,
+  getWorkersByServiceProvider,
   searchServiceProviders,
-  deleteServiceProvider
+  getWorkersForProvider ,
+  syncWorkersToServiceProvider // Import the function
 } from '../controllers/serviceProviderController.js';
 
-const serviceProviderRouter = Router();
+// Route to sync workers for a specific service provider
+router.post('/:id/sync-workers', async (req, res, next) => {
+  try {
+    const workers = await getWorkersForProvider(req.params.id);
+    res.status(200).json({
+      success: true,
+      message: 'Workers synced successfully',
+      count: workers.length,
+      data: workers
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
-serviceProviderRouter.post('/service-signup', createServiceProvider);
-serviceProviderRouter.get('/', getAllServiceProviders);
+// Your other routes here...
+router.post('/service-providers', createServiceProvider);
+router.get('/service-providers', getAllServiceProviders);
+router.get('/service-providers/:id', getServiceProviderById);
+router.delete('/service-providers/:id', deleteServiceProvider);
+router.get('/service-providers/:id/workers', getWorkersByServiceProvider);
+router.get('/search/service-providers', searchServiceProviders);
 
-// Place the search route BEFORE the :id route
-serviceProviderRouter.get('/search', searchServiceProviders);
-
-// ID-specific routes should come after specific routes
-serviceProviderRouter.get('/:id', getServiceProviderById);
-serviceProviderRouter.delete('/:id', deleteServiceProvider);
-
-export default serviceProviderRouter;
+export default router;

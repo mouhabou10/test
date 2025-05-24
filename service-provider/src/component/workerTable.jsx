@@ -12,56 +12,33 @@ const WorkerTable = ({ data, fetchWorkers }) => {
     setShowModal(true);
   };
 
-  const handleClose = () => {
-    setShowModal(false);
-    setSelectedWorker(null);
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:3000/api/v1/workers/${id}`);
-      fetchWorkers();
-      handleClose();
-    } catch (err) {
-      console.error('Failed to delete worker:', err);
-    }
-  };
-
-  const handleUpdate = async (id, updatedData) => {
-    try {
-      await axios.put(`http://localhost:3000/api/v1/workers/${id}`, updatedData);
-      fetchWorkers();
-      handleClose();
-    } catch (err) {
-      console.error('Failed to update worker:', err);
-    }
-  };
-
   return (
     <div className="card-container">
       <div className="table-container">
         <table className="worker-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Worker</th>
-              <th>Phone</th>
-              <th>Title</th>
+              <th>Job ID</th>
+              <th>Full Name</th>
               <th>Email</th>
+              <th>Phone</th>
+              <th>Role</th>
+              <th>Speciality</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {data && data.length > 0 ? (
-              data.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.id}</td>
-                  <td>{item.worker}</td>
-                  <td>{item.phone}</td>
-                  <td>{item.title}</td>
-                  <td>{item.email}</td>
+              data.map((worker) => (
+                <tr key={worker._id}>
+                  <td>{worker.jobId}</td>
+                  <td>{worker.user?.fullName}</td>
+                  <td>{worker.user?.email}</td>
+                  <td>{worker.user?.phoneNumber}</td>
+                  <td>{worker.user?.role}</td>
+                  <td>{worker.speciality}</td>
                   <td>
-                    <button className="action-btn" onClick={() => handleView(item)}>
+                    <button className="action-btn" onClick={() => handleView(worker)}>
                       View
                     </button>
                   </td>
@@ -69,22 +46,21 @@ const WorkerTable = ({ data, fetchWorkers }) => {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="no-data">No data available</td>
+                <td colSpan="7" className="no-data">No workers available</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {showModal && (
-  <WorkerModal
-    worker={selectedWorker}
-    onClose={handleClose}
-    onDelete={handleDelete}
-    onUpdate={handleUpdate}
-  />
-)}
-
+      {showModal && selectedWorker && (
+        <WorkerModal
+          worker={selectedWorker}
+          onClose={() => setShowModal(false)}
+          onDelete={handleDelete}
+          onUpdate={handleUpdate}
+        />
+      )}
     </div>
   );
 };

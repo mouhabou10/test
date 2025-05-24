@@ -1,4 +1,26 @@
-import React, { useState } from 'react';
+// AddWorkerModal.jsx
+import React, { useState, useEffect } from 'react';
+
+const SPECIALTIES = [
+  'Cardiology',
+  'Dermatology', 
+  'Endocrinology',
+  'Gastroenterology',
+  'Neurology',
+  'Oncology',
+  'Pediatrics',
+  'Psychiatry',
+  'Radiology',
+  'Surgery'
+];
+
+const ROLES = [
+  'manager',
+  'chef Department',
+  'laboAgent',
+  'radioAgent',
+  'consultation agent'
+];
 
 const AddWorkerModal = ({ isOpen, onClose, onSubmit, serviceProviderId }) => {
   const [formData, setFormData] = useState({
@@ -9,6 +31,7 @@ const AddWorkerModal = ({ isOpen, onClose, onSubmit, serviceProviderId }) => {
     email: '',
     password: '',
     speciality: '',
+    serviceProvider: serviceProviderId
   });
 
   const handleChange = e => {
@@ -18,11 +41,7 @@ const AddWorkerModal = ({ isOpen, onClose, onSubmit, serviceProviderId }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    const dataToSubmit = {
-      ...formData,
-      serviceProvider: serviceProviderId,
-    };
-    onSubmit(dataToSubmit);
+    onSubmit(formData);
   };
 
   if (!isOpen) return null;
@@ -51,11 +70,9 @@ const AddWorkerModal = ({ isOpen, onClose, onSubmit, serviceProviderId }) => {
             Role
             <select name="role" value={formData.role} onChange={handleChange} required>
               <option value="">Select Role</option>
-              <option value="manager">Manager</option>
-              <option value="chef Department">Chef Department</option>
-              <option value="laboAgent">Labo Agent</option>
-              <option value="radioAgent">Radio Agent</option>
-              <option value="consultation agent">Consultation Agent</option>
+              {ROLES.map(role => (
+                <option key={role} value={role}>{role}</option>
+              ))}
             </select>
           </label>
 
@@ -71,7 +88,12 @@ const AddWorkerModal = ({ isOpen, onClose, onSubmit, serviceProviderId }) => {
 
           <label>
             Speciality
-            <input type="text" name="speciality" value={formData.speciality} onChange={handleChange} required />
+            <select name="speciality" value={formData.speciality} onChange={handleChange} required>
+              <option value="">Select Speciality</option>
+              {SPECIALTIES.map(specialty => (
+                <option key={specialty} value={specialty}>{specialty}</option>
+              ))}
+            </select>
           </label>
 
           <div className="modal-actions">

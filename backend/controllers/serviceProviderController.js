@@ -1,6 +1,7 @@
 import ServiceProvider from '../models/serviceProvider.model.js';
 import Speciality from '../models/specialty.model.js';
 import mongoose from 'mongoose';
+import Worker from '../models/worker.model.js';
 
 // ─── CREATE SERVICE PROVIDER ──────────────────────────────────────────────
 export const createServiceProvider = async (req, res, next) => {
@@ -17,7 +18,6 @@ export const createServiceProvider = async (req, res, next) => {
       specialities       // For 'hospital' or 'clinic'
     } = req.body;
 
-    // Validate required fields based on type
     if (type === 'cabine' && !speciality) {
       return res.status(400).json({
         success: false,
@@ -59,29 +59,124 @@ export const createServiceProvider = async (req, res, next) => {
     next(error);
   }
 };
-
-// ─── GET ALL SERVICE PROVIDERS ────────────────────────────────────────────
-export const getAllServiceProviders = async (req, res, next) => {
+export const syncWorkersToServiceProvider = async (serviceProviderId) => {
   try {
-    const providers = await ServiceProvider.find().populate('specialities workers');
-    res.status(200).json({ success: true, data: providers });
+    // Find all workers already assigned to this service provider
+    const workers = await Worker.find({ serviceProvider: serviceProviderId });
+
+    // Update the service provider to include these workers
+    await ServiceProvider.findByIdAndUpdate(
+      serviceProviderId,
+      { $set: { workers: workers.map(w => w._id) } },
+      { new: true }
+    );
+
+    return workers;
+  } catch (error) {
+    throw error;
+  }
+};
+// ─── WORKER RETRIEVAL & SYNC ──────────────────────────────────────────────
+export const getWorkersForProvider = async (serviceProviderId) => {
+  try {
+    const workers = await Worker.find({ serviceProvider: serviceProviderId })
+      .populate('user', 'fullName email phoneNumber role')
+      .lean();
+
+    await ServiceProvider.findByIdAndUpdate(
+      serviceProviderId,
+      { $set: { workers: workers.map(w => w._id) } },
+      { new: true }
+    );
+
+    return workers;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const syncWorkersForAllProviders = async (req, res, next) => {
+  try {
+    const providers = await ServiceProvider.find();
+    await Promise.all(providers.map(async (provider) => {
+      await getWorkersForProvider(provider._id);
+    }));
+    res.status(200).json({
+      success: true,
+      message: 'Workers synced successfully'
+    });
   } catch (error) {
     next(error);
   }
 };
 
-// ─── GET SERVICE PROVIDER BY ID ───────────────────────────────────────────
+// ─── GET ONE ──────────────────────────────────────────────────────────────
 export const getServiceProviderById = async (req, res, next) => {
   try {
-    const provider = await ServiceProvider.findById(req.params.id).populate('specialities workers');
-    if (!provider) throw new Error('Service provider not found');
-    res.status(200).json({ success: true, data: provider });
+    const provider = await ServiceProvider.findById(req.params.id)
+      .populate('specialities');
+
+    if (!provider) {
+      throw new Error('Service provider not found');
+    }
+
+    const workers = await getWorkersForProvider(provider._id);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        ...provider.toObject(),
+        workers
+      }
+    });
   } catch (error) {
     next(error);
   }
 };
 
-// ─── DELETE SERVICE PROVIDER ──────────────────────────────────────────────
+// ─── GET ALL ──────────────────────────────────────────────────────────────
+export const getAllServiceProviders = async (req, res, next) => {
+  try {
+    const providers = await ServiceProvider.find()
+      .populate('specialities');
+
+    const providersWithWorkers = await Promise.all(
+      providers.map(async (provider) => {
+        const workers = await getWorkersForProvider(provider._id);
+        return {
+          ...provider.toObject(),
+          workers
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      data: providersWithWorkers
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─── GET WORKERS BY PROVIDER ──────────────────────────────────────────────
+export const getWorkersByServiceProvider = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const workers = await Worker.find({ serviceProvider: id })
+      .populate('user', 'fullName email phoneNumber role')
+      .populate('serviceProvider', 'name');
+
+    res.status(200).json({
+      success: true,
+      data: workers
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─── DELETE ───────────────────────────────────────────────────────────────
 export const deleteServiceProvider = async (req, res, next) => {
   try {
     await ServiceProvider.findByIdAndDelete(req.params.id);
@@ -90,24 +185,43 @@ export const deleteServiceProvider = async (req, res, next) => {
     next(error);
   }
 };
+export const assignExistingWorkersToProvider = async (req, res, next) => {
+  try {
+    const { providerId } = req.params;
 
-// ─── SEARCH SERVICE PROVIDERS ──────────────────────────────────────────────
+    // Find workers that already reference this provider
+    const workers = await Worker.find({ serviceProvider: providerId });
+
+    const workerIds = workers.map(w => w._id);
+
+    // Update the provider's workers array
+    const updatedProvider = await ServiceProvider.findByIdAndUpdate(
+      providerId,
+      { $set: { workers: workerIds } },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Workers assigned to provider',
+      data: updatedProvider
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─── SEARCH ───────────────────────────────────────────────────────────────
 export const searchServiceProviders = async (req, res, next) => {
   try {
-    // Get search parameters from query
     const { wilaya, speciality, type } = req.query;
-    
-    // Build filter object for MongoDB query
     const filter = {};
-    
-    // Add wilaya filter if provided
+
     if (wilaya) {
-      filter.wilaya = { $regex: wilaya, $options: 'i' }; // Case-insensitive search
+      filter.wilaya = { $regex: wilaya, $options: 'i' };
     }
-    
-    // Add type filter if provided
+
     if (type) {
-      // Validate the type parameter
       if (!['hospital', 'cabine', 'clinic'].includes(type)) {
         return res.status(400).json({
           success: false,
@@ -116,60 +230,51 @@ export const searchServiceProviders = async (req, res, next) => {
       }
       filter.type = type;
     }
-    
-    // Handle specialty search based on provider type
+
     if (speciality) {
       let specialityId;
-      
-      // Try to find the specialty ID if it exists in the Speciality collection
       if (mongoose.Types.ObjectId.isValid(speciality)) {
         specialityId = speciality;
       } else {
-        try {
-          const foundSpeciality = await Speciality.findOne({ 
-            name: { $regex: speciality, $options: 'i' } 
-          });
-          
-          if (foundSpeciality) {
-            specialityId = foundSpeciality._id;
-          }
-        } catch (err) {
-          // Continue with search even if no matching specialty found
+        const foundSpeciality = await Speciality.findOne({ 
+          name: { $regex: speciality, $options: 'i' } 
+        });
+        if (foundSpeciality) {
+          specialityId = foundSpeciality._id;
         }
       }
-      
-      // Create a query that matches both cabines with speciality string
-      // and hospitals/clinics with speciality ObjectId
+
       const specialityConditions = [
-        // For cabines (direct string match)
-        { 
-          type: 'cabine', 
-          speciality: { $regex: speciality, $options: 'i' } 
-        }
+        { type: 'cabine', speciality: { $regex: speciality, $options: 'i' } }
       ];
-      
-      // For hospitals and clinics (ObjectId in array)
+
       if (specialityId) {
         specialityConditions.push({ 
           type: { $in: ['hospital', 'clinic'] }, 
           specialities: specialityId 
         });
       }
-      
-      // Add the OR condition to the filter
+
       filter.$or = specialityConditions;
     }
-    
-    // Execute query with built filters
+
     const serviceProviders = await ServiceProvider.find(filter)
-      .populate('specialities', 'name')
-      .populate('workers');
-    
-    // Return results
+      .populate('specialities', 'name');
+
+    const providersWithWorkers = await Promise.all(
+      serviceProviders.map(async (provider) => {
+        const workers = await getWorkersForProvider(provider._id);
+        return {
+          ...provider.toObject(),
+          workers
+        };
+      })
+    );
+
     res.status(200).json({
       success: true,
-      count: serviceProviders.length,
-      data: serviceProviders
+      count: providersWithWorkers.length,
+      data: providersWithWorkers
     });
   } catch (error) {
     next(error);
