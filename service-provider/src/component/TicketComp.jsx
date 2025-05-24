@@ -1,88 +1,199 @@
-import React, { useEffect, useState } from 'react';
+// service-provider/src/component/TicketComp.jsx
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './TicketComp.css';
+import useAuth from '../hooks/useAuth.js';
+
+const getTicketType = (role) => {
+  if (!role) return null;
+  const userRole = role.toLowerCase().trim();
+  
+  switch (userRole) {
+    case 'consultation agent':
+      return 'consultation';
+    case 'radioagent':
+      return 'radio';
+    case 'laboagent':
+      return 'labo';
+    default:
+      console.log('Invalid role:', userRole);
+      return null;
+  }
+};
 
 const TicketComp = () => {
-  const [waitingList, setWaitingList] = useState(0);
-  const [passedList, setPassedList] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [stats, setStats] = useState({
+    waiting: 0,
+    passed: 0,
+    total: 0
+  });
 
-  const userId = localStorage.getItem('userId');
-  const speciality = localStorage.getItem('speciality');
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const ticketType = getTicketType(user?.role);
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/v1/tickets/stats');
-      const stat = res.data.data.find((s) => s.speciality === speciality);
-      if (stat) {
-        setWaitingList(stat.waitingList);
-        setPassedList(stat.passedTickets);
-        
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/v1/tickets/stats`, 
+        {
+          params: {
+            serviceProvider: user?.serviceProviderId,
+            ticketType: ticketType,
+            speciality: user?.speciality
+          },
+          headers: { 
+            'Authorization': `Bearer ${user?.token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.success) {
+        setStats(response.data.data);
       }
     } catch (err) {
-      console.error('Error fetching stats:', err);
+      setError('Failed to fetch stats');
+      console.error('Stats error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const increment = async () => {
+  const handleReset = async () => {
     try {
-      await axios.put(`http://localhost:3000/api/tickets/increment/${userId}`);
-      fetchStats();
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/v1/tickets/reset`,
+        {
+          serviceProvider: user?.serviceProviderId,
+          ticketType: ticketType,
+          speciality: user?.speciality
+        },
+        {
+          headers: { 
+            'Authorization': `Bearer ${user?.token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      await fetchStats();
+      setError(null);
     } catch (err) {
-      console.error('Error incrementing passed list:', err);
+      setError('Failed to reset tickets');
+      console.error('Reset error:', err);
     }
   };
 
-  const pause = async () => {
+  const handlePauseResume = async () => {
     try {
-      await axios.put(`http://localhost:3000/api/tickets/pause/${userId}`);
-      alert('Ticket demand paused.');
-      fetchStats();
+      const endpoint = isPaused ? 'resume' : 'pause';
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/v1/tickets/${endpoint}`,
+        {
+          serviceProvider: user?.serviceProviderId,
+          ticketType: ticketType,
+          speciality: user?.speciality
+        },
+        {
+          headers: { 
+            'Authorization': `Bearer ${user?.token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      setIsPaused(!isPaused);
+      setError(null);
     } catch (err) {
-      console.error('Error pausing demand:', err);
+      setError(`Failed to ${isPaused ? 'resume' : 'pause'} ticket system`);
+      console.error('Pause/Resume error:', err);
     }
   };
 
-  const reset = async () => {
-    const confirmed = window.confirm('Are you sure you want to reset today’s tickets?');
-    if (!confirmed) return;
-
+  const handleNext = async () => {
     try {
-      await axios.delete(`http://localhost:3000/api/tickets/reset/${userId}`);
-      fetchStats();
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/v1/tickets/next`,
+        {
+          serviceProvider: user?.serviceProviderId,
+          ticketType: ticketType,
+          speciality: user?.speciality
+        },
+        {
+          headers: { 
+            'Authorization': `Bearer ${user?.token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      await fetchStats();
+      setError(null);
     } catch (err) {
-      console.error('Error resetting day:', err);
+      setError('Failed to process next ticket');
+      console.error('Next error:', err);
     }
   };
 
   useEffect(() => {
-    if (speciality) {
+    if (!user?.token) {
+      navigate('/login');
+      return;
+    }
+    if (ticketType) {
       fetchStats();
     }
-  }, [speciality]);
+  }, [user, ticketType]);
 
-  if (!userId || !speciality) return <p>Loading user info...</p>;
+  if (loading) return <div className="loading">Loading tickets...</div>;
+  if (!ticketType) return <div className="error-message">Invalid user role</div>;
 
   return (
-    <div style={{ padding: '1rem', boxShadow: '0 0 10px rgba(0,0,0,0.15)', borderRadius: '8px', maxWidth: '400px' }}>
-      <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-        {speciality} Tickets
-      </h2>
+    <div className="ticket-management">
+      <h2>{ticketType.charAt(0).toUpperCase() + ticketType.slice(1)} Tickets</h2>
+      
+      {error && <div className="error-message">{error}</div>}
+      
+      <div className="ticket-stats">
+        <div className="stat-item">
+          <span>Waiting</span>
+          <strong>{stats.waiting}</strong>
+        </div>
+        <div className="stat-item">
+          <span>Processed</span>
+          <strong>{stats.passed}</strong>
+        </div>
+        <div className="stat-item">
+          <span>Total Today</span>
+          <strong>{stats.total}</strong>
+        </div>
+      </div>
 
-      <p>Waiting: {waitingList}</p>
-      <p>Passed: {passedList}</p>
-      <p>Total Today: {waitingList + passedList}</p>
-
-      <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-        <button onClick={increment} style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}>
-          Next
-        </button>
-        <button onClick={pause} style={{ padding: '0.5rem 1rem', cursor: 'pointer', border: '1px solid gray', background: 'white' }}>
-          Pause
-        </button>
-        <button
-          onClick={reset}
-          style={{ padding: '0.5rem 1rem', cursor: 'pointer', background: 'red', color: 'white', border: 'none' }}
+      <div className="ticket-actions">
+        <button 
+          onClick={handleReset}
+          className="action-btn reset"
+          disabled={!ticketType}
         >
-          Reset
+          Reset Day
+        </button>
+        
+        <button 
+          onClick={handlePauseResume}
+          className={`action-btn ${isPaused ? 'resume' : 'pause'}`}
+          disabled={!ticketType}
+        >
+          {isPaused ? 'Resume Tickets' : 'Pause Tickets'}
+        </button>
+        
+        <button 
+          onClick={handleNext}
+          className="action-btn next"
+          disabled={!ticketType || stats.waiting === 0}
+        >
+          Next Patient
         </button>
       </div>
     </div>

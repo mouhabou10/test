@@ -1,3 +1,4 @@
+// service-provider/src/component/workersList.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Filter, Plus } from 'lucide-react';
@@ -8,32 +9,52 @@ import AddWorkerModal from './AddWorkerModal.jsx';
 const WorkersList = () => {
   const [workers, setWorkers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [error, setError] = useState(null);
 
-  const serviceProviderId = "68287dd360af7babbb0f06ac"; // ✅ Your actual ID
+  // Get serviceProviderId from localStorage
+  const serviceProviderId = localStorage.getItem('serviceProviderId');
 
   const fetchWorkers = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/v1/workers');
+      if (!serviceProviderId) {
+        throw new Error('Service Provider ID not found');
+      }
+
+      const res = await axios.get(`http://localhost:3000/api/v1/workers`, {
+        params: { serviceProvider: serviceProviderId }
+      });
       setWorkers(res.data.data);
     } catch (err) {
       console.error('Failed to fetch workers:', err);
+      setError(err.message);
     }
   };
 
   useEffect(() => {
     fetchWorkers();
-  }, []);
+  }, [serviceProviderId]); // Re-fetch when serviceProviderId changes
 
   const handleAddWorker = async (formData) => {
     try {
-      await axios.post('http://localhost:3000/api/v1/workers', formData);
+      if (!serviceProviderId) {
+        throw new Error('Service Provider ID not found');
+      }
+
+      await axios.post('http://localhost:3000/api/v1/workers', {
+        ...formData,
+        serviceProvider: serviceProviderId
+      });
       setIsModalOpen(false);
       fetchWorkers();
     } catch (err) {
       console.error('Failed to add worker:', err);
-      alert('Failed to add worker');
+      setError(err.message);
     }
   };
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
 
   return (
     <div className='carder'>
@@ -65,7 +86,7 @@ const WorkersList = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleAddWorker}
-        serviceProviderId={serviceProviderId} // ✅ Send this to modal
+        serviceProviderId={serviceProviderId}
       />
     </div>
   );

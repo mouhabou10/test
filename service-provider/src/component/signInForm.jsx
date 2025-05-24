@@ -44,15 +44,16 @@ const SignInForm = () => {
       const user = res.data.data.user;
       const token = res.data.data.token;
 
-      // Logging in and saving to context
-      login({
-        token,
-        userId: user._id,
-        role: user.role,
-        speciality: user.speciality || null,
-        serviceProvider: user.serviceProvider || null,
-      });
+// service-provider/src/component/signInForm.jsx
+// Update the login call:
 
+login({
+  token,
+  userId: user._id,
+  role: user.role,
+  speciality: user.speciality || null,
+  serviceProviderId: user.serviceProviderId || null, // Add this line
+});
       console.log('✅ Login successful, navigating to /prescription');
       setLoading(false);
       navigate('/prescription');
