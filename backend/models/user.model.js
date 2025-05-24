@@ -1,3 +1,5 @@
+// backend/models/user.model.js
+
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema(
@@ -25,7 +27,8 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       match: [/^0[5-7]\d{8}$/, 'Please provide a valid Algerian phone number']
-    },    password: {
+    },
+    password: {
       type: String,
       required: true,
       minlength: 6
@@ -52,6 +55,11 @@ const userSchema = new mongoose.Schema(
         'radioAgent',
         'consultation agent'
       ]
+    },
+    serviceProviderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ServiceProvider',
+      default: null
     }
   },
   { timestamps: true }

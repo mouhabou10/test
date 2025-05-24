@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import User from '../models/user.model.js';
 import { JWT_EXPIRES_IN, JWT_SECRET } from '../config/env.js';
 import Worker from '../models/worker.model.js'; // import Worker model
+import ServiceProvider from '../models/serviceProvider.model.js'; // Add this import
 
 
 // ─── SIGN UP ─────────────────────────────────────────────────────────────
@@ -23,38 +24,45 @@ export const signUp = async (req, res, next) => {
       role
     } = req.body;
 
-    // Basic validation
-    if (!userId || !fullName || !email || !phoneNumber || !password || !role) {
-      return res.status(400).json({ success: false, error: 'All fields are required' });
-    }
+  // Basic validation
+if (!userId || !fullName || !email || !phoneNumber || !password || !role) {
+  return res.status(400).json({ success: false, error: 'All fields are required' });
+}
 
-    const existingUser = await User.findOne({ email }).session(session);
-    if (existingUser) {
-      const error = new Error('User already exists');
-      error.statusCode = 409;
-      throw error;
-    }
+const existingUser = await User.findOne({ email }).session(session);
+if (existingUser) {
+  const error = new Error('User already exists');
+  error.statusCode = 409;
+  throw error;
+}
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+const salt = await bcrypt.genSalt(10);
+const hashedPassword = await bcrypt.hash(password, salt);
 
-    const [newUser] = await User.create(
-      [{
-        userId,
-        fullName,
-        email,
-        phoneNumber,
-        password: hashedPassword,
-        role
-      }],
-      { session }
-    );
+// Determine serviceProviderId if role is not client
+let serviceProviderId = null;
+if (role !== 'client') {
+  serviceProviderId = userId; // Or generate a new unique value as needed
+}
 
-    const token = jwt.sign(
-      { userId: newUser._id },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
-    );
+const [newUser] = await User.create(
+  [{
+    userId,
+    fullName,
+    email,
+    phoneNumber,
+    password: hashedPassword,
+    role,
+    serviceProviderId
+  }],
+  { session }
+);
+
+const token = jwt.sign(
+  { userId: newUser._id, serviceProviderId: newUser.serviceProviderId },
+  JWT_SECRET,
+  { expiresIn: JWT_EXPIRES_IN }
+);
 
     await session.commitTransaction();
     session.endSession();
@@ -74,6 +82,9 @@ export const signUp = async (req, res, next) => {
     next(error);
   }
 };
+// backend/controllers/auth.controller.js
+
+
 export const signIn = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -88,52 +99,55 @@ export const signIn = async (req, res, next) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1d',
-    });
-
     // Prepare base response
     let responseUser = {
       _id: user._id,
       email: user.email,
       fullName: user.fullName,
       role: user.role,
-      speciality: null,         // Default values
-      serviceProvider: null
+      speciality: null,
+      serviceProviderId: null
     };
 
-    // Roles that should have both speciality and serviceProvider
-    const rolesWithSpecAndProvider = [
-      'chefDepartment',
-      'laboAgent',
-      'radioAgent',
-      'consultation agent'
-    ];
-
-    // Get worker data if role is among those requiring additional info
-    if (rolesWithSpecAndProvider.includes(user.role) || user.role === 'manager') {
-      const worker = await Worker.findOne({ user: user._id }).populate('serviceProvider', 'name');
-      if (worker) {
-        responseUser.serviceProvider = worker.serviceProvider?._id || null;
-
-        if (rolesWithSpecAndProvider.includes(user.role)) {
-          responseUser.speciality = worker.speciality || null;
+    // If user is not a client, get their service provider info
+    if (user.role !== 'client') {
+      // First try to find worker record
+      const worker = await Worker.findOne({ user: user._id })
+        .populate('serviceProvider', 'name');
+      
+      if (worker && worker.serviceProvider) {
+        responseUser.serviceProviderId = worker.serviceProvider._id;
+        responseUser.speciality = worker.speciality || null;
+      } else {
+        // If no worker record, check for direct service provider link
+        const serviceProvider = await ServiceProvider.findOne({ userId: user._id });
+        if (serviceProvider) {
+          responseUser.serviceProviderId = serviceProvider._id;
         }
       }
     }
+
+    // Include serviceProviderId in token payload
+    const token = jwt.sign(
+      { 
+        userId: user._id,
+        serviceProviderId: responseUser.serviceProviderId 
+      }, 
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
 
     res.status(200).json({
       success: true,
       data: {
         token,
-        user: responseUser,
+        user: responseUser
       }
     });
   } catch (error) {
     next(error);
   }
 };
-
 // ─── SIGN OUT (Placeholder) ──────────────────────────────────────────────
 export const signOut = (req, res, next) => {
   // For stateless JWT: usually handled on frontend or with token blacklist
