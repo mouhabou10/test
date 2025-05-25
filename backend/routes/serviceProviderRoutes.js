@@ -33,6 +33,9 @@ router.get('/service-providers', getAllServiceProviders);
 router.get('/service-providers/:id', getServiceProviderById);
 router.delete('/service-providers/:id', deleteServiceProvider);
 router.get('/service-providers/:id/workers', getWorkersByServiceProvider);
+// Add a more accessible search endpoint
+router.get('/search', searchServiceProviders);
+// Keep the original endpoint for backward compatibility
 router.get('/search/service-providers', searchServiceProviders);
 
 export default router;

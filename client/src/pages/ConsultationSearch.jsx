@@ -30,7 +30,25 @@ const ConsultationSearch = () => {
               return;
             }
 
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/service-provider/search`, {
+            console.log('Fetching service providers with params:', parsedParams);
+            
+            // Using the new simpler endpoint I just added to the backend
+            const baseUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}`;
+            
+            // The new endpoint is: router.get('/search', searchServiceProviders);
+            // Mounted at: app.use('/api/v1/service-providers', serviceProviderRouter);
+            const searchUrl = `${baseUrl}/api/v1/service-providers/search`;
+            console.log('Search URL:', searchUrl);
+            
+            console.log('Request params:', {
+              speciality: parsedParams.category,
+              type: parsedParams.place,
+              wilaya: parsedParams.state
+            });
+            
+            console.log('Using auth token:', token.substring(0, 15) + '...');
+            
+            const response = await axios.get(searchUrl, {
               params: {
                 speciality: parsedParams.category,
                 type: parsedParams.place,
@@ -41,30 +59,35 @@ const ConsultationSearch = () => {
               }
             });
         
-        if (response.data?.success) {
-          setProviders(response.data.data);
-          setError(null);
-        } else {
-          setError('Failed to fetch service providers');
-          setProviders([]);
-        }
-      } catch (err) {
-        console.error('Error fetching service providers:', err);
-        if (err.response?.status === 401) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setError('Session expired. Please log in again.');
-          setTimeout(() => {
-            navigate('/login', { state: { from: location.pathname + location.search } });
-          }, 2000);
-        } else {
-          setError('Error loading service providers. Please try again.');
-        }
-        setProviders([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+            console.log('Response received:', response.status);
+            console.log('Response data:', response.data);
+        
+            if (response.data?.success) {
+              console.log('Found providers:', response.data.data.length);
+              setProviders(response.data.data);
+              setError(null);
+            } else {
+              console.log('No success flag in response');
+              setError('Failed to fetch service providers');
+              setProviders([]);
+            }
+          } catch (err) {
+            console.error('Error fetching service providers:', err);
+            if (err.response?.status === 401) {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              setError('Session expired. Please log in again.');
+              setTimeout(() => {
+                navigate('/login', { state: { from: location.pathname + location.search } });
+              }, 2000);
+            } else {
+              setError('Error loading service providers. Please try again.');
+            }
+            setProviders([]);
+          } finally {
+            setLoading(false);
+          }
+        };
 
         fetchServiceProviders();
       } catch (e) {
