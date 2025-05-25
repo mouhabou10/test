@@ -34,7 +34,8 @@ const OperationSearchResults = () => {
             }
             
             // Fetch service providers from the API
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/service-provider/search`, {
+            // Using the correct endpoint path that exists in the backend
+            const response = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/service-providers/search`, {
               params: {
                 speciality: parsedParams.category,
                 type: parsedParams.type,
