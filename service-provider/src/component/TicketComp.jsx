@@ -35,6 +35,27 @@ const TicketComp = () => {
 
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  useEffect(() => {
+    let mounted = true;
+
+    const init = async () => {
+      if (!user?.token) {
+        navigate('/login');
+        return;
+      }
+      
+      if (ticketType && mounted) {
+        await fetchStats();
+      }
+    };
+
+    init();
+
+    return () => {
+      mounted = false;
+    };
+  }, [user?.token]);
   const ticketType = getTicketType(user?.role);
 
   const fetchStats = async () => {
