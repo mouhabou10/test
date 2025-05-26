@@ -26,7 +26,11 @@ router.post('/:id/sync-workers', async (req, res, next) => {
     next(error);
   }
 });
+import { getServiceProviderSpecialities } from '../controllers/serviceProviderController.js';
+import { assignSpecialityToServiceProvider } from '../controllers/serviceProviderController.js';
 
+router.post('/:id/assign-speciality', assignSpecialityToServiceProvider);
+router.get('/:id/specialities', getServiceProviderSpecialities);
 // Your other routes here...
 router.post('/service-providers', createServiceProvider);
 router.get('/service-providers', getAllServiceProviders);

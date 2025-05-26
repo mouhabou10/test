@@ -59,6 +59,39 @@ export const createServiceProvider = async (req, res, next) => {
     next(error);
   }
 };
+export const getServiceProviderSpecialities = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const serviceProvider = await ServiceProvider.findById(id).populate('specialities', 'name');
+    if (!serviceProvider) {
+      return res.status(404).json({ success: false, message: 'Service provider not found' });
+    }
+    res.status(200).json({ success: true, data: serviceProvider.specialities });
+  } catch (error) {
+    next(error);
+  }
+};
+export const assignSpecialityToServiceProvider = async (req, res, next) => {
+  try {
+    const { id } = req.params; // Service provider ID
+    const { specialityId } = req.body; // Speciality ID to assign
+
+    const serviceProvider = await ServiceProvider.findById(id);
+    if (!serviceProvider) {
+      return res.status(404).json({ success: false, message: 'Service provider not found' });
+    }
+
+    // Check if the speciality is already assigned
+    if (!serviceProvider.specialities.includes(specialityId)) {
+      serviceProvider.specialities.push(specialityId);
+      await serviceProvider.save();
+    }
+
+    res.status(200).json({ success: true, message: 'Speciality assigned successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
 export const syncWorkersToServiceProvider = async (serviceProviderId) => {
   try {
     // Find all workers already assigned to this service provider
