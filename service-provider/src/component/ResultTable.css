@@ -191,7 +191,97 @@
 .patient-table td {
   border: none;
 }
+/* Container */
+.specialty-table-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
 
+/* Form Section */
+.form-container {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.form-container h3 {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.speciality-selector,
+.new-speciality-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.assign-btn {
+  background-color: #0052e0;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.assign-btn:hover {
+  background-color: #003d99;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* Table Section */
+.table-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.speciality-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.speciality-table th,
+.speciality-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.speciality-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.speciality-table .no-data {
+  text-align: center;
+  color: #999;
+}
 .patient-table tbody tr:hover {
   background-color: #f9f9f9;
 }

@@ -1,40 +1,146 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './ResultTable.css'; // Reusing the same design style
 
-const SpecialtyTable = ({ data }) => {
+const SpecialtyTable = () => {
+  const [specialities, setSpecialities] = useState([]); // List of all specialities
+  const [assignedSpecialities, setAssignedSpecialities] = useState([]); // Specialities assigned to the service provider
+  const [selectedSpeciality, setSelectedSpeciality] = useState(''); // Selected speciality from dropdown
+  const [newSpeciality, setNewSpeciality] = useState(''); // New speciality input
+  const [error, setError] = useState('');
+  const serviceProviderId = JSON.parse(localStorage.getItem('user'))?.serviceProviderId; // Get service provider ID from localStorage
+
+  // Fetch all specialities from the database
+  useEffect(() => {
+    const fetchSpecialities = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/specialities`);
+        if (response.data?.success) {
+          setSpecialities(response.data.data);
+        }
+      } catch (err) {
+        console.error('Error fetching specialities:', err);
+        setError('Failed to load specialities. Please try again later.');
+      }
+    };
+
+    const fetchAssignedSpecialities = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/service-provider/${serviceProviderId}/specialities`);
+        if (response.data?.success) {
+          setAssignedSpecialities(response.data.data);
+        }
+      } catch (err) {
+        console.error('Error fetching assigned specialities:', err);
+        setError('Failed to load assigned specialities. Please try again later.');
+      }
+    };
+
+    fetchSpecialities();
+    fetchAssignedSpecialities();
+  }, [serviceProviderId]);
+
+  // Handle assigning a speciality
+  const handleAssignSpeciality = async () => {
+    try {
+      let specialityId = selectedSpeciality;
+
+      // If a new speciality is being added
+      if (newSpeciality) {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/specialities`, { name: newSpeciality });
+        if (response.data?.success) {
+          specialityId = response.data.data._id; // Get the ID of the newly created speciality
+          setSpecialities([...specialities, response.data.data]); // Add the new speciality to the dropdown
+        }
+      }
+
+      // Assign the speciality to the service provider
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/service-provider/${serviceProviderId}/assign-speciality`, {
+        specialityId,
+      });
+
+      // Update the assigned specialities list
+      const assignedSpeciality = specialities.find((s) => s._id === specialityId) || { name: newSpeciality };
+      setAssignedSpecialities([...assignedSpecialities, assignedSpeciality]);
+
+      // Reset inputs
+      setSelectedSpeciality('');
+      setNewSpeciality('');
+      setError('');
+    } catch (err) {
+      console.error('Error assigning speciality:', err);
+      setError('Failed to assign speciality. Please try again.');
+    }
+  };
+
   return (
-    <div className="card-container">
-      <div className="table-container">
-        <table className="patient-table">
-          <thead>
-            <tr>
-              <th>Service Type</th>
-              <th>Service Name</th>
-              <th>Worker ID</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data && data.length > 0 ? (
-              data.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.serviceType}</td>
-                  <td>{item.serviceName}</td>
-                  <td>{item.workerId}</td>
-                  <td>
-                    <button className="action-btn">View</button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="4" className="no-data">No data available</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+    <div className="specialty-table-container">
+    <div className="form-container">
+      <h3>Assign Speciality</h3>
+      <div className="form-group">
+        <label htmlFor="speciality-selector">Select Speciality:</label>
+        <select
+          id="speciality-selector"
+          value={selectedSpeciality}
+          onChange={(e) => setSelectedSpeciality(e.target.value)}
+          disabled={!!newSpeciality} // Disable if adding a new speciality
+          className="speciality-selector"
+        >
+          <option value="">-- Select a Speciality --</option>
+          {specialities.map((speciality) => (
+            <option key={speciality._id} value={speciality._id}>
+              {speciality.name}
+            </option>
+          ))}
+        </select>
       </div>
+
+      <div className="form-group">
+        <label htmlFor="new-speciality">Or Add New Speciality:</label>
+        <input
+          id="new-speciality"
+          type="text"
+          placeholder="Enter new speciality"
+          value={newSpeciality}
+          onChange={(e) => setNewSpeciality(e.target.value)}
+          disabled={!!selectedSpeciality} // Disable if a speciality is selected
+          className="new-speciality-input"
+        />
+      </div>
+
+      <button className="assign-btn" onClick={handleAssignSpeciality}>
+        Assign Speciality
+      </button>
+
+      {error && <p className="error-message">{error}</p>}
     </div>
+
+    <div className="table-container">
+      <h3>Assigned Specialities</h3>
+      <table className="speciality-table">
+        <thead>
+          <tr>
+            <th>Speciality Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {assignedSpecialities.length > 0 ? (
+            assignedSpecialities.map((speciality, index) => (
+              <tr key={index}>
+                <td>{speciality.name}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td className="no-data" colSpan="1">
+                No specialities assigned
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
   );
 };
 

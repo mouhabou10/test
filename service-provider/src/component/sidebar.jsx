@@ -27,7 +27,7 @@ const Sidebar = () => {
           <li><Link to='/refferalletters'><span>📨 Refferal Letters</span></Link></li>
           <li><Link to='/prescription'><span>💊 Prescriptions</span></Link></li>
           <li><Link to='/staff-manager'><span>🧑‍💼 Staff Management</span></Link></li>
-          <li><Link to='/'><span>🛠️ Service Management</span></Link></li>
+          <li><Link to='/managespeciality'><span>🛠️ Service Management</span></Link></li>
           <li><Link to='/account-demande-list'><span>📋 Account Demand List</span></Link></li>
           <li><Link to="/contactus"><span>📞 Support</span></Link></li>
           <li><Link to="/aboutus"><span>📁 About</span></Link></li>

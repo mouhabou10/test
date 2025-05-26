@@ -45,7 +45,6 @@ app.use(cookieParser());
 app.get('/', (req, res) => {
   res.send('✅ Server is working!');
 });
-
 // Routes
 app.use('/api/v1/account-demands', accountDemandRoutes);
 app.use('/api/v1/agents', agentRoutes);
