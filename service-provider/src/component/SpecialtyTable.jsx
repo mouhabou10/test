@@ -44,7 +44,7 @@ const SpecialtyTable = () => {
   const handleAssignSpeciality = async () => {
     try {
       let specialityId = selectedSpeciality;
-
+  
       // If a new speciality is being added
       if (newSpeciality) {
         const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/specialities`, { name: newSpeciality });
@@ -53,16 +53,16 @@ const SpecialtyTable = () => {
           setSpecialities([...specialities, response.data.data]); // Add the new speciality to the dropdown
         }
       }
-
+  
       // Assign the speciality to the service provider
       await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/service-provider/${serviceProviderId}/assign-speciality`, {
         specialityId,
       });
-
+  
       // Update the assigned specialities list
       const assignedSpeciality = specialities.find((s) => s._id === specialityId) || { name: newSpeciality };
       setAssignedSpecialities([...assignedSpecialities, assignedSpeciality]);
-
+  
       // Reset inputs
       setSelectedSpeciality('');
       setNewSpeciality('');
@@ -72,7 +72,6 @@ const SpecialtyTable = () => {
       setError('Failed to assign speciality. Please try again.');
     }
   };
-
   return (
     <div className="specialty-table-container">
     <div className="form-container">
