@@ -15,7 +15,7 @@ import ContactUs from "./ContactUs.jsx";
 import ProtectedRoute from "../component/ProtectedRoute.jsx";
 import useAuth from "../hooks/useAuth.js";
 import LogoutButton from "../component/LogoutButton.jsx";
-
+import Speciality from "./speciality.jsx"; // Ensure this matches the exported name
 function AppRoutes() {
   return (
 <Routes>
@@ -33,6 +33,7 @@ function AppRoutes() {
       <Route path="/setting" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="/contactus" element={<ProtectedRoute><ContactUs /></ProtectedRoute>} />
       <Route path="/aboutus" element={<ProtectedRoute><AboutUs /></ProtectedRoute>} />
+      <Route path="/managespeciality" element={<Speciality />} />
     </Routes>
   );
 }
