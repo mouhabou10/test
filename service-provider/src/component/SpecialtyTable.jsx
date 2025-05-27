@@ -14,56 +14,71 @@ const SpecialtyTable = () => {
   useEffect(() => {
     const fetchSpecialities = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/specialities`);
+        console.log('Fetching specialities from:', `${import.meta.env.VITE_API_BASE_URL}/services`);
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/services`);
+        console.log('Specialities API response:', response.data);
+  
         if (response.data?.success) {
           setSpecialities(response.data.data);
+          console.log('Specialities set successfully:', response.data.data);
+        } else {
+          console.error('Failed to fetch specialities:', response.data.message);
         }
       } catch (err) {
         console.error('Error fetching specialities:', err);
         setError('Failed to load specialities. Please try again later.');
       }
     };
-
+  
     const fetchAssignedSpecialities = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/service-provider/${serviceProviderId}/specialities`);
+        console.log('Fetching assigned specialities for service provider:', serviceProviderId);
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/service-provider/${serviceProviderId}/specialities`);
+        console.log('Assigned specialities API response:', response.data);
+  
         if (response.data?.success) {
           setAssignedSpecialities(response.data.data);
+          console.log('Assigned specialities set successfully:', response.data.data);
+        } else {
+          console.error('Failed to fetch assigned specialities:', response.data.message);
         }
       } catch (err) {
         console.error('Error fetching assigned specialities:', err);
         setError('Failed to load assigned specialities. Please try again later.');
       }
     };
-
+  
     fetchSpecialities();
     fetchAssignedSpecialities();
   }, [serviceProviderId]);
-
-  // Handle assigning a speciality
+  
   const handleAssignSpeciality = async () => {
     try {
+      console.log('Assigning speciality. Selected:', selectedSpeciality, 'New:', newSpeciality);
+  
       let specialityId = selectedSpeciality;
   
-      // If a new speciality is being added
       if (newSpeciality) {
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/specialities`, { name: newSpeciality });
+        console.log('Adding new speciality:', newSpeciality);
+        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/specialities`, { name: newSpeciality });
+        console.log('New speciality API response:', response.data);
+  
         if (response.data?.success) {
-          specialityId = response.data.data._id; // Get the ID of the newly created speciality
-          setSpecialities([...specialities, response.data.data]); // Add the new speciality to the dropdown
+          specialityId = response.data.data._id;
+          setSpecialities([...specialities, response.data.data]);
+          console.log('New speciality added to dropdown:', response.data.data);
         }
       }
   
-      // Assign the speciality to the service provider
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/service-provider/${serviceProviderId}/assign-speciality`, {
+      console.log('Assigning speciality ID:', specialityId, 'to service provider:', serviceProviderId);
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/service-providers/${serviceProviderId}/assign-speciality`, {
         specialityId,
       });
   
-      // Update the assigned specialities list
       const assignedSpeciality = specialities.find((s) => s._id === specialityId) || { name: newSpeciality };
       setAssignedSpecialities([...assignedSpecialities, assignedSpeciality]);
+      console.log('Assigned specialities updated:', [...assignedSpecialities, assignedSpeciality]);
   
-      // Reset inputs
       setSelectedSpeciality('');
       setNewSpeciality('');
       setError('');
