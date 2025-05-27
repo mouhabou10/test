@@ -29,7 +29,16 @@ router.post('/:id/sync-workers', async (req, res, next) => {
 import { getServiceProviderSpecialities } from '../controllers/serviceProviderController.js';
 import { assignSpecialityToServiceProvider } from '../controllers/serviceProviderController.js';
 
+import { getAssignedSpecialities } from '../controllers/serviceProviderController.js';
+
+
+
+// Route to fetch assigned specialities
+router.get('/:id/specialities', getAssignedSpecialities);
+
+// Route to assign a speciality to a service provider
 router.post('/:id/assign-speciality', assignSpecialityToServiceProvider);
+
 router.get('/:id/specialities', getServiceProviderSpecialities);
 // Your other routes here...
 router.post('/service-providers', createServiceProvider);
