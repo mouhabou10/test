@@ -1,91 +1,74 @@
 import React, { useState } from 'react';
 import './ResultTable.css';
-import WorkerModal from './WorkerModal';
-import axios from 'axios';
 
-const WorkerTable = ({ data, fetchWorkers }) => {
-  const [selectedWorker, setSelectedWorker] = useState(null);
+const ResultTable = ({ data }) => {
+  const [selectedResult, setSelectedResult] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  const handleView = (worker) => {
-    setSelectedWorker(worker);
+  const handleView = (result) => {
+    setSelectedResult(result);
     setShowModal(true);
   };
 
-  const handleClose = () => {
+  const handleCloseModal = () => {
     setShowModal(false);
-    setSelectedWorker(null);
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:3000/api/v1/workers/${id}`);
-      fetchWorkers();
-      handleClose();
-    } catch (err) {
-      console.error('Failed to delete worker:', err);
-    }
-  };
-
-  const handleUpdate = async (id, updatedData) => {
-    try {
-      await axios.put(`http://localhost:3000/api/v1/workers/${id}`, updatedData);
-      fetchWorkers();
-      handleClose();
-    } catch (err) {
-      console.error('Failed to update worker:', err);
-    }
+    setSelectedResult(null);
   };
 
   return (
-    <div className="card-container">
-      <div className="table-container">
-        <table className="worker-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Full Name</th>
-              <th>Phone Number</th>
-              <th>Role</th>
-              <th>Email</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data && data.length > 0 ? (
-              data.map((item) => (
-                <tr key={item._id}>
-                  <td>{item._id}</td>
-                  <td>{item.fullName}</td>
-                  <td>{item.phoneNumber}</td>
-                  <td>{item.role}</td>
-                  <td>{item.email}</td>
-                  <td>
-                    <button className="action-btn" onClick={() => handleView(item)}>
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" className="no-data">No data available</td>
+    <div className="table-container">
+      <table className="result-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data && data.length > 0 ? (
+            data.map((item) => (
+              <tr key={item._id}>
+                <td>{item._id}</td>
+                <td>{item.title || 'N/A'}</td>
+                <td>{item.type}</td>
+                <td>
+                  <button className="action-btn view" onClick={() => handleView(item)}>
+                    View
+                  </button>
+                  <a
+                    href={`http://localhost:3000/${item.path}`}
+                    download
+                    className="action-btn download"
+                  >
+                    Download
+                  </a>
+                </td>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="4" className="no-data">No results available</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
 
-      {showModal && (
-        <WorkerModal
-          worker={selectedWorker}
-          onClose={handleClose}
-          onDelete={handleDelete}
-          onUpdate={handleUpdate}
-        />
+      {showModal && selectedResult && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Result Details</h2>
+            <p><strong>ID:</strong> {selectedResult._id}</p>
+            <p><strong>Title:</strong> {selectedResult.title || 'N/A'}</p>
+            <p><strong>Type:</strong> {selectedResult.type}</p>
+            <p><strong>Path:</strong> {selectedResult.path}</p>
+            <button className="close-btn" onClick={handleCloseModal}>Close</button>
+          </div>
+        </div>
       )}
     </div>
   );
 };
 
-export default WorkerTable;
+export default ResultTable;

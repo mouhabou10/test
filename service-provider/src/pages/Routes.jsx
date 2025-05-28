@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
 import Login from "./Login.jsx";
 import Signup from "./Signup.jsx";  // Ensure this matches the exported name
 import SignupService from "./signupService.jsx"; 
@@ -24,16 +23,16 @@ function AppRoutes() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/service-signup" element={<SignupService />} />
       {/* Protected Routes */}
-      <Route path="/prescription" element={<ProtectedRoute><Prescription /></ProtectedRoute>} />
-      <Route path="/result" element={<ProtectedRoute><Result /></ProtectedRoute>} />
-      <Route path="/staff-manager" element={<ProtectedRoute><StaffManagement /></ProtectedRoute>} />
-      <Route path="/account-demande-list" element={<ProtectedRoute><AccountDemandeList /></ProtectedRoute>} />
-      <Route path="/Tiket" element={<ProtectedRoute><Tiket /></ProtectedRoute>} />
-      <Route path="/refferalletters" element={<ProtectedRoute><RefferalLetter /></ProtectedRoute>} />
+      <Route path="/prescription" element={<ProtectedRoute ><Prescription /></ProtectedRoute>} />
+      <Route path="/result" element={<ProtectedRoute allowedRoles={[ 'laboAgent', 'radioAgent','consultation agent']}><Result /></ProtectedRoute>} />
+      <Route path="/staff-manager" element={<ProtectedRoute allowedRoles={['manager']}><StaffManagement /></ProtectedRoute>} />
+      <Route path="/account-demande-list" element={<ProtectedRoute allowedRoles={['admin']}><AccountDemandeList /></ProtectedRoute>} />
+      <Route path="/Tiket" element={<ProtectedRoute allowedRoles={['consultation agent',  'laboAgent','radioAgent',]}><Tiket /></ProtectedRoute>} />
+      <Route path="/refferalletters" element={<ProtectedRoute allowedRoles={['consultation agent',  'laboAgent','radioAgent',]}><RefferalLetter /></ProtectedRoute>} />
       <Route path="/setting" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="/contactus" element={<ProtectedRoute><ContactUs /></ProtectedRoute>} />
       <Route path="/aboutus" element={<ProtectedRoute><AboutUs /></ProtectedRoute>} />
-      <Route path="/managespeciality" element={<Speciality />} />
+      <Route path="/managespeciality" element={<ProtectedRoute allowedRoles={['manager']}><Speciality /></ProtectedRoute>} />
     </Routes>
   );
 }

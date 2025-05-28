@@ -34,7 +34,7 @@ const OperationSearchResults = () => {
             }
             
             // Fetch service providers from the API
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/service-provider/search`, {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/service-providers/search//service-providers`, {
               params: {
                 speciality: parsedParams.category,
                 type: parsedParams.type,

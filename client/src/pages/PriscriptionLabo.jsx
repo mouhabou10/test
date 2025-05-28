@@ -104,7 +104,7 @@ const PriscriptionLabo = () => {
     }
     setLoading(true);
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/service-provider/search`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/service-providers/search/service-providers`, {
         params: {
           wilaya: selectedState,
           type: selectedType,
