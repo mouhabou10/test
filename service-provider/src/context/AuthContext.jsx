@@ -8,6 +8,7 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    
     // Restore user from localStorage on app load
     const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
@@ -23,6 +24,8 @@ const AuthProvider = ({ children }) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", userData.token);
+    console.log("User role:", user?.role);  // optional chaining to avoid crash
+
     axios.defaults.headers.common["Authorization"] = `Bearer ${userData.token}`;
   };
 

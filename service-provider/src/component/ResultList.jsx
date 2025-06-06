@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ResultTable from './ResultTable.jsx';
 import './ResultTable.css';
+
 const ResultList = () => {
   const [results, setResults] = useState([]);
   const [newResult, setNewResult] = useState({
@@ -14,125 +15,129 @@ const ResultList = () => {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Add authentication check
+  // Authentication check
   const checkAuth = () => {
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
-    
     if (!token || !userStr) {
-      throw new Error('Please log in to continue');
+      throw new Error('Please log in');
     }
-
     const user = JSON.parse(userStr);
-    if (!user?._id) {
+    if (!user || !user.userId) {  // <-- check userId instead of _id
+      console.warn('User data invalid:', user);
       throw new Error('Invalid user data');
     }
-
     return { token, user };
   };
-
+  
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const { token } = checkAuth();
-        console.log('Fetching results with token:', token);
-
-        const resultsRes = await axios.get('http://localhost:3000/api/v1/documents', {
-          headers: {
-            'Authorization': `Bearer ${token}`
+        const { token, user } = checkAuth();
+  
+        // Assuming serviceProviderId is available in user data or somewhere
+        const serviceProviderId = user.serviceProviderId || user.userId; 
+        // Adjust the above based on where you get the serviceProviderId
+  
+        if (!serviceProviderId) {
+          setError('Service provider ID not found');
+          return;
+        }
+  
+        const resultsRes = await axios.get(
+          `http://localhost:3000/api/v1/documents/documents/filter`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            params: {
+              serviceProvider: user.serviceProviderId,
+              type: 'Résultat',
+            }
           }
-        });
-        const filtered = resultsRes.data.data.filter(doc => doc.type === 'Résultat');
-        setResults(filtered);
+        );
+  
+        setResults(resultsRes.data.data);
+  
       } catch (error) {
         console.error('Failed to fetch results:', error);
         setError(error.message || 'Failed to load results');
       }
     };
-
+  
     fetchResults();
   }, []);
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     setIsLoading(true);
-
+  
     try {
-      // Get authenticated user data
       const { token, user } = checkAuth();
-      console.log('Authenticated user:', { id: user._id, token: token.slice(0, 10) + '...' });
-
-      // Validate form
+      console.log('Authenticated user:', { id: user.userId, token: token.slice(0, 10) + '...' });
+  
       if (!newResult.title?.trim()) {
         throw new Error('Title is required');
       }
-
       if (!newResult.file) {
         throw new Error('File is required');
       }
-
       if (!newResult.clientId?.trim()) {
         throw new Error('Client ID is required');
       }
-
-      // Create FormData
+  
       const formData = new FormData();
       formData.append('title', newResult.title.trim());
       formData.append('type', 'Résultat');
       formData.append('file', newResult.file);
       formData.append('client', newResult.clientId.trim());
-      formData.append('createdBy', user._id);
-
-      // Log request data
+      formData.append('createdBy', user.userId);  // <-- FIXED HERE
+  
       console.log('Sending request:', {
         title: newResult.title.trim(),
         type: 'Résultat',
         client: newResult.clientId.trim(),
-        createdBy: user._id,
+        createdBy: user.userId,  // <-- FIXED HERE
         fileName: newResult.file.name
       });
-
-      // Send request
+  
       const response = await axios.post(
         'http://localhost:3000/api/v1/documents',
         formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
-
+  
       console.log('Response:', response.data);
-
-      // Update UI
+  
       setResults(prev => [...prev, response.data.data]);
       setNewResult({ title: '', type: 'Résultat', file: null, clientId: '' });
       setSuccess('Result added successfully!');
-      
-      // Reset file input
       document.getElementById('file').value = '';
-
+  
     } catch (error) {
       console.error('Error:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status
       });
-
+  
       setError(
-        error.response?.data?.message || 
-        error.message || 
+        error.response?.data?.message ||
+        error.message ||
         'Failed to add result'
       );
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   return (
     <div className="card-container">
       <h2>Results</h2>
@@ -175,8 +180,8 @@ const ResultList = () => {
           />
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="submit-btn"
           disabled={isLoading}
         >
@@ -191,4 +196,5 @@ const ResultList = () => {
     </div>
   );
 };
+
 export default ResultList;

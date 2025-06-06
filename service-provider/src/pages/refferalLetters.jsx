@@ -8,7 +8,7 @@ const RefferalLetter = () => {
   return (
     <div>
     <Header/>
-    <p className='perton'>Resualt dashbord</p>
+    <p className='perton'>refferal Letters dashbord</p>
     <ReferralLetterList/>
   
     </div>

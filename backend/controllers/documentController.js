@@ -76,6 +76,31 @@ export const deleteDocument = async (req, res, next) => {
     next(error);
   }
 };
+// ─── GET DOCUMENTS BY SERVICE PROVIDER ID AND DOCUMENT TYPE ───────────────
+export const getDocumentsByServiceProviderAndType = async (req, res, next) => {
+  try {
+    // Example: /documents/filter?serviceProvider=abc123&type=Ordonnance
+    const { serviceProvider, type } = req.query;
+
+    if (!serviceProvider) {
+      return res.status(400).json({ success: false, message: 'serviceProvider query parameter is required' });
+    }
+    if (!type) {
+      return res.status(400).json({ success: false, message: 'type query parameter is required' });
+    }
+
+    const documents = await Document.find({
+      serviceProvider: serviceProvider,
+      type: type
+    })
+      .populate('client', 'name')
+      .populate('createdBy', 'name');
+
+    res.status(200).json({ success: true, data: documents });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // ─── GET CLIENT DOCUMENTS ────────────────────────────────────────────────────
 export const getClientDocuments = async (req, res, next) => {

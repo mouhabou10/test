@@ -35,7 +35,18 @@ const ConsultationTicket = () => {
   const isCreatingTicketRef = useRef(false);
   const hasCheckedDatabaseRef = useRef(false);
   const requestIdRef = useRef(`${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
-
+  useEffect(() => {
+    if (!ticketData) return;
+  
+    const waitingCount = ticketData.waitingCount;
+  
+    if (isNaN(waitingCount) || waitingCount === 0) {
+      alert("🟢 Votre tour est arrivé !");
+    } else if (waitingCount > 0 && waitingCount < 5) {
+      alert("🟡 Approchez-vous, votre tour est proche !");
+    }
+  }, [ticketData]);
+  
   useEffect(() => {
     console.log('=== ConsultationTicket Component Mounted ===');
     console.log('Ticket ID from URL:', id);

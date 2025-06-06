@@ -1,0 +1,72 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  
+  thead {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  th, td {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  button {
+    padding: 0.3rem 0.7rem;
+    margin-right: 0.5rem;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+  }
+  
+  .close-btn {
+    margin-top: 1rem;
+    background-color: #dc3545;
+  }
+  
+  .close-btn:hover {
+    background-color: #a71d2a;
+  }
+  
+  .download-link {
+    display: inline-block;
+    margin-top: 1rem;
+    color: #28a745;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  

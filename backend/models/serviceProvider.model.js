@@ -75,7 +75,11 @@ const serviceProviderSchema = new mongoose.Schema(
         }
       }
     ],
-
+    serviceProvider: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ServiceProvider',
+     // or false, depending on your app logic
+    },
     workers: [
       {
         type: mongoose.Schema.Types.ObjectId,

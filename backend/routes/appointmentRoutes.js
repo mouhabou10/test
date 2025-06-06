@@ -1,6 +1,7 @@
 // routes/appointmentRoutes.js
 import { Router } from 'express';
-import { createAppointment, getAllAppointments, getPendingAppointmentsForClient, getAllPendingAppointments, createTestAppointment, getRadioAppointments, updateAppointmentStatus, getAllAppointmentsForClient } from '../controllers/appointmentController.js';
+import { createAppointment, getAllAppointments, getPendingAppointmentsForClient,  updateAppointmentDate,
+    getAllPendingAppointments, createTestAppointment, getRadioAppointments, updateAppointmentStatus, getAllAppointmentsForClient } from '../controllers/appointmentController.js';
 import { isAuthenticated } from '../middlewares/auth.js';
 
 const appointmentRouter = Router();
@@ -28,5 +29,6 @@ appointmentRouter.get('/radio', getRadioAppointments);
 
 // Update appointment status
 appointmentRouter.put('/:appointmentId/status', updateAppointmentStatus);
+appointmentRouter.put('/appointments/:appointmentId/date', updateAppointmentDate);
 
 export default appointmentRouter;

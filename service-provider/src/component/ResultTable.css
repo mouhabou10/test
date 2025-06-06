@@ -383,6 +383,9 @@
 .submit-btn:hover {
   background-color: #003d99;
 }
+.bakc {
+  background-color: #f0f0f0; /* Light grey */
+}
 
 .error-message {
   color: red;

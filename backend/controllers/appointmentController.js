@@ -301,13 +301,50 @@ export const getAllAppointmentsForClient = async (req, res, next) => {
     next(error);
   }
 };
+// Update only the appointment date
+export const updateAppointmentDate = async (req, res, next) => {
+  try {
+    const { appointmentId } = req.params;
+    const { newDate } = req.body;
+
+    if (!newDate || isNaN(new Date(newDate).getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: 'A valid new appointment date is required'
+      });
+    }
+
+    const updatedAppointment = await Appointment.findByIdAndUpdate(
+      appointmentId,
+      { appointmentDate: new Date(newDate) },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedAppointment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Appointment date updated successfully',
+      data: updatedAppointment
+    });
+  } catch (error) {
+    console.error('Error updating appointment date:', error);
+    next(error);
+  }
+};
 
 // Update appointment status when service provider uploads document
+// Update appointment status and optionally appointment date
 export const updateAppointmentStatus = async (req, res, next) => {
   try {
     const { appointmentId } = req.params;
-    const { status, documentId, notes } = req.body;
-    
+    const { status, documentId, notes, appointmentDate } = req.body;
+
     // Validate appointment ID
     if (!appointmentId) {
       return res.status(400).json({
@@ -315,7 +352,7 @@ export const updateAppointmentStatus = async (req, res, next) => {
         message: 'Appointment ID is required'
       });
     }
-    
+
     // Validate status
     if (!status || !['accepted', 'cancelled'].includes(status)) {
       return res.status(400).json({
@@ -323,21 +360,20 @@ export const updateAppointmentStatus = async (req, res, next) => {
         message: 'Valid status (accepted or cancelled) is required'
       });
     }
-    
+
     // Find the appointment
     const appointment = await Appointment.findById(appointmentId);
-    
+
     if (!appointment) {
       return res.status(404).json({
         success: false,
         message: 'Appointment not found'
       });
     }
-    
-    // Check if user is authorized to update this appointment
-    // Only the service provider associated with the appointment or an admin can update it
+
+    // Authorization check: only the associated service provider or admin can update
     if (req.user && req.user.role !== 'admin') {
-      if (!req.user.serviceProvider || 
+      if (!req.user.serviceProvider ||
           appointment.serviceProviderId.toString() !== req.user.serviceProvider.toString()) {
         return res.status(403).json({
           success: false,
@@ -345,29 +381,40 @@ export const updateAppointmentStatus = async (req, res, next) => {
         });
       }
     }
-    
-    // Update the appointment
+
+    // Prepare update data
     const updateData = { status };
-    
-    // Add document reference if provided
+
+    // Optional fields
     if (documentId) {
       updateData.document = documentId;
     }
-    
-    // Add notes if provided
     if (notes) {
       updateData.notes = notes;
     }
-    
+
+    // Optional: appointment date update
+    if (appointmentDate) {
+      const newDate = new Date(appointmentDate);
+      if (isNaN(newDate.getTime())) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid appointment date format'
+        });
+      }
+      updateData.appointmentDate = newDate;
+    }
+
+    // Perform update
     const updatedAppointment = await Appointment.findByIdAndUpdate(
       appointmentId,
       updateData,
       { new: true, runValidators: true }
     ).populate('serviceProviderId', 'name type email');
-    
+
     res.status(200).json({
       success: true,
-      message: `Appointment status updated to ${status}`,
+      message: `Appointment updated successfully`,
       data: updatedAppointment
     });
   } catch (error) {
@@ -375,3 +422,4 @@ export const updateAppointmentStatus = async (req, res, next) => {
     next(error);
   }
 };
+

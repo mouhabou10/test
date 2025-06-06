@@ -52,7 +52,14 @@ const Signup = () => {
 
   return (
     <div className="rectangle">
-      <div className="formrectangle">
+      <div className="formrectangle"
+       style={{
+         maxHeight: '90vh', // Adjust as needed
+         overflowY: 'auto',
+         width: '100%',
+         display: 'flex',
+         justifyContent: 'center'
+       }}>
         <form onSubmit={handleSubmit} className="login-form" style={{ width: '320px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div className="div-but">
             <h2>Create Account</h2>

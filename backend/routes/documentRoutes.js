@@ -5,7 +5,7 @@ import {
   getAllDocuments,
   getDocumentById,
   deleteDocument,
-  getClientDocuments
+  getClientDocuments,getDocumentsByServiceProviderAndType 
 } from '../controllers/documentController.js';
 
 import upload from '../middlewares/upload.js'; // 👈 Import multer middleware
@@ -20,6 +20,7 @@ documentRouter.post('/', upload.single('file'), createDocument);
 
 // Get all documents
 documentRouter.get('/', getAllDocuments);
+documentRouter.get('/documents/filter', getDocumentsByServiceProviderAndType);
 
 // Get documents for a specific client
 documentRouter.get('/client/:clientId', getClientDocuments);

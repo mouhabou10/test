@@ -1,264 +1,268 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import './ResultTable.css';
-import { format } from 'date-fns';
+import { AuthContext } from "../context/AuthContext.jsx";
 
-const PrescriptionTable = ({ filters = {} }) => {
+const PrescriptionTable = () => {
+
+  const { user } = useContext(AuthContext);
+
   const [prescriptions, setPrescriptions] = useState([]);
-  const [filteredPrescriptions, setFilteredPrescriptions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedPrescription, setSelectedPrescription] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [statusData, setStatusData] = useState({});
-  const [appointment, setAppointment] = useState('');
-  const [rejectionReason, setRejectionReason] = useState('');
-  const [showAcceptField, setShowAcceptField] = useState(false);
-  const [showRejectField, setShowRejectField] = useState(false);
-  
+
+  const [acceptDate, setAcceptDate] = useState('');
+  const [rejectReason, setRejectReason] = useState('');
+  const [actionType, setActionType] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [document, setDocument] = useState(null);
+
   useEffect(() => {
-    const fetchRadioAppointments = async () => {
+    const fetchPrescriptions = async () => {
+      setLoading(true);
       try {
-        // Fetch all radio appointments from the API
-        const res = await axios.get('http://localhost:3000/api/v1/appointments/radio');
-        setPrescriptions(res.data.data);
-        setFilteredPrescriptions(res.data.data);
+        const response = await axios.get('http://localhost:3000/api/v1/appointments');
+        const allAppointments = response.data.data;
+
+        console.log("User role:", user.role);
+        console.log("User serviceProviderId:", user.serviceProviderId);
+
+        // Filtering logic based on role and serviceProviderId
+        let filteredData = allAppointments.filter((appt) => {
+          const belongsToServiceProvider =
+            appt.serviceProviderId === user.serviceProviderId;
+
+          if (!belongsToServiceProvider) return false;
+
+          if (user.role === 'radioAgent') {
+            return appt.appointmentType === 'radio';
+          } else if (user.role === 'laboAgent') {
+            return appt.appointmentType === 'labo';
+          } else {
+            return appt.document?.type === 'Ordonnance';
+          }
+        });
+
+        setPrescriptions(filteredData);
       } catch (error) {
-        console.error('Failed to fetch radio appointments:', error);
+        console.error('Failed to fetch prescriptions:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchRadioAppointments();
-  }, []);
-  
-  // Apply filters when filters change
-  useEffect(() => {
-    if (!filters || Object.keys(filters).length === 0) {
-      setFilteredPrescriptions(prescriptions);
-      return;
-    }
-    
-    const { searchQuery, statusFilter, dateFilter } = filters;
-    
-    let filtered = [...prescriptions];
-    
-    // Filter by search query (patient name/email)
-    if (searchQuery && searchQuery.trim() !== '') {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(item => {
-        const clientName = item.clientId?.name?.toLowerCase() || '';
-        const clientEmail = item.clientId?.email?.toLowerCase() || '';
-        return clientName.includes(query) || clientEmail.includes(query);
-      });
-    }
-    
-    // Filter by status
-    if (statusFilter && statusFilter !== 'all') {
-      filtered = filtered.filter(item => item.status === statusFilter);
-    }
-    
-    // Filter by date
-    if (dateFilter) {
-      const filterDate = new Date(dateFilter).setHours(0, 0, 0, 0);
-      filtered = filtered.filter(item => {
-        if (!item.appointmentDate) return false;
-        const appointmentDate = new Date(item.appointmentDate).setHours(0, 0, 0, 0);
-        return appointmentDate === filterDate;
-      });
-    }
-    
-    setFilteredPrescriptions(filtered);
-  }, [filters, prescriptions]);
+    fetchPrescriptions();
+  }, [user]);
 
-  const handleView = (prescription) => {
+  const handleView = async (prescription) => {
     setSelectedPrescription(prescription);
     setShowModal(true);
-    setShowAcceptField(false);
-    setShowRejectField(false);
+    setAcceptDate('');
+    setRejectReason('');
+    setActionType(null);
+    setSubmitting(false);
+    setDocument(null);
+
+    const docId =
+      typeof prescription.document === 'string'
+        ? prescription.document
+        : prescription.document?._id;
+
+    if (docId) {
+      try {
+        const res = await axios.get(`http://localhost:3000/api/v1/documents/${docId}`);
+        setDocument(res.data.data);
+      } catch (error) {
+        console.error("Error fetching document:", error);
+      }
+    }
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedPrescription(null);
-    setAppointment('');
-    setRejectionReason('');
+    setAcceptDate('');
+    setRejectReason('');
+    setActionType(null);
+    setSubmitting(false);
   };
 
-  const handleAccept = () => {
-    setShowAcceptField(true);
-    setShowRejectField(false);
-  };
+  const handleAcceptSubmit = async () => {
+    if (!acceptDate) {
+      alert('Please select a consultation date');
+      return;
+    }
+    setSubmitting(true);
 
-  const handleReject = () => {
-    setShowRejectField(true);
-    setShowAcceptField(false);
-  };
-
-  const confirmAccept = async () => {
     try {
-      // Update appointment status to 'accepted' in the backend
-      await axios.put(`http://localhost:3000/api/v1/appointments/${selectedPrescription._id}/status`, {
-        status: 'accepted',
-        notes: appointment
-      });
-      
-      setStatusData(prev => ({
-        ...prev,
-        [selectedPrescription._id]: { status: 'Accepted', detail: appointment }
-      }));
-      
-      // Refresh appointments after update
-      const res = await axios.get('http://localhost:3000/api/v1/appointments/radio');
-      setPrescriptions(res.data.data);
-      setFilteredPrescriptions(res.data.data);
-      
+      const formattedDate = new Date(acceptDate).toISOString();
+      await axios.put(
+        `http://localhost:3000/api/v1/appointments/${selectedPrescription._id}/status`,
+        {
+          status: 'accepted',
+          appointmentDate: formattedDate,
+        }
+      );
+
+      alert('Prescription accepted successfully');
+      setPrescriptions((prev) =>
+        prev.map((p) =>
+          p._id === selectedPrescription._id
+            ? { ...p, status: 'accepted', appointmentDate: formattedDate }
+            : p
+        )
+      );
       handleCloseModal();
     } catch (error) {
-      console.error('Failed to accept appointment:', error);
-      alert('Failed to update appointment status');
+      console.error('Error updating prescription:', error);
+      alert('Failed to update prescription');
+      setSubmitting(false);
     }
   };
 
-  const confirmReject = async () => {
+  const handleRejectSubmit = async () => {
+    if (!rejectReason.trim()) {
+      alert('Please enter a reason for rejection');
+      return;
+    }
+    setSubmitting(true);
+
     try {
-      // Update appointment status to 'cancelled' in the backend
-      await axios.put(`http://localhost:3000/api/v1/appointments/${selectedPrescription._id}/status`, {
-        status: 'cancelled',
-        notes: rejectionReason
-      });
-      
-      setStatusData(prev => ({
-        ...prev,
-        [selectedPrescription._id]: { status: 'Rejected', detail: rejectionReason }
-      }));
-      
-      // Refresh appointments after update
-      const res = await axios.get('http://localhost:3000/api/v1/appointments/radio');
-      setPrescriptions(res.data.data);
-      setFilteredPrescriptions(res.data.data);
-      
+      await axios.put(
+        `http://localhost:3000/api/v1/appointments/${selectedPrescription._id}/status`,
+        {
+          status: 'rejected',
+          rejectionReason: rejectReason.trim(),
+        }
+      );
+
+      alert('Prescription rejected successfully');
+      setPrescriptions((prev) =>
+        prev.map((p) =>
+          p._id === selectedPrescription._id
+            ? { ...p, status: 'rejected', rejectionReason: rejectReason.trim() }
+            : p
+        )
+      );
       handleCloseModal();
     } catch (error) {
-      console.error('Failed to reject appointment:', error);
-      alert('Failed to update appointment status');
+      console.error('Error updating prescription:', error);
+      alert('Failed to update prescription');
+      setSubmitting(false);
     }
   };
 
-  const getStatusDisplay = (appointment) => {
-    // First check our local state for any updates we've made
-    if (statusData[appointment._id]) {
-      return `${statusData[appointment._id].status} ${statusData[appointment._id].detail ? `: ${statusData[appointment._id].detail}` : ''}`;
-    }
-    
-    // Otherwise use the appointment status from the database
-    const statusMap = {
-      'pending': 'Pending',
-      'accepted': 'Accepted',
-      'cancelled': 'Rejected',
-      'completed': 'Completed'
-    };
-    
-    return statusMap[appointment.status] || 'Pending';
-  };
+  if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="card-container">
-      <div className="table-container">
-        <table className="patient-table">
+    <div className="back">
+      <h2>Prescriptions</h2>
+      {prescriptions.length === 0 ? (
+        <p>No prescriptions found.</p>
+      ) : (
+        <table>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Provider</th>
-              <th>Client</th>
+              <th>Client ID</th>
+              <th>Type</th>
               <th>Date</th>
-              <th>Prescription</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {filteredPrescriptions.length > 0 ? (
-              filteredPrescriptions.map((item) => (
-                <tr key={item._id}>
-                  <td>{item._id}</td>
-                  <td>{item.serviceProviderId?.name || 'N/A'}</td>
-                  <td>{item.clientId?.name || item.clientId?.email || 'N/A'}</td>
-                  <td>{item.appointmentDate ? format(new Date(item.appointmentDate), 'MMM dd, yyyy') : 'Not set'}</td>
-                  <td>
-                    {item.document ? (
-                      <a
-                        href={`http://localhost:3000/${item.document.path}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        View Prescription
-                      </a>
-                    ) : 'No document'}
-                  </td>
-                  <td>{getStatusDisplay(item)}</td>
-                  <td>
-                    <button className="action-btn" onClick={() => handleView(item)}>View</button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="no-data">No data available</td>
+            {prescriptions.map((p) => (
+              <tr key={p._id}>
+                <td>{p.clientId}</td>
+                <td>{p.appointmentType}</td>
+                <td>{p.appointmentDate ? new Date(p.appointmentDate).toLocaleString() : 'N/A'}</td>
+                <td>{p.status}</td>
+                <td>
+                  <button onClick={() => handleView(p)} disabled={submitting}>View</button>
+                </td>
               </tr>
-            )}
+            ))}
           </tbody>
         </table>
-      </div>
+      )}
 
-      {/* Modal */}
       {showModal && selectedPrescription && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h2>Radio Appointment Details</h2>
+            <h3>Prescription Details</h3>
             <p><strong>ID:</strong> {selectedPrescription._id}</p>
+            <p><strong>Client:</strong> {selectedPrescription.clientId}</p>
             <p><strong>Type:</strong> {selectedPrescription.appointmentType}</p>
-            <p><strong>Provider:</strong> {selectedPrescription.serviceProviderId?.name || 'N/A'}</p>
-            <p><strong>Client:</strong> {selectedPrescription.clientId?.name || selectedPrescription.clientId?.email || 'N/A'}</p>
-            <p><strong>Date:</strong> {selectedPrescription.appointmentDate ? format(new Date(selectedPrescription.appointmentDate), 'MMM dd, yyyy HH:mm') : 'Not set'}</p>
-            <p><strong>Status:</strong> {getStatusDisplay(selectedPrescription)}</p>
+            <p><strong>Date:</strong> {selectedPrescription.appointmentDate ? new Date(selectedPrescription.appointmentDate).toLocaleString() : 'Not set'}</p>
+            <p><strong>Status:</strong> {selectedPrescription.status}</p>
             <p><strong>Notes:</strong> {selectedPrescription.notes || 'No notes'}</p>
-            {selectedPrescription.document && (
+
+            {document ? (
               <a
-                href={`http://localhost:3000/${selectedPrescription.document.path}`}
-                download
-                className="download-btn"
+                href={`http://localhost:3000/${document.path}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="download-link"
               >
-                Download Prescription
+                Download Prescription File
               </a>
+            ) : (
+              <p>No document available.</p>
             )}
 
-            <div className="modal-actions">
-              <button className="accept-btn" onClick={handleAccept}>Accept</button>
-              <button className="reject-btn" onClick={handleReject}>Reject</button>
-              <button className="close-btn" onClick={handleCloseModal}>Cancel</button>
+            <div style={{ marginTop: '1rem' }}>
+              {!actionType && (
+                <>
+                  <button onClick={() => setActionType('accept')} disabled={submitting}>Accept</button>
+                  <button onClick={() => setActionType('reject')} disabled={submitting}>Reject</button>
+                </>
+              )}
+
+              {actionType === 'accept' && (
+                <div style={{ marginTop: '1rem' }}>
+                  <label>
+                    Consultation Date:{" "}
+                    <input
+                      type="date"
+                      value={acceptDate}
+                      onChange={(e) => setAcceptDate(e.target.value)}
+                      disabled={submitting}
+                    />
+                  </label>
+                  <button onClick={handleAcceptSubmit} disabled={submitting} style={{ marginLeft: '0.5rem' }}>
+                    Submit
+                  </button>
+                  <button onClick={() => setActionType(null)} disabled={submitting} style={{ marginLeft: '0.5rem' }}>
+                    Cancel
+                  </button>
+                </div>
+              )}
+
+              {actionType === 'reject' && (
+                <div style={{ marginTop: '1rem' }}>
+                  <label>
+                    Reason for Rejection:{" "}
+                    <input
+                      type="text"
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                      disabled={submitting}
+                    />
+                  </label>
+                  <button onClick={handleRejectSubmit} disabled={submitting} style={{ marginLeft: '0.5rem' }}>
+                    Submit
+                  </button>
+                  <button onClick={() => setActionType(null)} disabled={submitting} style={{ marginLeft: '0.5rem' }}>
+                    Cancel
+                  </button>
+                </div>
+              )}
             </div>
 
-            {showAcceptField && (
-              <div className="modal-input-group">
-                <input
-                  type="text"
-                  placeholder="Enter appointment date/time"
-                  value={appointment}
-                  onChange={(e) => setAppointment(e.target.value)}
-                />
-                <button className="confirm-btn" onClick={confirmAccept}>Confirm Accept</button>
-              </div>
-            )}
-
-            {showRejectField && (
-              <div className="modal-input-group">
-                <input
-                  type="text"
-                  placeholder="Enter rejection reason"
-                  value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
-                />
-                <button className="confirm-btn" onClick={confirmReject}>Confirm Reject</button>
-              </div>
-            )}
+            <button className="close-btn" onClick={handleCloseModal} disabled={submitting} style={{ marginTop: '1rem' }}>
+              Close
+            </button>
           </div>
         </div>
       )}

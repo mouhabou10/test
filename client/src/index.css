@@ -9,6 +9,17 @@ body{
   
   
 }
+.btn-login {
+  display: block; /* Make sure it's visible */
+  padding: 10px 20px;
+  background-color: #0052E0;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
 /* ====================================== header ===========================*/  
 .nav-client {
   background-color: #ffffff;
@@ -1445,11 +1456,16 @@ body{
   display: flex;
   flex-direction: column;
   width: 50%;
+  flex: 1;
+  overflow-y: auto;
+  box-sizing: border-box;
+
   padding: 3rem;
   justify-content: center;
   align-items: center;
   background: rgba(255, 255, 255, 0.95);
   position: relative;
+  overflow-y: auto;       /* vertical scroll */
   overflow: hidden;
   backdrop-filter: blur(10px);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
@@ -1476,6 +1492,10 @@ body{
 /* Sign in rectangle styling */
 .signinrectangle23 {
   display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   flex-direction: column;
   width: 50%;
   background: linear-gradient(135deg, #0052E0 0%, #0167FB 100%);
